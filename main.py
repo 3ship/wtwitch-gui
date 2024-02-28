@@ -10,11 +10,9 @@ def check_status():
     online_streamers = re.findall('\[92m(\S*)\x1b', wtwitch_c.stdout)
     return online_streamers
 
-#test_stream = subprocess.run(['wtwitch', 'w', 'sips_'])
-
 #Create the window
 root = tk.Tk()
-frm = ttk.Frame(root, padding=20)
+frm = ttk.Frame(root, padding=10)
 frm.grid()
 ttk.Label(frm, text="Online: ").grid(column=0, row=0)
 online = check_status()
@@ -24,5 +22,3 @@ for index, streamer in enumerate(online):
                    command=lambda s=streamer: subprocess.run(['wtwitch', 'w', s]))
     b.grid(column=0, row=index+1)
 root.tk.mainloop()
-
-# How to create multiple buttons from variable
