@@ -14,14 +14,15 @@ def check_status():
 
 #Create the window
 root = tk.Tk()
-frm = ttk.Frame(root, padding=10)
+frm = ttk.Frame(root, padding=20)
 frm.grid()
 ttk.Label(frm, text="Online: ").grid(column=0, row=0)
 online = check_status()
-print(online)
-for streamer in online:
-    b = ttk.Button(frm, text=streamer, command=lambda: subprocess.run(['wtwitch', 'w', streamer])).grid(column=0, row=online.index(streamer)+1)
-    b.pack()
+for index, streamer in enumerate(online):
+    b = ttk.Button(frm,
+                   text=streamer,
+                   command=lambda s=streamer: subprocess.run(['wtwitch', 'w', s]))
+    b.grid(column=0, row=index+1)
 root.tk.mainloop()
 
 # How to create multiple buttons from variable
