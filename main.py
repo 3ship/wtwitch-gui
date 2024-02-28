@@ -20,7 +20,8 @@ ttk.Label(frm, text="Online: ").grid(column=0, row=0)
 online = check_status()
 print(online)
 for streamer in online:
-    ttk.Button(frm, text=streamer, command=lambda: subprocess.run(['wtwitch', 'w', streamer])).grid(column=0, row=online.index(streamer)+1)
+    b = ttk.Button(frm, text=streamer, command=lambda: subprocess.run(['wtwitch', 'w', streamer])).grid(column=0, row=online.index(streamer)+1)
+    b.pack()
 root.tk.mainloop()
 
 # How to create multiple buttons from variable
