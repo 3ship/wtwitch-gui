@@ -7,9 +7,13 @@ def check_status():
     #online_status = open('online_status.txt', 'w')
     wtwitch_c = subprocess.run(['wtwitch', 'c'],
                                capture_output=True, text=True)
-    offline_streamers = re.findall('\[90m(\S*)\x1b', wtwitch_c.stdout)
+    off_streamers1 = re.findall('\[90m(\S*)\x1b', wtwitch_c.stdout)
+    off_streamers2 = re.findall('\[90m(\S*),', wtwitch_c.stdout)
+    offline_streamers = off_streamers1 + off_streamers2
+    offline_streamers.sort()
     online_streamers = re.findall('\[92m(\S*)\x1b', wtwitch_c.stdout)
     return online_streamers, offline_streamers
+#check_status()
 
 def fetch_vods(streamer):
     wtwitch_v = subprocess.run(['wtwitch', 'v', streamer],
@@ -59,6 +63,5 @@ for index, streamer in enumerate(status[1]):
                    command=lambda s=streamer: subprocess.run(['wtwitch', 'v', s, '1']))
     vods.grid(column=1, row=rows)
     rows += 1
-
 
 root.tk.mainloop()
