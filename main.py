@@ -36,17 +36,23 @@ def vod_window(streamer):
     vframe.grid()
     vodno = 1
     for timestamp in vods[0]:
-        l = ttk.Label(vframe, text=timestamp)
+        l = tk.Label(vframe, text=timestamp)
         l.grid(column=0, row=vodno, sticky='w', ipadx=8)
         vodno += 1
     vodno = 1
     for title in vods[1]:
-        b = ttk.Button(vframe,
-                       text=title,
-                       command=lambda s=streamer, vodno=vodno:
-                       subprocess.run(['wtwitch', 'v', s, str(vodno)])
-                       )
-        b.grid(column=1, row=vodno, sticky='w', ipadx=8)
+        l = tk.Label(vframe, text=title)
+        l.grid(column=1, row=vodno, sticky='w', ipadx=8)
+        vodno += 1
+    vodno = 1
+    for title in vods[1]:
+        b = tk.Button(vframe,
+                      text="Watch",
+                      anchor="w",
+                      command=lambda s=streamer, vodno=vodno:
+                      subprocess.run(['wtwitch', 'v', s, str(vodno)])
+                    )
+        b.grid(column=2, row=vodno, sticky='ew', ipadx=8)
         vodno += 1
 
 def main_window(root):
