@@ -66,12 +66,12 @@ def main_window(root):
                       command=lambda s=streamer:
                       subprocess.run(['wtwitch', 'w', s])
                       )
-        watch_b.grid(column=0, row=rows, sticky='ew', ipadx=20)
+        watch_b.grid(column=0, row=rows, sticky='ew', ipadx=25)
         vods = tk.Button(onlineframe,
                          text="Vods",
                          command=lambda s=streamer: vod_window(s)
                          )
-        vods.grid(column=1, row=rows, sticky='e', ipadx=10)
+        vods.grid(column=1, row=rows, sticky='e')
         rows += 1
     
     # Create offline streamer section with VOD buttons:
@@ -82,12 +82,12 @@ def main_window(root):
     offline = check_status()[1]
     for index, streamer in enumerate(status[1]):
         streamer_l = tk.Label(offlineframe, text=streamer)
-        streamer_l.grid(column=0, row=rows, sticky='w', ipadx=34)
+        streamer_l.grid(column=0, row=rows, sticky='w', ipadx=39)
         ovods = tk.Button(offlineframe,
                          text="Vods",
                          command=lambda s=streamer: vod_window(s)
                          )
-        ovods.grid(column=1, row=rows, sticky='e', ipadx=10)
+        ovods.grid(column=1, row=rows, sticky='e')
         rows += 1
 
 # Check the online/offline status once before window initialization:
