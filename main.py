@@ -34,7 +34,8 @@ def vod_window(streamer):
         print('no vods')
         return
     window = tk.Toplevel()
-    vframe = ttk.Frame(window, padding=10)
+    window.title(f"{streamer}'s VODs")
+    vframe = tk.Frame(window, padx=15, pady=15)
     vframe.grid()
     vodno = 1
     for title in vods:
@@ -52,35 +53,40 @@ status = check_status()
 
 # Create the window
 root = tk.Tk()
-root.geometry()
-sframe = ttk.Frame(root, padding=10)
-sframe.grid()
+root.title("wtwitch-gui")
+onlineframe = tk.Frame(root, padx=15, pady=15)
+onlineframe.grid(sticky='e')
+offlineframe = tk.Frame(root, padx=15, pady=15)
+offlineframe.grid()
 
 # Create section of online streamers with 'watch' and last VOD button:
-ttk.Label(sframe, text="Online: ").grid(column=0, row=0)
+on_l = ttk.Label(onlineframe, text="Online: ")
+on_l.grid(column=0, row=0, sticky='w')
 rows = 2
 for index, streamer in enumerate(status[0]):
-    live = ttk.Button(sframe,
+    b = ttk.Button(onlineframe,
                    text=streamer,
-                   command=lambda s=streamer: subprocess.run(['wtwitch', 'w', s]))
-    live.grid(column=0, row=index+1)
-    vods = ttk.Button(sframe,
+                   command=lambda s=streamer:
+                   subprocess.run(['wtwitch', 'w', s])
+                   )
+    b.grid(column=0, row=index+1, sticky='w', ipadx=10)
+    vods = ttk.Button(onlineframe,
                    text="Vods",
                    command=lambda s=streamer: vod_window(s))
-    vods.grid(column=1, row=index+1)
+    vods.grid(column=1, row=index+1, sticky='e')
     rows += 1
 
 # Create offline streamer section with last VOD button:
-ttk.Label(sframe, text="Offline: ").grid(column=0)
+off_l = ttk.Label(offlineframe, text="Offline: ")
+off_l.grid(column=0, sticky='w')
 offline = check_status()[1]
 for index, streamer in enumerate(status[1]):
-    live = ttk.Button(sframe,
-                   text=streamer)
-    live.grid(column=0, row=rows)
-    vods = ttk.Button(sframe,
+    l = ttk.Label(offlineframe, text=streamer)
+    l.grid(column=0, row=rows, sticky='w', ipadx=8)
+    vods = ttk.Button(offlineframe,
                    text="Vods",
                    command=lambda s=streamer: vod_window(s))
-    vods.grid(column=1, row=rows)
+    vods.grid(column=1, row=rows, sticky='e')
     rows += 1
 
 root.tk.mainloop()
