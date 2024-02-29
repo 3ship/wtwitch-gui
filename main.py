@@ -52,15 +52,13 @@ def vod_window(streamer):
 # Check the online/offline status once before window initialization:
 status = check_status()
 
-# Create the window
+# Create the main window
 root = tk.Tk()
 root.title("wtwitch-gui")
+
+# Create section of online streamers with 'watch' and VOD buttons:
 onlineframe = tk.Frame(root, padx=15, pady=15)
 onlineframe.grid(sticky='e')
-offlineframe = tk.Frame(root, padx=15, pady=15)
-offlineframe.grid()
-
-# Create section of online streamers with 'watch' and last VOD button:
 on_l = ttk.Label(onlineframe, text="Online: ")
 on_l.grid(column=0, row=0, sticky='w')
 rows = 2
@@ -77,7 +75,9 @@ for index, streamer in enumerate(status[0]):
     vods.grid(column=1, row=index+1, sticky='e')
     rows += 1
 
-# Create offline streamer section with last VOD button:
+# Create offline streamer section with VOD buttons:
+offlineframe = tk.Frame(root, padx=15, pady=15)
+offlineframe.grid()
 off_l = ttk.Label(offlineframe, text="Offline: ")
 off_l.grid(column=0, sticky='w')
 offline = check_status()[1]
@@ -90,4 +90,4 @@ for index, streamer in enumerate(status[1]):
     vods.grid(column=1, row=rows, sticky='e')
     rows += 1
 
-root.tk.mainloop()
+root.mainloop()
