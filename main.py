@@ -4,7 +4,6 @@ import tkinter as tk
 from tkinter import ttk
 
 def check_status():
-    #online_status = open('online_status.txt', 'w')
     wtwitch_c = subprocess.run(['wtwitch', 'c'],
                                capture_output=True, text=True)
     off_streamers1 = re.findall('\[90m(\S*)\x1b', wtwitch_c.stdout)
@@ -13,24 +12,21 @@ def check_status():
     offline_streamers.sort()
     online_streamers = re.findall('\[92m(\S*)\x1b', wtwitch_c.stdout)
     return online_streamers, offline_streamers
-#check_status()
 
 def fetch_vods(streamer):
     wtwitch_v = subprocess.run(['wtwitch', 'v', streamer],
-                               capture_output=True, text=True)
+                               capture_output=True, text=True
+                               )
     timestamps = re.findall('\[96m\[(\S* \S*)\]', wtwitch_v.stdout)
-    titles = re.findall('\[0m\s(\S.*)\s\x1b\[93m', wtwitch_v.stdout)
-    titles = [title[0:30] for title in titles]
-    """index = 0
-    for title in titles:
-        print(title, timestamps[index])
-        index += 1"""
-    return titles
-#print(fetch_vods("sodapoppin"))
+    titles = re.findall('\]\x1b\[0m\s*(\S.*)\s\x1b\[93m', wtwitch_v.stdout)
+    for i in range(len(titles)):
+        if len(titles[i]) > 70:
+            titles[i] = titles[i][:70] + "..."
+    return timestamps, titles
 
 def vod_window(streamer):
     vods = fetch_vods(streamer)
-    if len(vods) == 0:
+    if len(vods[0]) == 0:
         print('no vods')
         return
     window = tk.Toplevel()
@@ -38,15 +34,20 @@ def vod_window(streamer):
     vframe = tk.Frame(window, padx=15, pady=15)
     vframe.grid()
     vodno = 1
-    for title in vods:
-        live = ttk.Button(vframe,
-                          text=title,
-                          command=lambda
-                            s=streamer,
-                            vodno=vodno:
-                            subprocess.run(['wtwitch', 'v', s, str(vodno)]))
+    for timestamp in vods[0]:
+        l = ttk.Label(vframe, text=timestamp)
+        l.grid(column=0, row=vodno, sticky='w', ipadx=8)
         vodno += 1
-        live.grid(column=0, row=vodno)
+    vodno = 1
+    for title in vods[1]:
+        b = ttk.Button(vframe,
+                       text=title,
+                       command=lambda s=streamer, vodno=vodno:
+                       subprocess.run(['wtwitch', 'v', s, str(vodno)])
+                       )
+        b.grid(column=1, row=vodno, sticky='w', ipadx=8)
+        vodno += 1
+
 
 # Check the online/offline status once before window initialization:
 status = check_status()
