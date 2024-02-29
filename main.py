@@ -26,13 +26,13 @@ def fetch_vods(streamer):
 
 def vod_window(streamer):
     vods = fetch_vods(streamer)
-    if len(vods[0]) == 0:
-        print('no vods')
-        return
     window = tk.Toplevel()
     window.title(f"{streamer}'s VODs")
     vframe = tk.Frame(window, padx=15, pady=15)
     vframe.grid()
+    if len(vods[0]) == 0:
+        warning_l = tk.Label(vframe, text=f"{streamer} has no VODs")
+        warning_l.grid(column=0, row=0, ipadx=10, ipady=10)
     vodno = 1
     for timestamp in vods[0]:
         l = tk.Label(vframe, text=timestamp)
