@@ -49,13 +49,10 @@ def vod_window(streamer):
         b.grid(column=1, row=vodno, sticky='w', ipadx=8)
         vodno += 1
 
-def main_window():
-    # Create the main window
-    root = tk.Tk()
-    root.title("wtwitch-gui")
+def main_window(root):
     # Create section of online streamers with 'watch' and VOD buttons:
     onlineframe = tk.Frame(root, padx=15, pady=15)
-    onlineframe.grid(sticky='e')
+    onlineframe.grid(sticky='ew')
     on_l = ttk.Label(onlineframe, text="Online: ")
     on_l.grid(column=0, row=0, sticky='w')
     rows = 2
@@ -65,30 +62,32 @@ def main_window():
                        command=lambda s=streamer:
                        subprocess.run(['wtwitch', 'w', s])
                        )
-        b.grid(column=0, row=index+1, sticky='w', ipadx=10)
+        b.grid(column=0, row=rows, sticky='ew', ipadx=20)
         vods = ttk.Button(onlineframe,
                        text="Vods",
                        command=lambda s=streamer: vod_window(s))
-        vods.grid(column=1, row=index+1, sticky='e')
+        vods.grid(column=1, row=rows, sticky='e', ipadx=10)
         rows += 1
     
     # Create offline streamer section with VOD buttons:
     offlineframe = tk.Frame(root, padx=15, pady=15)
-    offlineframe.grid()
+    offlineframe.grid(sticky='e')
     off_l = ttk.Label(offlineframe, text="Offline: ")
     off_l.grid(column=0, sticky='w')
     offline = check_status()[1]
     for index, streamer in enumerate(status[1]):
         l = ttk.Label(offlineframe, text=streamer)
-        l.grid(column=0, row=rows, sticky='w', ipadx=8)
+        l.grid(column=0, row=rows, sticky='w', ipadx=20)
         vods = ttk.Button(offlineframe,
                        text="Vods",
                        command=lambda s=streamer: vod_window(s))
-        vods.grid(column=1, row=rows, sticky='e')
+        vods.grid(column=1, row=rows, sticky='e', ipadx=10)
         rows += 1
 
 # Check the online/offline status once before window initialization:
 status = check_status()
-
-main_window()
+# Create the main window
+root = tk.Tk()
+root.title("wtwitch-gui")
+main_window(root)
 root.mainloop()
