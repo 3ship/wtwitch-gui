@@ -35,23 +35,22 @@ def vod_window(streamer):
         warning_l.grid(column=0, row=0, ipadx=10, ipady=10)
     vodno = 1
     for timestamp in vods[0]:
-        l = tk.Label(vframe, text=timestamp)
-        l.grid(column=0, row=vodno, sticky='w', ipadx=8)
+        time_l = tk.Label(vframe, text=timestamp)
+        time_l.grid(column=0, row=vodno, sticky='w', ipadx=8, ipady=5)
         vodno += 1
     vodno = 1
     for title in vods[1]:
-        l = tk.Label(vframe, text=title)
-        l.grid(column=1, row=vodno, sticky='w', ipadx=8)
-        vodno += 1
-    vodno = 1
-    for title in vods[1]:
-        b = tk.Button(vframe,
+        watch_b = tk.Button(vframe,
                       text="Watch",
-                      anchor="w",
                       command=lambda s=streamer, vodno=vodno:
                       subprocess.run(['wtwitch', 'v', s, str(vodno)])
                     )
-        b.grid(column=2, row=vodno, sticky='ew', ipadx=8)
+        watch_b.grid(column=1, row=vodno, ipadx=12)
+        vodno += 1
+    vodno = 1
+    for title in vods[1]:
+        title_l = tk.Label(vframe, text=title)
+        title_l.grid(column=2, row=vodno, sticky='w', ipadx=8)
         vodno += 1
 
 def main_window(root):
@@ -62,12 +61,12 @@ def main_window(root):
     on_l.grid(column=0, row=0, sticky='w')
     rows = 2
     for index, streamer in enumerate(status[0]):
-        b = tk.Button(onlineframe,
+        watch_b = tk.Button(onlineframe,
                       text=streamer,
                       command=lambda s=streamer:
                       subprocess.run(['wtwitch', 'w', s])
                       )
-        b.grid(column=0, row=rows, sticky='ew', ipadx=20)
+        watch_b.grid(column=0, row=rows, sticky='ew', ipadx=20)
         vods = tk.Button(onlineframe,
                          text="Vods",
                          command=lambda s=streamer: vod_window(s)
@@ -82,8 +81,8 @@ def main_window(root):
     off_l.grid(column=0, sticky='w')
     offline = check_status()[1]
     for index, streamer in enumerate(status[1]):
-        l = tk.Label(offlineframe, text=streamer)
-        l.grid(column=0, row=rows, sticky='w', ipadx=34)
+        streamer_l = tk.Label(offlineframe, text=streamer)
+        streamer_l.grid(column=0, row=rows, sticky='w', ipadx=34)
         ovods = tk.Button(offlineframe,
                          text="Vods",
                          command=lambda s=streamer: vod_window(s)
