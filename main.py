@@ -1,6 +1,7 @@
 import subprocess
 import re
 import tkinter as tk
+from tkinter import messagebox
 
 def call_wtwitch():
     wtwitch_c = subprocess.run(['wtwitch', 'c'],
@@ -29,7 +30,7 @@ def fetch_vods(streamer):
     return timestamps, titles
 
 def button_clicked():
-    showinfo(
+    messagebox.showinfo(
         title="Info",
         message="Opening player"
         )
