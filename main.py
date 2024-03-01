@@ -1,6 +1,7 @@
 import subprocess
 import re
 import tkinter as tk
+from tkinter.messagebox import showinfo
 
 def check_status():
     wtwitch_c = subprocess.run(['wtwitch', 'c'],
@@ -24,6 +25,12 @@ def fetch_vods(streamer):
             titles[i] = titles[i][:70] + "..."
     return timestamps, titles
 
+def button_clicked():
+    showinfo(
+        title="Info",
+        message="Opening player"
+        )
+
 def vod_window(streamer):
     vods = fetch_vods(streamer)
     window = tk.Toplevel()
@@ -43,7 +50,8 @@ def vod_window(streamer):
         watch_b = tk.Button(vframe,
                       text="Watch",
                       command=lambda s=streamer, vodno=vodno:
-                      subprocess.run(['wtwitch', 'v', s, str(vodno)])
+                      [subprocess.run(['wtwitch', 'v', s, str(vodno)]),
+                      button_clicked()]
                     )
         watch_b.grid(column=1, row=vodno, ipadx=12)
         vodno += 1
@@ -64,7 +72,8 @@ def main_window(root):
         watch_b = tk.Button(onlineframe,
                       text=streamer,
                       command=lambda s=streamer:
-                      subprocess.run(['wtwitch', 'w', s])
+                      [subprocess.run(['wtwitch', 'w', s]),
+                      button_clicked()]
                       )
         watch_b.grid(column=0, row=rows, sticky='ew', ipadx=25)
         vods = tk.Button(onlineframe,
