@@ -20,8 +20,8 @@ def check_status():
 
 def fetch_vods(streamer):
     wtwitch_v = subprocess.run(['wtwitch', 'v', streamer],
-                               capture_output=True, text=True
-                               )
+                                capture_output=True, text=True
+                                )
     timestamps = re.findall('\[96m\[(\S* \S*)\]', wtwitch_v.stdout)
     titles = re.findall('\]\x1b\[0m\s*(\S.*)\s\x1b\[93m', wtwitch_v.stdout)
     for i in range(len(titles)):
@@ -52,10 +52,9 @@ def vod_window(streamer):
     vodno = 1
     for title in vods[1]:
         watch_b = tk.Button(vframe,
-                      text="Watch",
-                      command=lambda s=streamer, vodno=vodno:
-                      [subprocess.run(['wtwitch', 'v', s, str(vodno)]),
-                      button_clicked()]
+                    text="Watch",
+                    command=lambda s=streamer, vodno=vodno:
+                    [subprocess.run(['wtwitch', 'v', s, str(vodno)])]
                     )
         watch_b.grid(column=1, row=vodno, ipadx=12)
         vodno += 1
@@ -65,74 +64,58 @@ def vod_window(streamer):
         title_l.grid(column=2, row=vodno, sticky='w', ipadx=8)
         vodno += 1
 
-def main_window(root):
-    mainframe = tk.Frame(root)
-    mainframe.pack(ipady=10, ipadx=10)
-    # Create a refresh button:
-    refresh = tk.Button(mainframe,
+def refresh_button(parent):
+    refresh = tk.Button(parent,
                         text="Refresh",
                         command=lambda root=root:
                                     [check_status(),
                                     main_window(root),
-                                    mainframe.pack_forget(),
-                                    mainframe.destroy()]
+                                    parent.pack_forget(),
+                                    parent.destroy()]
                         )
-    refresh.pack(fill='x', side='top')
-    #
+    refresh.pack(fill='x', side='top', pady=5)
+
+def section_label(parent, text):
+    label = tk.Label(parent, text=text)
+    label.pack(ipady=5)
+
+def streamer_buttons(parent, section, state):
+    streamers = tk.Frame(parent, pady=10)
+    streamers.pack(side='left')
+    for streamer in status[section]:
+        watch_b = tk.Button(streamers,
+                            text=streamer,
+                            justify='left',
+                            state=state,
+                            command=lambda s=streamer:
+                            [subprocess.run(['wtwitch', 'w', s])]
+                            )
+        watch_b.pack(fill='x', side='top', padx=5)
+    # VOD Buttons:
+    vods = tk.Frame(parent, pady=10)
+    vods.pack(side='right')
+    for streamer in status[section]:
+        vod_b = tk.Button(vods,
+                        text="Vods",
+                        justify='right',
+                        command=lambda s=streamer: vod_window(s)
+                        )
+        vod_b.pack(fill='x', side='top', padx=5)
+
+def main_window(root):
+    mainframe = tk.Frame(root)
+    mainframe.pack(fill='x')
+    refresh_button(mainframe)
     # Create section of online streamers with 'watch' and VOD buttons:
-    #
     topframe = tk.Frame(mainframe)
     topframe.pack(side='top', fill='x')
-    # Label:
-    on_l = tk.Label(topframe, text="Online: ")
-    on_l.pack(ipady=5)
-    # Online streamer buttons:
-    online_streamers = tk.Frame(topframe, padx=10, pady=10)
-    online_streamers.pack(side='left')
-    for streamer in status[0]:
-        watch_b = tk.Button(online_streamers,
-                      text=streamer,
-                      command=lambda s=streamer:
-                      [subprocess.run(['wtwitch', 'w', s]),
-                      button_clicked()]
-                      )
-        watch_b.pack(fill='x', side='top')
-    # VOD Buttons for online streamers:
-    online_vods = tk.Frame(topframe, padx=10, pady=10)
-    online_vods.pack(side='right')
-    for streamer in status[0]:
-        vods = tk.Button(online_vods,
-                        text="Vods",
-                        command=lambda s=streamer: vod_window(s)
-                        )
-        vods.pack(side='top')
-    #
+    section_label(topframe, 'Online: ')
+    streamer_buttons(topframe, 0, 'normal')
     # Create offline streamer section with VOD buttons:
-    #
     bottomframe = tk.Frame(mainframe)
     bottomframe.pack(side='bottom', fill='x')
-    # Label:
-    off_l = tk.Label(bottomframe, text="Offline: ")
-    off_l.pack()
-    # Offline streamer buttons (deactivated):
-    offline_streamers = tk.Frame(bottomframe, padx=10, pady=10)
-    offline_streamers.pack(side='left')
-    for streamer in status[1]:
-        streamer_l = tk.Button(offline_streamers,
-                                text=streamer,
-                                state='disabled'
-                                )
-        streamer_l.pack(fill='x', side='top')
-    # VOD Buttons for offline streamers:
-    offlineframe2 = tk.Frame(bottomframe, padx=10, pady=10)
-    offlineframe2.pack(side='right')
-    for streamer in status[1]:
-        ovods = tk.Button(offlineframe2,
-                        text="Vods",
-                        command=lambda s=streamer: vod_window(s)
-                        )
-        ovods.pack(side='top')
-
+    section_label(bottomframe, 'Offline: ')
+    streamer_buttons(bottomframe, 1, 'disabled')
 
 # Check the online/offline status once before window initialization:
 status = call_wtwitch()
