@@ -4,6 +4,9 @@ import tkinter as tk
 from tkinter import messagebox
 
 def call_wtwitch():
+    '''Run wtwitch c and use regex to extract all streamers and their online
+    status. Return a tuple of lists with both streamer groups.
+    '''
     wtwitch_c = subprocess.run(['wtwitch', 'c'],
                                capture_output=True, text=True)
     #print(repr(wtwitch_c.stdout))
@@ -15,10 +18,15 @@ def call_wtwitch():
     return online_streamers, offline_streamers
 
 def check_status():
+    '''Call wtwitch c again when pressing the refresh button
+    '''
     global status
     status = call_wtwitch()
 
 def fetch_vods(streamer):
+    '''Run wtwitch v and extract all timestamps/titles of the streamer's VODs
+    with regex. Cap the title length at 70 characters.
+    '''
     wtwitch_v = subprocess.run(['wtwitch', 'v', streamer],
                                 capture_output=True, text=True
                                 )
@@ -36,10 +44,15 @@ def button_clicked():
         )
 
 def destroy_widgets(parent):
+    '''Clear the vod_panel before redrawing it, in case it was already opened
+    '''
     for widget in parent.winfo_children():
         widget.destroy()
 
 def vod_panel(parent, streamer):
+    '''Draws the VOD panel on the right side of the window. Three for loops to
+    draw the timestamps, watch buttons and titles of the last 20 VODs
+    '''
     destroy_widgets(parent)
     vods = fetch_vods(streamer)
     if len(vods[0]) == 0:
@@ -71,21 +84,27 @@ def vod_panel(parent, streamer):
     close_button.grid(column=2, row=0, sticky='ne', ipadx=3)"""
 
 def refresh_button(parent):
+    '''Button in the main panel which calls wtwitch c and redraws the panel.
+    '''
     refresh = tk.Button(parent,
                         text="Refresh",
                         command=lambda root=root:
                                     [check_status(),
-                                    main_window(root),
+                                    main_panel(root),
                                     parent.pack_forget(),
                                     parent.destroy()]
                         )
     refresh.pack(fill='x', side='top', pady=5)
 
 def section_label(parent, text):
+    '''Create text labels for window sections
+    '''
     label = tk.Label(parent, text=text)
     label.pack(ipady=5)
 
 def streamer_buttons(parent, onoff, state, vodframe):
+    '''Create two rows of buttons. On the left the streamers (disabled if
+    offline) and on the right their respective VOD buttons'''
     streamers = tk.Frame(parent, pady=10)
     streamers.pack(side='left')
     for streamer in status[onoff]:
@@ -109,7 +128,9 @@ def streamer_buttons(parent, onoff, state, vodframe):
                         )
         vod_b.pack(fill='x', side='top', padx=5)
 
-def main_window(root):
+def main_panel(root):
+    '''Always active after window start. Segmented into a top and bottom frame
+    for online and offline streamers'''
     mainframe = tk.Frame(root)
     mainframe.pack(fill='x', side='left')
     vodframe = tk.Frame(root)
@@ -131,5 +152,5 @@ status = call_wtwitch()
 # Create the main window
 root = tk.Tk()
 root.title("wtwitch-gui")
-main_window(root)
+main_panel(root)
 root.mainloop()
