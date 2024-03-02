@@ -51,6 +51,8 @@ def vod_panel(streamer):
     vodframe.destroy()
     parent = create_vodframe()
     vods = fetch_vods(streamer)
+    vods_label = tk.Label(parent, text=f"{streamer}'s VODs:")
+    vods_label.grid(column=0, row=0, sticky='nw', ipadx=30, ipady=10)
     if len(vods[0]) == 0:
         warning_l = tk.Label(parent, text=f"{streamer} has no VODs")
         warning_l.grid(column=0, row=1, ipadx=10, ipady=10)
