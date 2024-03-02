@@ -59,7 +59,7 @@ def vod_panel(streamer):
     vodno = 1
     for timestamp in vods[0]:
         time_l = tk.Label(parent, text=timestamp)
-        time_l.grid(column=0, row=vodno, sticky='w', ipadx=20)
+        time_l.grid(column=0, row=vodno, sticky='e', ipadx=20)
         vodno += 1
     vodno = 1
     for title in vods[1]:
@@ -91,7 +91,7 @@ def refresh_button(parent):
                                     parent.pack_forget(),
                                     main_panel(root)]
                         )
-    refresh.pack(fill='x', side='top', pady=5)
+    refresh.pack(fill='x', side='top', pady=10, padx=10)
 
 def section_label(parent, text):
     '''Create text labels for window sections
