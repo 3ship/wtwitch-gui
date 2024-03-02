@@ -37,16 +37,19 @@ def fetch_vods(streamer):
     return timestamps, titles
 
 def destroy_widgets(parent):
-    '''Clear the vod_panel before redrawing it, in case it was already opened
+    '''Clear a frame before redrawing it
     '''
     for widget in parent.winfo_children():
         widget.destroy()
 
-def vod_panel(parent, streamer):
+def vod_panel(streamer):
     '''Draws the VOD panel on the right side of the window. Three for loops to
     draw the timestamps, watch buttons and titles of the last 20 VODs
     '''
-    destroy_widgets(parent)
+    # Clear the vod_panel before redrawing it, in case it was already opened
+    vodframe.forget()
+    vodframe.destroy()
+    parent = create_vodframe()
     vods = fetch_vods(streamer)
     if len(vods[0]) == 0:
         warning_l = tk.Label(parent, text=f"{streamer} has no VODs")
@@ -83,9 +86,8 @@ def refresh_button(parent):
                         text="Refresh",
                         command=lambda root=root:
                                     [check_status(),
-                                    main_panel(root),
                                     parent.pack_forget(),
-                                    parent.destroy()]
+                                    main_panel(root)]
                         )
     refresh.pack(fill='x', side='top', pady=5)
 
@@ -95,7 +97,7 @@ def section_label(parent, text):
     label = tk.Label(parent, text=text)
     label.pack(ipady=5)
 
-def streamer_buttons(parent, onoff, state, vodframe):
+def streamer_buttons(parent, onoff, state):
     '''Create two rows of buttons. On the left the streamers (disabled if
     offline) and on the right their respective VOD buttons
     '''
@@ -117,10 +119,19 @@ def streamer_buttons(parent, onoff, state, vodframe):
         vod_b = tk.Button(vods,
                         text="Vods",
                         justify='right',
-                        command=lambda s=streamer, v=vodframe:
-                        vod_panel(v, s)
+                        command=lambda s=streamer:
+                        vod_panel(s)
                         )
         vod_b.pack(fill='x', side='top', padx=5)
+
+def create_vodframe():
+    '''Create the vod panel separately to avoid adding a new one, when the main
+    panel gets refreshed.
+    '''
+    global vodframe
+    vodframe = tk.Frame(root)
+    vodframe.pack(side='right', pady=10)
+    return vodframe
 
 def main_panel(root):
     '''Always active after window start. Segmented into a top and bottom frame
@@ -128,19 +139,17 @@ def main_panel(root):
     '''
     mainframe = tk.Frame(root)
     mainframe.pack(fill='x', side='left')
-    vodframe = tk.Frame(root)
-    vodframe.pack(side='right', pady=10)
     refresh_button(mainframe)
     # Create section of online streamers with 'watch' and VOD buttons:
     topframe = tk.Frame(mainframe)
     topframe.pack(side='top', fill='x')
     section_label(topframe, 'Online: ')
-    streamer_buttons(topframe, 0, 'normal', vodframe)
+    streamer_buttons(topframe, 0, 'normal')
     # Create offline streamer section with VOD buttons:
     bottomframe = tk.Frame(mainframe)
     bottomframe.pack(side='bottom', fill='x')
     section_label(bottomframe, 'Offline: ')
-    streamer_buttons(bottomframe, 1, 'disabled', vodframe)
+    streamer_buttons(bottomframe, 1, 'disabled')
 
 # Check the online/offline status once before window initialization:
 status = call_wtwitch()
@@ -148,4 +157,5 @@ status = call_wtwitch()
 root = tk.Tk()
 root.title("wtwitch-gui")
 main_panel(root)
+create_vodframe()
 root.mainloop()
