@@ -116,7 +116,7 @@ def streamer_buttons(parent, onoff, state):
                             command=lambda s=streamer:
                             [subprocess.run(['wtwitch', 'w', s])]
                             )
-        watch_b.pack(fill='x', side='top', padx=5)
+        watch_b.pack(fill='x', side='top')
     # VOD Buttons:
     vods = tk.Frame(parent, pady=10)
     vods.pack(side='right')
@@ -127,7 +127,7 @@ def streamer_buttons(parent, onoff, state):
                         command=lambda s=streamer:
                         vod_panel(s)
                         )
-        vod_b.pack(fill='x', side='top', padx=5)
+        vod_b.pack(fill='x', side='top')
 
 def create_vodframe():
     '''Create the vod panel separately to avoid adding a new one, when the main
