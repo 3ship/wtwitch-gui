@@ -1,7 +1,6 @@
 import subprocess
 import re
 import tkinter as tk
-from tkinter import messagebox
 
 def call_wtwitch():
     '''Run wtwitch c and use regex to extract all streamers and their online
@@ -36,12 +35,6 @@ def fetch_vods(streamer):
         if len(titles[i]) > 70:
             titles[i] = titles[i][:70] + "..."
     return timestamps, titles
-
-def button_clicked():
-    messagebox.showinfo(
-        title="Info",
-        message="Opening player"
-        )
 
 def destroy_widgets(parent):
     '''Clear the vod_panel before redrawing it, in case it was already opened
