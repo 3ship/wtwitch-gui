@@ -14,10 +14,10 @@ def call_wtwitch():
     offline_streamers = off_streamers1 + off_streamers2
     offline_streamers.sort()
     online_streamers = re.findall('\[92m(\S*)\x1b', wtwitch_c.stdout)
-    stream_titles = re.findall('\[0m:\s*(\S.*)\s\x1b\[93m\(', wtwitch_c.stdout)
-    stream_categories = re.findall('\[93m\((\S.*)\)\x1b\[0m\n', wtwitch_c.stdout)
-    print(stream_categories)
-    return online_streamers, offline_streamers, stream_titles, stream_categories
+    stream_titles = re.findall('\[0m: (\S.*)\s\x1b\[93m\(', wtwitch_c.stdout)
+    stream_categs = re.findall('\[93m\((\S.*)\)\x1b\[0m\n', wtwitch_c.stdout)
+    print(stream_categs, stream_titles)
+    return online_streamers, offline_streamers, stream_titles, stream_categs
 
 def check_status():
     '''Call wtwitch c again when pressing the refresh button
@@ -46,7 +46,7 @@ def destroy_widgets(parent):
         widget.destroy()
 
 def vod_panel(streamer):
-    '''Draws the VOD panel on the right side of the window. Three for loops to
+    '''Draws the VOD panel on the right side of the window. Three for-loops to
     draw the timestamps, watch buttons and titles of the last 20 VODs
     '''
     # Clear the vod_panel before redrawing it, in case it was already opened
@@ -89,7 +89,7 @@ def refresh_button(parent):
     '''
     refresh = tk.Button(parent,
                         text="Refresh",
-                        command=lambda root=root:
+                        command=lambda root=root, parent=parent:
                                     [check_status(),
                                     parent.pack_forget(),
                                     main_panel(root)]
@@ -137,6 +137,12 @@ def create_vodframe():
     vodframe = tk.Frame(root)
     vodframe.pack(side='right', anchor='nw', fill='x', pady=10)
     return vodframe
+
+def close_vods():
+    vodframe.forget()
+    vodframe.destroy()
+    parent = create_vodframe()
+    return parent
 
 def main_panel(root):
     '''Always active after window start. Segmented into a top and bottom frame
