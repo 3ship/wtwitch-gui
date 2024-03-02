@@ -112,7 +112,8 @@ def streamer_buttons(parent, onoff, state, vodframe):
 def main_window(root):
     mainframe = tk.Frame(root)
     mainframe.pack(fill='x', side='left')
-    vodframe = create_vodframe()
+    vodframe = tk.Frame(root)
+    vodframe.pack(side='right', pady=10)
     refresh_button(mainframe)
     # Create section of online streamers with 'watch' and VOD buttons:
     topframe = tk.Frame(mainframe)
@@ -124,12 +125,6 @@ def main_window(root):
     bottomframe.pack(side='bottom', fill='x')
     section_label(bottomframe, 'Offline: ')
     streamer_buttons(bottomframe, 1, 'disabled', vodframe)
-
-def create_vodframe():
-    global vodframe
-    vodframe = tk.Frame(root)
-    vodframe.pack(side='right', pady=10)
-    return vodframe
 
 # Check the online/offline status once before window initialization:
 status = call_wtwitch()
