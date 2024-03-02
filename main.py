@@ -14,7 +14,10 @@ def call_wtwitch():
     offline_streamers = off_streamers1 + off_streamers2
     offline_streamers.sort()
     online_streamers = re.findall('\[92m(\S*)\x1b', wtwitch_c.stdout)
-    return online_streamers, offline_streamers
+    stream_titles = re.findall('\[0m:\s*(\S.*)\s\x1b\[93m\(', wtwitch_c.stdout)
+    stream_categories = re.findall('\[93m\((\S.*)\)\x1b\[0m\n', wtwitch_c.stdout)
+    print(stream_categories)
+    return online_streamers, offline_streamers, stream_titles, stream_categories
 
 def check_status():
     '''Call wtwitch c again when pressing the refresh button
