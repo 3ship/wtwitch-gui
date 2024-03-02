@@ -130,7 +130,7 @@ def create_vodframe():
     '''
     global vodframe
     vodframe = tk.Frame(root)
-    vodframe.pack(side='right', pady=10)
+    vodframe.pack(side='right', anchor='nw', fill='x', pady=10)
     return vodframe
 
 def main_panel(root):
@@ -138,7 +138,7 @@ def main_panel(root):
     for online and offline streamers
     '''
     mainframe = tk.Frame(root)
-    mainframe.pack(fill='x', side='left')
+    mainframe.pack(side='left', anchor='nw', fill='x')
     refresh_button(mainframe)
     # Create section of online streamers with 'watch' and VOD buttons:
     topframe = tk.Frame(mainframe)
