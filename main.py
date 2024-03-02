@@ -35,23 +35,24 @@ def button_clicked():
         message="Opening player"
         )
 
-def vod_window(streamer):
+def destroy_widgets(parent):
+    for widget in parent.winfo_children():
+        widget.destroy()
+
+def vod_panel(parent, streamer):
+    destroy_widgets(parent)
     vods = fetch_vods(streamer)
-    window = tk.Toplevel()
-    window.title(f"{streamer}'s VODs")
-    vframe = tk.Frame(window, padx=15, pady=15)
-    vframe.grid()
     if len(vods[0]) == 0:
-        warning_l = tk.Label(vframe, text=f"{streamer} has no VODs")
-        warning_l.grid(column=0, row=0, ipadx=10, ipady=10)
+        warning_l = tk.Label(parent, text=f"{streamer} has no VODs")
+        warning_l.grid(column=0, row=1, ipadx=10, ipady=10)
     vodno = 1
     for timestamp in vods[0]:
-        time_l = tk.Label(vframe, text=timestamp)
-        time_l.grid(column=0, row=vodno, sticky='w', ipadx=8, ipady=5)
+        time_l = tk.Label(parent, text=timestamp)
+        time_l.grid(column=0, row=vodno, sticky='w', ipadx=20)
         vodno += 1
     vodno = 1
     for title in vods[1]:
-        watch_b = tk.Button(vframe,
+        watch_b = tk.Button(parent,
                     text="Watch",
                     command=lambda s=streamer, vodno=vodno:
                     [subprocess.run(['wtwitch', 'v', s, str(vodno)])]
@@ -60,9 +61,14 @@ def vod_window(streamer):
         vodno += 1
     vodno = 1
     for title in vods[1]:
-        title_l = tk.Label(vframe, text=title)
-        title_l.grid(column=2, row=vodno, sticky='w', ipadx=8)
+        title_l = tk.Label(parent, text=title)
+        title_l.grid(column=2, row=vodno, sticky='w', ipadx=20)
         vodno += 1
+    """close_button = tk.Button(parent, text='x',
+                            command=lambda p=parent:
+                            [destroy_widgets(p), create_vodframe()]
+                            )
+    close_button.grid(column=2, row=0, sticky='ne', ipadx=3)"""
 
 def refresh_button(parent):
     refresh = tk.Button(parent,
@@ -79,10 +85,10 @@ def section_label(parent, text):
     label = tk.Label(parent, text=text)
     label.pack(ipady=5)
 
-def streamer_buttons(parent, section, state):
+def streamer_buttons(parent, onoff, state, vodframe):
     streamers = tk.Frame(parent, pady=10)
     streamers.pack(side='left')
-    for streamer in status[section]:
+    for streamer in status[onoff]:
         watch_b = tk.Button(streamers,
                             text=streamer,
                             justify='left',
@@ -94,28 +100,36 @@ def streamer_buttons(parent, section, state):
     # VOD Buttons:
     vods = tk.Frame(parent, pady=10)
     vods.pack(side='right')
-    for streamer in status[section]:
+    for streamer in status[onoff]:
         vod_b = tk.Button(vods,
                         text="Vods",
                         justify='right',
-                        command=lambda s=streamer: vod_window(s)
+                        command=lambda s=streamer, v=vodframe:
+                        vod_panel(v, s)
                         )
         vod_b.pack(fill='x', side='top', padx=5)
 
 def main_window(root):
     mainframe = tk.Frame(root)
-    mainframe.pack(fill='x')
+    mainframe.pack(fill='x', side='left')
+    vodframe = create_vodframe()
     refresh_button(mainframe)
     # Create section of online streamers with 'watch' and VOD buttons:
     topframe = tk.Frame(mainframe)
     topframe.pack(side='top', fill='x')
     section_label(topframe, 'Online: ')
-    streamer_buttons(topframe, 0, 'normal')
+    streamer_buttons(topframe, 0, 'normal', vodframe)
     # Create offline streamer section with VOD buttons:
     bottomframe = tk.Frame(mainframe)
     bottomframe.pack(side='bottom', fill='x')
     section_label(bottomframe, 'Offline: ')
-    streamer_buttons(bottomframe, 1, 'disabled')
+    streamer_buttons(bottomframe, 1, 'disabled', vodframe)
+
+def create_vodframe():
+    global vodframe
+    vodframe = tk.Frame(root)
+    vodframe.pack(side='right', pady=10)
+    return vodframe
 
 # Check the online/offline status once before window initialization:
 status = call_wtwitch()
