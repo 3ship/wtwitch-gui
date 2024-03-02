@@ -94,15 +94,13 @@ def refresh_button(parent):
 def section_label(parent, text):
     '''Create text labels for window sections
     '''
-    label = tk.Label(parent, text=text)
-    label.pack(ipady=5)
+    label = tk.Label(parent, text=text).pack(ipady=5)
 
 def streamer_buttons(parent, onoff, state):
     '''Create two rows of buttons. On the left the streamers (disabled if
     offline) and on the right their respective VOD buttons
     '''
-    streamers = tk.Frame(parent, pady=10)
-    streamers.pack(side='left')
+    streamers = tk.Frame(parent, pady=10).pack(side='left')
     for streamer in status[onoff]:
         watch_b = tk.Button(streamers,
                             text=streamer,
@@ -113,8 +111,7 @@ def streamer_buttons(parent, onoff, state):
                             )
         watch_b.pack(fill='x', side='top', padx=5)
     # VOD Buttons:
-    vods = tk.Frame(parent, pady=10)
-    vods.pack(side='right')
+    vods = tk.Frame(parent, pady=10).pack(side='right')
     for streamer in status[onoff]:
         vod_b = tk.Button(vods,
                         text="Vods",
@@ -129,25 +126,21 @@ def create_vodframe():
     panel gets refreshed.
     '''
     global vodframe
-    vodframe = tk.Frame(root)
-    vodframe.pack(side='right', pady=10)
+    vodframe = tk.Frame(root).pack(side='right', pady=10)
     return vodframe
 
 def main_panel(root):
     '''Always active after window start. Segmented into a top and bottom frame
     for online and offline streamers
     '''
-    mainframe = tk.Frame(root)
-    mainframe.pack(fill='x', side='left')
+    mainframe = tk.Frame(root).pack(fill='x', side='left')
     refresh_button(mainframe)
     # Create section of online streamers with 'watch' and VOD buttons:
-    topframe = tk.Frame(mainframe)
-    topframe.pack(side='top', fill='x')
+    topframe = tk.Frame(mainframe).pack(side='top', fill='x')
     section_label(topframe, 'Online: ')
     streamer_buttons(topframe, 0, 'normal')
     # Create offline streamer section with VOD buttons:
-    bottomframe = tk.Frame(mainframe)
-    bottomframe.pack(side='bottom', fill='x')
+    bottomframe = tk.Frame(mainframe).pack(side='bottom', fill='x')
     section_label(bottomframe, 'Offline: ')
     streamer_buttons(bottomframe, 1, 'disabled')
 
