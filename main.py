@@ -104,7 +104,8 @@ def section_label(parent, text):
 
 def streamer_buttons(parent, onoff, state, vodframe):
     '''Create two rows of buttons. On the left the streamers (disabled if
-    offline) and on the right their respective VOD buttons'''
+    offline) and on the right their respective VOD buttons
+    '''
     streamers = tk.Frame(parent, pady=10)
     streamers.pack(side='left')
     for streamer in status[onoff]:
@@ -130,7 +131,8 @@ def streamer_buttons(parent, onoff, state, vodframe):
 
 def main_panel(root):
     '''Always active after window start. Segmented into a top and bottom frame
-    for online and offline streamers'''
+    for online and offline streamers
+    '''
     mainframe = tk.Frame(root)
     mainframe.pack(fill='x', side='left')
     vodframe = tk.Frame(root)
