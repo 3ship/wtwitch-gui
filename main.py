@@ -180,7 +180,8 @@ def unfollow_confirmation(streamer):
     main panel, if confirmed.
     '''
     answer = askyesno(title='Unfollow',
-            message=f'Are you sure that you want to unfollow {streamer}?')
+            message=f'Are you sure that you want to unfollow {streamer}?',
+            default='no')
     if answer:
         subprocess.run(['wtwitch', 'u', streamer])
         check_status()
