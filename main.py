@@ -51,10 +51,16 @@ def vod_panel(streamer):
     vodframe.forget()
     vodframe.destroy()
     parent = create_vodframe()
+    # Simply return when the close button is pressed, to refresh the VOD panel
+    # with no content:
     if streamer == "close_the_panel":
         return
-    close_button = tk.Button(parent, text='x', command=lambda s="close_the_panel": vod_panel(s))
+    close_button = tk.Button(parent, text='x',
+                        command=lambda s="close_the_panel":
+                        vod_panel(s)
+                        )
     close_button.grid(column=2, row=0, sticky='ne')
+
     vods = fetch_vods(streamer)
     vods_label = tk.Label(parent, text=f"{streamer}'s VODs:")
     vods_label.grid(column=0, row=0, sticky='nw', ipadx=30, ipady=10)
@@ -135,6 +141,9 @@ def streamer_buttons(parent, onoff, state):
         vod_b.pack(fill='x', side='top')
 
 def info_buttons(topframe):
+    '''Adds info buttons for every streamer, to show and info dialog with the
+    stream title and stream category.
+    '''
     info_box = tk.Frame(topframe, pady=10)
     info_box.pack(side='left')
     for index, streamer in enumerate(status[0]):
@@ -147,11 +156,15 @@ def info_buttons(topframe):
         info_b.pack(fill='x', side='top')
 
 def info_dialog(index, streamer):
+    '''Info dialog, including stream title and stream category
+    '''
     info = showinfo(title=f"{streamer} is streaming:",
                     message=f"{status[2][index]} ({status[3][index]})")
 
-def unfollow_buttons(topframe, onoff):
-    unfollow = tk.Frame(topframe, pady=10)
+def unfollow_buttons(frame, onoff):
+    '''Adds unfollow buttons for every streamer.
+    '''
+    unfollow = tk.Frame(frame, pady=10)
     unfollow.pack(side='left')
     for streamer in status[onoff]:
         unfollow_b = tk.Button(unfollow,
@@ -162,9 +175,12 @@ def unfollow_buttons(topframe, onoff):
                             )
         unfollow_b.pack(fill='x', side='top')
 
-def unfollow_confirmation(streamer, mainframe):
+def unfollow_confirmation(streamer):
+    '''Asks for confirmation, if the unfollow button is pressed. Rebuild the
+    main panel, if confirmed.
+    '''
     answer = askyesno(title='Unfollow',
-                    message=f'Are you sure that you want to unfollow {streamer}?')
+            message=f'Are you sure that you want to unfollow {streamer}?')
     if answer:
         subprocess.run(['wtwitch', 'u', streamer])
         check_status()
@@ -172,6 +188,8 @@ def unfollow_confirmation(streamer, mainframe):
         main_panel(root)
 
 def follow_dialog():
+    '''Opens a text dialog and adds the entered string to the follow list.
+    '''
     streamer = simpledialog.askstring(title='Follow',
                 prompt='Enter streamer name: ')
     if streamer is None:
@@ -185,8 +203,8 @@ def follow_dialog():
         return
 
 def create_vodframe():
-    '''Create the vod panel separately to avoid adding a new one, when the main
-    panel gets refreshed.
+    '''Create the vod panel separately to avoid adding a new one, when the
+    main panel gets refreshed.
     '''
     global vodframe
     vodframe = tk.Frame(root)
@@ -194,6 +212,8 @@ def create_vodframe():
     return vodframe
 
 def refresh_mainframe():
+    '''Runs wtwitch c and then rebuilds the main panel.
+    '''
     check_status()
     mainframe.pack_forget()
     mainframe.destroy()
@@ -206,7 +226,6 @@ def main_panel(root):
     global mainframe
     mainframe = tk.Frame(root)
     mainframe.pack(side='left', anchor='nw', fill='x')
-    #refresh_button(mainframe)
     # Create section of online streamers with 'watch' and VOD buttons:
     topframe = tk.Frame(mainframe)
     topframe.pack(side='top', fill='x')
