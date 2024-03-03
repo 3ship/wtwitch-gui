@@ -13,7 +13,7 @@ def call_wtwitch():
     '''
     wtwitch_c = subprocess.run(['wtwitch c'],
                                capture_output=True, text=True, shell=True)
-    print(repr(wtwitch_c.stdout))
+    #print(repr(wtwitch_c.stdout))
     #print(wtwitch_c.__repr__)
     off_streamers1 = re.findall('\[90m(\S*)\x1b', wtwitch_c.stdout)
     off_streamers2 = re.findall('\[90m(\S*),', wtwitch_c.stdout)
@@ -51,7 +51,7 @@ def vod_panel(streamer):
     # Clear the vod_panel before redrawing it, in case it was already opened
     vodframe.forget()
     vodframe.destroy()
-    parent = create_vodframe()
+    parent = vod_frame()
     # Simply return when the close button is pressed, to refresh the VOD panel
     # with no content:
     if streamer == "close_the_panel":
@@ -95,10 +95,10 @@ def refresh_button_old(parent):
     '''
     refresh = tk.Button(parent,
                         text="Refresh",
-                        command=lambda root=root, parent=parent:
+                        command=lambda parent=parent:
                                     [check_status(),
                                     parent.pack_forget(),
-                                    main_panel(root)]
+                                    main_panel()]
                         )
     refresh.pack(fill='x', side='top', pady=10, padx=10)
 
@@ -187,7 +187,7 @@ def unfollow_confirmation(streamer):
         subprocess.run([f'wtwitch u {streamer}'], shell=True)
         check_status()
         mainframe.pack_forget()
-        main_panel(root)
+        main_panel()
 
 def follow_dialog():
     '''Opens a text dialog and adds the entered string to the follow list.
@@ -200,11 +200,11 @@ def follow_dialog():
         subprocess.run([f'wtwitch s {streamer}'], shell=True)
         check_status()
         mainframe.pack_forget()
-        main_panel(root)
+        main_panel()
     else:
         return
 
-def create_vodframe():
+def vod_frame():
     '''Create the vod panel separately to avoid adding a new one, when the
     main panel gets refreshed.
     '''
@@ -219,9 +219,9 @@ def refresh_mainframe():
     check_status()
     mainframe.pack_forget()
     mainframe.destroy()
-    main_panel(root)
+    main_panel()
 
-def main_panel(root):
+def main_panel():
     '''Always active after window start. Segmented into a top and bottom frame
     for online and offline streamers
     '''
@@ -242,19 +242,22 @@ def main_panel(root):
     streamer_buttons(bottomframe, 1, 'disabled')
     unfollow_buttons(bottomframe, 1)
 
+def menu_bar():
+    menubar = tk.Menu(root)
+    root.config(menu=menubar)
+    menubar.add_command(
+            label='Refresh',
+            command=lambda: refresh_mainframe())
+    menubar.add_command(
+            label='Follow streamer',
+            command=lambda: follow_dialog())
+
 # Check the online/offline status once before window initialization:
 status = call_wtwitch()
 # Create the main window
 root = tk.Tk()
 root.title("wtwitch-gui")
-menubar = tk.Menu(root)
-root.config(menu=menubar)
-main_panel(root)
-create_vodframe()
-menubar.add_command(
-    label='Refresh',
-    command=lambda: refresh_mainframe())
-menubar.add_command(
-    label='Follow streamer',
-    command=lambda: follow_dialog())
+menu_bar()
+main_panel()
+vod_frame()
 root.mainloop()
