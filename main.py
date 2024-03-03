@@ -56,6 +56,7 @@ def vod_panel(streamer):
     vodframe.forget()
     vodframe.destroy()
     parent = vod_frame()
+    root.geometry("")
     # Simply return when the close button is pressed, to refresh the VOD panel
     # with no content:
     if streamer == "close_the_panel":
@@ -232,6 +233,7 @@ def refresh_mainframe():
     mainframe.pack_forget()
     mainframe.destroy()
     main_panel()
+    root.geometry("")
 
 def main_panel():
     '''Always active after window start. Segmented into a top and bottom frame
@@ -258,7 +260,7 @@ def menu_bar():
     menubar = tk.Menu(root, borderwidth=2)
     root.config(menu=menubar)
     menubar.add_command(
-            label='Refresh',
+            label='Refresh     ',
             command=lambda: refresh_mainframe())
     menubar.add_command(
             label='Follow streamer',
