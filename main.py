@@ -52,8 +52,9 @@ def fetch_vods(streamer):
     return timestamps, titles
 
 def vod_panel(streamer):
-    '''Draws the VOD panel on the right side of the window. Three for-loops to
-    draw the timestamps, watch buttons and titles of the last 20 VODs
+    '''Draws the VOD panel inside the vod_frame on the right side of the
+    window. Three for-loops to draw the timestamps, watch buttons and titles
+    of the last 20 VODs
     '''
     # Clear the vod_panel before redrawing it, in case it was already opened
     vodframe.forget()
@@ -203,7 +204,7 @@ def follow_dialog():
         return
 
 def vod_frame():
-    '''Create the vod panel separately to avoid adding a new one, when the
+    '''Create the vod frame separately to avoid adding a new one, when the
     main panel gets refreshed.
     '''
     global vodframe
