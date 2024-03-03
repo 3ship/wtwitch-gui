@@ -10,7 +10,7 @@ from tkinter import simpledialog
 
 def call_wtwitch():
     '''Run wtwitch c and use regex to extract all streamers and their online
-    status. Return a tuple of lists with both streamer groups.
+    status. Return lists for both, along with online streamer information.
     '''
     with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_file:
         output_text = subprocess.run(['wtwitch', 'c'],
