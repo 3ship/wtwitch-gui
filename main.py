@@ -128,7 +128,11 @@ def streamer_buttons(parent, onoff, state):
         watch_b = tk.Button(streamers,
                             text=streamer,
                             justify='left',
+                            padx=20,
+                            font=('Cantarell', '10', 'bold'),
+                            anchor='w',
                             state=state,
+                            disabledforeground='#464646',
                             command=lambda s=streamer:
                             [subprocess.run(['wtwitch', 'w', s])]
                             )
@@ -140,6 +144,7 @@ def streamer_buttons(parent, onoff, state):
         vod_b = tk.Button(vods,
                         text="V",
                         justify='right',
+                        font=('Cantarell', '10'),
                         command=lambda s=streamer:
                         vod_panel(s)
                         )
@@ -155,6 +160,7 @@ def info_buttons(topframe):
         info_b = tk.Button(info_box,
                             text="Info",
                             justify='left',
+                            font=('Cantarell', '10'),
                             command=lambda i=index, s=streamer:
                             info_dialog(i, s)
                             )
@@ -175,6 +181,7 @@ def unfollow_buttons(frame, onoff):
         unfollow_b = tk.Button(unfollow,
                             text="U",
                             justify='left',
+                            font=('Cantarell', '10'),
                             command=lambda s=streamer:
                             [unfollow_confirmation(s)]
                             )
