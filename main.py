@@ -11,9 +11,10 @@ def call_wtwitch():
     '''Run wtwitch c and use regex to extract all streamers and their online
     status. Return a tuple of lists with both streamer groups.
     '''
-    wtwitch_c = subprocess.run(['wtwitch', 'c'],
-                               capture_output=True, text=True)
-    #print(repr(wtwitch_c.stdout))
+    wtwitch_c = subprocess.run(['wtwitch c'],
+                               capture_output=True, text=True, shell=True)
+    print(repr(wtwitch_c.stdout))
+    #print(wtwitch_c.__repr__)
     off_streamers1 = re.findall('\[90m(\S*)\x1b', wtwitch_c.stdout)
     off_streamers2 = re.findall('\[90m(\S*),', wtwitch_c.stdout)
     offline_streamers = off_streamers1 + off_streamers2
@@ -33,8 +34,8 @@ def fetch_vods(streamer):
     '''Run wtwitch v and extract all timestamps/titles of the streamer's VODs
     with regex. Cap the title length at 70 characters.
     '''
-    wtwitch_v = subprocess.run(['wtwitch', 'v', streamer],
-                                capture_output=True, text=True
+    wtwitch_v = subprocess.run([f'wtwitch v {streamer}'],
+                                capture_output=True, text=True, shell=True
                                 )
     timestamps = re.findall('\[96m\[(\S* \S*)\]', wtwitch_v.stdout)
     titles = re.findall('\]\x1b\[0m\s*(\S.*)\s\x1b\[93m', wtwitch_v.stdout)
@@ -77,7 +78,8 @@ def vod_panel(streamer):
         watch_b = tk.Button(parent,
                     text="Watch",
                     command=lambda s=streamer, vodno=vodno:
-                    [subprocess.run(['wtwitch', 'v', s, str(vodno)])]
+                    [subprocess.run([f'wtwitch v {s} {str(vodno)}'],
+                    shell=True)]
                     )
         watch_b.grid(column=1, row=vodno, ipadx=12)
         vodno += 1
@@ -125,7 +127,7 @@ def streamer_buttons(parent, onoff, state):
                             justify='left',
                             state=state,
                             command=lambda s=streamer:
-                            [subprocess.run(['wtwitch', 'w', s])]
+                            [subprocess.run([f'wtwitch w {s}'], shell=True)]
                             )
         watch_b.pack(fill='x', side='top')
     # VOD Buttons:
@@ -170,8 +172,8 @@ def unfollow_buttons(frame, onoff):
         unfollow_b = tk.Button(unfollow,
                             text="U",
                             justify='left',
-                            command=lambda s=streamer, m=mainframe:
-                            [unfollow_confirmation(s, m)]
+                            command=lambda s=streamer:
+                            [unfollow_confirmation(s)]
                             )
         unfollow_b.pack(fill='x', side='top')
 
@@ -182,7 +184,7 @@ def unfollow_confirmation(streamer):
     answer = askyesno(title='Unfollow',
             message=f'Are you sure that you want to unfollow {streamer}?')
     if answer:
-        subprocess.run(['wtwitch', 'u', streamer])
+        subprocess.run([f'wtwitch u {streamer}'], shell=True)
         check_status()
         mainframe.pack_forget()
         main_panel(root)
@@ -195,7 +197,7 @@ def follow_dialog():
     if streamer is None:
         return
     elif len(streamer) > 0:
-        subprocess.run(['wtwitch', 's', streamer])
+        subprocess.run([f'wtwitch s {streamer}'], shell=True)
         check_status()
         mainframe.pack_forget()
         main_panel(root)
