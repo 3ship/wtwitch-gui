@@ -2,6 +2,7 @@
 
 import subprocess
 import re
+import tempfile
 import tkinter as tk
 from tkinter.messagebox import askyesno
 from tkinter.messagebox import showinfo
@@ -11,17 +12,18 @@ def call_wtwitch():
     '''Run wtwitch c and use regex to extract all streamers and their online
     status. Return a tuple of lists with both streamer groups.
     '''
-    wtwitch_c = subprocess.run(['wtwitch', 'c'],
-                               capture_output=True, text=True)
-    #print(repr(wtwitch_c.stdout))
-    #print(wtwitch_c.__repr__)
-    off_streamers1 = re.findall('\[90m(\S*)\x1b', wtwitch_c.stdout)
-    off_streamers2 = re.findall('\[90m(\S*),', wtwitch_c.stdout)
+    with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_file:
+        output_text = subprocess.run(['sh', '/bin/wtwitch', 'c'],
+                               stdout=temp_file)
+    with open(temp_file.name, "r") as read_file:
+        output_text = read_file.read()
+    off_streamers1 = re.findall('\[90m(\S*)\x1b', output_text)
+    off_streamers2 = re.findall('\[90m(\S*),', output_text)
     offline_streamers = off_streamers1 + off_streamers2
     offline_streamers.sort()
-    online_streamers = re.findall('\[92m(\S*)\x1b', wtwitch_c.stdout)
-    stream_titles = re.findall('\[0m: (\S.*)\s\x1b\[93m\(', wtwitch_c.stdout)
-    stream_categs = re.findall('\[93m\((\S.*)\)\x1b\[0m\n', wtwitch_c.stdout)
+    online_streamers = re.findall('\[92m(\S*)\x1b', output_text)
+    stream_titles = re.findall('\[0m: (\S.*)\s\x1b\[93m\(', output_text)
+    stream_categs = re.findall('\[93m\((\S.*)\)\x1b\[0m\n', output_text)
     return online_streamers, offline_streamers, stream_titles, stream_categs
 
 def check_status():
@@ -34,11 +36,13 @@ def fetch_vods(streamer):
     '''Run wtwitch v and extract all timestamps/titles of the streamer's VODs
     with regex. Cap the title length at 70 characters.
     '''
-    wtwitch_v = subprocess.run(['wtwitch', 'v', streamer],
-                                capture_output=True, text=True
-                                )
-    timestamps = re.findall('\[96m\[(\S* \S*)\]', wtwitch_v.stdout)
-    titles = re.findall('\]\x1b\[0m\s*(\S.*)\s\x1b\[93m', wtwitch_v.stdout)
+    with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_file:
+        output_text = subprocess.run(['sh', '/bin/wtwitch', 'v', streamer],
+                                stdout=temp_file)
+    with open(temp_file.name, "r") as read_file:
+        output_text = read_file.read()
+    timestamps = re.findall('\[96m\[(\S* \S*)\]', output_text)
+    titles = re.findall('\]\x1b\[0m\s*(\S.*)\s\x1b\[93m', output_text)
     for i in range(len(titles)):
         if len(titles[i]) > 70:
             titles[i] = titles[i][:70] + "..."
