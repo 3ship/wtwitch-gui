@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import subprocess
 import re
 import tkinter as tk
@@ -19,7 +21,6 @@ def call_wtwitch():
     online_streamers = re.findall('\[92m(\S*)\x1b', wtwitch_c.stdout)
     stream_titles = re.findall('\[0m: (\S.*)\s\x1b\[93m\(', wtwitch_c.stdout)
     stream_categs = re.findall('\[93m\((\S.*)\)\x1b\[0m\n', wtwitch_c.stdout)
-    print(stream_categs, stream_titles)
     return online_streamers, offline_streamers, stream_titles, stream_categs
 
 def check_status():
@@ -50,6 +51,10 @@ def vod_panel(streamer):
     vodframe.forget()
     vodframe.destroy()
     parent = create_vodframe()
+    if streamer == "close_the_panel":
+        return
+    close_button = tk.Button(parent, text='x', command=lambda s="close_the_panel": vod_panel(s))
+    close_button.grid(column=2, row=0, sticky='ne')
     vods = fetch_vods(streamer)
     vods_label = tk.Label(parent, text=f"{streamer}'s VODs:")
     vods_label.grid(column=0, row=0, sticky='nw', ipadx=30, ipady=10)
@@ -75,11 +80,6 @@ def vod_panel(streamer):
         title_l = tk.Label(parent, text=title)
         title_l.grid(column=2, row=vodno, sticky='w', ipadx=20)
         vodno += 1
-    """close_button = tk.Button(parent, text='x',
-                            command=lambda p=parent:
-                            [destroy_widgets(p), create_vodframe()]
-                            )
-    close_button.grid(column=2, row=0, sticky='ne', ipadx=3)"""
 
 def refresh_button_old(parent):
     '''Button in the main panel which calls wtwitch c and redraws the panel.
@@ -192,12 +192,6 @@ def create_vodframe():
     vodframe = tk.Frame(root)
     vodframe.pack(side='right', anchor='nw', fill='x', pady=10)
     return vodframe
-
-def close_vods():
-    vodframe.forget()
-    vodframe.destroy()
-    parent = create_vodframe()
-    return parent
 
 def refresh_mainframe():
     check_status()
