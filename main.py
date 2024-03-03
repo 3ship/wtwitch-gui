@@ -154,11 +154,15 @@ def unfollow_confirmation(streamer, mainframe):
 def follow_dialog():
     streamer = simpledialog.askstring(title='Follow',
                 prompt='Enter streamer name: ')
-    if len(streamer) > 0:
+    if streamer is None:
+        return
+    elif len(streamer) > 0:
         subprocess.run(['wtwitch', 's', streamer])
         check_status()
         mainframe.pack_forget()
         main_panel(root)
+    else:
+        return
 
 def create_vodframe():
     '''Create the vod panel separately to avoid adding a new one, when the main
