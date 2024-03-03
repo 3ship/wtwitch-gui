@@ -8,6 +8,9 @@ from tkinter.messagebox import askyesno
 from tkinter.messagebox import showinfo
 from tkinter import simpledialog
 
+# Temp files don't add any additional benefit.
+# Revert to reading stdout directly (call_wtwitch / fetch_vods)
+
 def call_wtwitch():
     '''Run wtwitch c and use regex to extract all streamers and their online
     status. Return lists for both, along with online streamer information.
