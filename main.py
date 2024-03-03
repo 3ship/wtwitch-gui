@@ -115,8 +115,8 @@ def destroy_widgets(parent):
 def section_label(parent, text):
     '''Create text labels for window sections
     '''
-    label = tk.Label(parent, text=text)
-    label.pack(ipady=5)
+    label = tk.Label(parent, text=text, justify='left', anchor='s')
+    label.pack(ipady=10, ipadx=10, anchor='sw')
 
 def streamer_buttons(parent, onoff, state):
     '''Create two rows of buttons. On the left the streamers (disabled if
@@ -128,10 +128,11 @@ def streamer_buttons(parent, onoff, state):
         watch_b = tk.Button(streamers,
                             text=streamer,
                             justify='left',
-                            padx=20,
+                            padx=15,
                             font=('Cantarell', '10', 'bold'),
                             anchor='w',
                             state=state,
+                            width=15,
                             disabledforeground='#464646',
                             command=lambda s=streamer:
                             [subprocess.run(['wtwitch', 'w', s])]
@@ -142,7 +143,7 @@ def streamer_buttons(parent, onoff, state):
     vods.pack(side='right')
     for streamer in status[onoff]:
         vod_b = tk.Button(vods,
-                        text="V",
+                        text="Vods",
                         justify='right',
                         font=('Cantarell', '10'),
                         command=lambda s=streamer:
