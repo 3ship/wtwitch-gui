@@ -57,8 +57,7 @@ def vod_panel(streamer):
     vodframe.destroy()
     parent = vod_frame()
     root.geometry("")
-    # Simply return when the close button is pressed, to refresh the VOD panel
-    # with no content:
+    # Close button recalls this function and returns without drawing content:
     if streamer == "close_the_panel":
         return
     close_button = tk.Button(parent, text='x',
@@ -66,13 +65,16 @@ def vod_panel(streamer):
                         vod_panel(s)
                         )
     close_button.grid(column=2, row=0, sticky='ne')
-
+    # Retreive the streamer's VODs:
     vods = fetch_vods(streamer)
+    # Attach label with streamer name to the top left:
     vods_label = tk.Label(parent, text=f"{streamer}'s VODs:")
     vods_label.grid(column=0, row=0, sticky='nw', ipadx=30, ipady=10)
+    # Account for streamer having no VODs:
     if len(vods[0]) == 0:
         warning_l = tk.Label(parent, text=f"{streamer} has no VODs")
         warning_l.grid(column=0, row=1, ipadx=10, ipady=10)
+    # The three for-loops:
     vodno = 1
     for timestamp in vods[0]:
         time_l = tk.Label(parent, text=timestamp)
