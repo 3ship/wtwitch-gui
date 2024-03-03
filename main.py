@@ -2,6 +2,7 @@ import subprocess
 import re
 import tkinter as tk
 from tkinter.messagebox import askyesno
+from tkinter.messagebox import showinfo
 from tkinter import simpledialog
 
 def call_wtwitch():
@@ -94,7 +95,8 @@ def refresh_button_old(parent):
     refresh.pack(fill='x', side='top', pady=10, padx=10)
 
 def destroy_widgets(parent):
-    '''Clear a frame before redrawing it. Currently not used.
+    '''Clear a frame before redrawing it.
+    Currently not used.
     '''
     for widget in parent.winfo_children():
         widget.destroy()
@@ -105,7 +107,7 @@ def section_label(parent, text):
     label = tk.Label(parent, text=text)
     label.pack(ipady=5)
 
-def streamer_buttons(parent, onoff, state, mainframe):
+def streamer_buttons(parent, onoff, state):
     '''Create two rows of buttons. On the left the streamers (disabled if
     offline) and on the right their respective VOD buttons
     '''
@@ -120,16 +122,6 @@ def streamer_buttons(parent, onoff, state, mainframe):
                             [subprocess.run(['wtwitch', 'w', s])]
                             )
         watch_b.pack(fill='x', side='top')
-    unfollow = tk.Frame(parent, pady=10)
-    unfollow.pack(side='left')
-    for streamer in status[onoff]:
-        unfollow_b = tk.Button(unfollow,
-                            text="U",
-                            justify='left',
-                            command=lambda s=streamer, m=mainframe:
-                            [unfollow_confirmation(s, m)]
-                            )
-        unfollow_b.pack(fill='x', side='top')
     # VOD Buttons:
     vods = tk.Frame(parent, pady=10)
     vods.pack(side='right')
@@ -141,6 +133,34 @@ def streamer_buttons(parent, onoff, state, mainframe):
                         vod_panel(s)
                         )
         vod_b.pack(fill='x', side='top')
+
+def info_buttons(topframe):
+    info_box = tk.Frame(topframe, pady=10)
+    info_box.pack(side='left')
+    for index, streamer in enumerate(status[0]):
+        info_b = tk.Button(info_box,
+                            text="Info",
+                            justify='left',
+                            command=lambda i=index, s=streamer:
+                            info_dialog(i, s)
+                            )
+        info_b.pack(fill='x', side='top')
+
+def info_dialog(index, streamer):
+    info = showinfo(title=f"{streamer} is streaming:",
+                    message=f"{status[2][index]} ({status[3][index]})")
+
+def unfollow_buttons(topframe, onoff):
+    unfollow = tk.Frame(topframe, pady=10)
+    unfollow.pack(side='left')
+    for streamer in status[onoff]:
+        unfollow_b = tk.Button(unfollow,
+                            text="U",
+                            justify='left',
+                            command=lambda s=streamer, m=mainframe:
+                            [unfollow_confirmation(s, m)]
+                            )
+        unfollow_b.pack(fill='x', side='top')
 
 def unfollow_confirmation(streamer, mainframe):
     answer = askyesno(title='Unfollow',
@@ -179,7 +199,7 @@ def close_vods():
     parent = create_vodframe()
     return parent
 
-def refresh_button():
+def refresh_mainframe():
     check_status()
     mainframe.pack_forget()
     mainframe.destroy()
@@ -197,12 +217,15 @@ def main_panel(root):
     topframe = tk.Frame(mainframe)
     topframe.pack(side='top', fill='x')
     section_label(topframe, 'Online: ')
-    streamer_buttons(topframe, 0, 'normal', mainframe)
+    streamer_buttons(topframe, 0, 'normal')
+    info_buttons(topframe)
+    unfollow_buttons(topframe, 0)
     # Create offline streamer section with VOD buttons:
     bottomframe = tk.Frame(mainframe)
     bottomframe.pack(side='bottom', fill='x')
     section_label(bottomframe, 'Offline: ')
-    streamer_buttons(bottomframe, 1, 'disabled', mainframe)
+    streamer_buttons(bottomframe, 1, 'disabled')
+    unfollow_buttons(bottomframe, 1)
 
 # Check the online/offline status once before window initialization:
 status = call_wtwitch()
@@ -215,7 +238,7 @@ main_panel(root)
 create_vodframe()
 menubar.add_command(
     label='Refresh',
-    command=lambda: refresh_button())
+    command=lambda: refresh_mainframe())
 menubar.add_command(
     label='Follow streamer',
     command=lambda: follow_dialog())
