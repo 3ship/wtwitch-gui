@@ -2,6 +2,7 @@ import subprocess
 import re
 import tkinter as tk
 from tkinter.messagebox import askyesno
+from tkinter import simpledialog
 
 def call_wtwitch():
     '''Run wtwitch c and use regex to extract all streamers and their online
@@ -39,12 +40,6 @@ def fetch_vods(streamer):
         if len(titles[i]) > 70:
             titles[i] = titles[i][:70] + "..."
     return timestamps, titles
-
-def destroy_widgets(parent):
-    '''Clear a frame before redrawing it
-    '''
-    for widget in parent.winfo_children():
-        widget.destroy()
 
 def vod_panel(streamer):
     '''Draws the VOD panel on the right side of the window. Three for-loops to
@@ -85,8 +80,9 @@ def vod_panel(streamer):
                             )
     close_button.grid(column=2, row=0, sticky='ne', ipadx=3)"""
 
-def refresh_button(parent):
+def refresh_button_old(parent):
     '''Button in the main panel which calls wtwitch c and redraws the panel.
+    Currently not used.
     '''
     refresh = tk.Button(parent,
                         text="Refresh",
@@ -96,6 +92,12 @@ def refresh_button(parent):
                                     main_panel(root)]
                         )
     refresh.pack(fill='x', side='top', pady=10, padx=10)
+
+def destroy_widgets(parent):
+    '''Clear a frame before redrawing it. Currently not used.
+    '''
+    for widget in parent.winfo_children():
+        widget.destroy()
 
 def section_label(parent, text):
     '''Create text labels for window sections
@@ -141,10 +143,19 @@ def streamer_buttons(parent, onoff, state, mainframe):
         vod_b.pack(fill='x', side='top')
 
 def unfollow_confirmation(streamer, mainframe):
-    answer = askyesno(title='confirmation',
+    answer = askyesno(title='Unfollow',
                     message=f'Are you sure that you want to unfollow {streamer}?')
     if answer:
         subprocess.run(['wtwitch', 'u', streamer])
+        check_status()
+        mainframe.pack_forget()
+        main_panel(root)
+
+def follow_dialog():
+    streamer = simpledialog.askstring(title='Follow',
+                prompt='Enter streamer name: ')
+    if len(streamer) > 0:
+        subprocess.run(['wtwitch', 's', streamer])
         check_status()
         mainframe.pack_forget()
         main_panel(root)
@@ -164,13 +175,20 @@ def close_vods():
     parent = create_vodframe()
     return parent
 
+def refresh_button():
+    check_status()
+    mainframe.pack_forget()
+    mainframe.destroy()
+    main_panel(root)
+
 def main_panel(root):
     '''Always active after window start. Segmented into a top and bottom frame
     for online and offline streamers
     '''
+    global mainframe
     mainframe = tk.Frame(root)
     mainframe.pack(side='left', anchor='nw', fill='x')
-    refresh_button(mainframe)
+    #refresh_button(mainframe)
     # Create section of online streamers with 'watch' and VOD buttons:
     topframe = tk.Frame(mainframe)
     topframe.pack(side='top', fill='x')
@@ -187,6 +205,14 @@ status = call_wtwitch()
 # Create the main window
 root = tk.Tk()
 root.title("wtwitch-gui")
+menubar = tk.Menu(root)
+root.config(menu=menubar)
 main_panel(root)
 create_vodframe()
+menubar.add_command(
+    label='Refresh',
+    command=lambda: refresh_button())
+menubar.add_command(
+    label='Follow streamer',
+    command=lambda: follow_dialog())
 root.mainloop()
