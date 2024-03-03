@@ -122,7 +122,7 @@ def streamer_buttons(parent, onoff, state):
     vods.pack(side='right')
     for streamer in status[onoff]:
         vod_b = tk.Button(vods,
-                        text="Vods",
+                        text="V",
                         justify='right',
                         command=lambda s=streamer:
                         vod_panel(s)
