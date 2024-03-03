@@ -1,6 +1,7 @@
 import subprocess
 import re
 import tkinter as tk
+from tkinter.messagebox import askyesno
 
 def call_wtwitch():
     '''Run wtwitch c and use regex to extract all streamers and their online
@@ -102,7 +103,7 @@ def section_label(parent, text):
     label = tk.Label(parent, text=text)
     label.pack(ipady=5)
 
-def streamer_buttons(parent, onoff, state):
+def streamer_buttons(parent, onoff, state, mainframe):
     '''Create two rows of buttons. On the left the streamers (disabled if
     offline) and on the right their respective VOD buttons
     '''
@@ -117,6 +118,16 @@ def streamer_buttons(parent, onoff, state):
                             [subprocess.run(['wtwitch', 'w', s])]
                             )
         watch_b.pack(fill='x', side='top')
+    unfollow = tk.Frame(parent, pady=10)
+    unfollow.pack(side='left')
+    for streamer in status[onoff]:
+        unfollow_b = tk.Button(unfollow,
+                            text="U",
+                            justify='left',
+                            command=lambda s=streamer, m=mainframe:
+                            [unfollow_confirmation(s, m)]
+                            )
+        unfollow_b.pack(fill='x', side='top')
     # VOD Buttons:
     vods = tk.Frame(parent, pady=10)
     vods.pack(side='right')
@@ -128,6 +139,15 @@ def streamer_buttons(parent, onoff, state):
                         vod_panel(s)
                         )
         vod_b.pack(fill='x', side='top')
+
+def unfollow_confirmation(streamer, mainframe):
+    answer = askyesno(title='confirmation',
+                    message=f'Are you sure that you want to unfollow {streamer}?')
+    if answer:
+        subprocess.run(['wtwitch', 'u', streamer])
+        check_status()
+        mainframe.pack_forget()
+        main_panel(root)
 
 def create_vodframe():
     '''Create the vod panel separately to avoid adding a new one, when the main
@@ -155,12 +175,12 @@ def main_panel(root):
     topframe = tk.Frame(mainframe)
     topframe.pack(side='top', fill='x')
     section_label(topframe, 'Online: ')
-    streamer_buttons(topframe, 0, 'normal')
+    streamer_buttons(topframe, 0, 'normal', mainframe)
     # Create offline streamer section with VOD buttons:
     bottomframe = tk.Frame(mainframe)
     bottomframe.pack(side='bottom', fill='x')
     section_label(bottomframe, 'Offline: ')
-    streamer_buttons(bottomframe, 1, 'disabled')
+    streamer_buttons(bottomframe, 1, 'disabled', mainframe)
 
 # Check the online/offline status once before window initialization:
 status = call_wtwitch()
