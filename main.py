@@ -176,7 +176,7 @@ def unfollow_buttons(frame, onoff):
     '''Adds unfollow buttons for every streamer.
     '''
     unfollow = tk.Frame(frame, pady=10)
-    unfollow.pack(side='left')
+    unfollow.pack(side='right')
     for streamer in status[onoff]:
         unfollow_b = tk.Button(unfollow,
                             text="U",
