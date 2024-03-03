@@ -93,26 +93,6 @@ def vod_panel(streamer):
         title_l.grid(column=2, row=vodno, sticky='w', ipadx=20)
         vodno += 1
 
-def refresh_button_old(parent):
-    '''Button in the main panel which calls wtwitch c and redraws the panel.
-    Currently not used.
-    '''
-    refresh = tk.Button(parent,
-                        text="Refresh",
-                        command=lambda parent=parent:
-                                    [check_status(),
-                                    parent.pack_forget(),
-                                    main_panel()]
-                        )
-    refresh.pack(fill='x', side='top', pady=10, padx=10)
-
-def destroy_widgets(parent):
-    '''Clear a frame before redrawing it.
-    Currently not used.
-    '''
-    for widget in parent.winfo_children():
-        widget.destroy()
-
 def section_label(parent, text):
     '''Create text labels for window sections
     '''
@@ -270,7 +250,7 @@ def menu_bar():
 status = call_wtwitch()
 # Create the main window
 root = tk.Tk()
-root.title("wtwitch-gui")
+root.title("GUI for wtwitch")
 menu_bar()
 main_panel()
 vod_frame()
