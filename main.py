@@ -255,7 +255,7 @@ def main_panel():
     unfollow_buttons(bottomframe, 1)
 
 def menu_bar():
-    menubar = tk.Menu(root)
+    menubar = tk.Menu(root, borderwidth=2)
     root.config(menu=menubar)
     menubar.add_command(
             label='Refresh',
