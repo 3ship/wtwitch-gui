@@ -13,7 +13,7 @@ def call_wtwitch():
     status. Return a tuple of lists with both streamer groups.
     '''
     with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_file:
-        output_text = subprocess.run(['sh', '/bin/wtwitch', 'c'],
+        output_text = subprocess.run(['wtwitch', 'c'],
                                stdout=temp_file)
     with open(temp_file.name, "r") as read_file:
         output_text = read_file.read()
@@ -37,7 +37,7 @@ def fetch_vods(streamer):
     with regex. Cap the title length at 70 characters.
     '''
     with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_file:
-        output_text = subprocess.run(['sh', '/bin/wtwitch', 'v', streamer],
+        output_text = subprocess.run(['wtwitch', 'v', streamer],
                                 stdout=temp_file)
     with open(temp_file.name, "r") as read_file:
         output_text = read_file.read()
@@ -196,7 +196,8 @@ def follow_dialog():
     '''Opens a text dialog and adds the entered string to the follow list.
     '''
     streamer = simpledialog.askstring(title='Follow',
-                prompt='Enter streamer name: ')
+                                prompt='Enter streamer name: ',
+                                parent=mainframe)
     if streamer is None:
         return
     elif len(streamer) > 0:
