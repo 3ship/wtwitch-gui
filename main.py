@@ -116,7 +116,7 @@ def streamer_buttons(parent, onoff, state):
                             text=streamer,
                             justify='left',
                             padx=15,
-                            font=('Cantarell', '10', 'bold'),
+                            font=('Cantarell', '11', 'bold'),
                             anchor='w',
                             state=state,
                             width=15,
@@ -132,7 +132,7 @@ def streamer_buttons(parent, onoff, state):
         vod_b = tk.Button(vods,
                         text="Vods",
                         justify='right',
-                        font=('Cantarell', '10'),
+                        font=('Cantarell', '11'),
                         command=lambda s=streamer:
                         vod_panel(s)
                         )
@@ -148,7 +148,7 @@ def info_buttons(topframe):
         info_b = tk.Button(info_box,
                             text="Info",
                             justify='left',
-                            font=('Cantarell', '10'),
+                            font=('Cantarell', '11'),
                             command=lambda i=index, s=streamer:
                             info_dialog(i, s)
                             )
@@ -169,7 +169,7 @@ def unfollow_buttons(frame, onoff):
         unfollow_b = tk.Button(unfollow,
                             text="U",
                             justify='left',
-                            font=('Cantarell', '10'),
+                            font=('Cantarell', '11'),
                             command=lambda s=streamer:
                             [unfollow_confirmation(s)]
                             )
