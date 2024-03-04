@@ -52,7 +52,7 @@ def fetch_vods(streamer):
             titles[i] = titles[i][:70] + "..."
     return timestamps, titles
 
-def vod_panel(streamer):
+def vod_panel_buttons(streamer):
     '''Draws the VOD panel inside the vod_frame on the right side of the
     window. Three for-loops to draw the timestamps, watch buttons and titles
     of the last 20 VODs
@@ -60,14 +60,14 @@ def vod_panel(streamer):
     # Clear the vod_panel before redrawing it, in case it was already opened
     vodframe.forget()
     vodframe.destroy()
-    parent = vod_frame()
+    parent = vod_panel()
     root.geometry("")
     # Close button recalls this function and returns without drawing content:
     if streamer == "close_the_panel":
         return
     close_button = tk.Button(parent, text='x',
                         command=lambda s="close_the_panel":
-                        vod_panel(s)
+                        vod_panel_buttons(s)
                         )
     close_button.grid(column=2, row=0, sticky='ne')
     # Retreive the streamer's VODs:
@@ -135,7 +135,7 @@ def streamer_buttons(parent, onoff, state):
                         justify='right',
                         font=('Cantarell', '11'),
                         command=lambda s=streamer:
-                        vod_panel(s)
+                        vod_panel_buttons(s)
                         )
         vod_b.pack(fill='x', side='top')
 
@@ -205,7 +205,7 @@ def follow_dialog():
     else:
         return
 
-def vod_frame():
+def vod_panel():
     '''Create the vod frame separately to avoid adding a new one, when the
     main panel gets refreshed.
     '''
@@ -214,7 +214,7 @@ def vod_frame():
     vodframe.pack(side='right', anchor='nw', fill='x', pady=10)
     return vodframe
 
-def refresh_mainframe():
+def refresh_panelframe():
     '''Runs wtwitch c and then rebuilds the main panel.
     '''
     check_status()
@@ -261,7 +261,7 @@ def menu_bar():
     root.config(menu=menubar)
     menubar.add_command(
             label='Refresh',
-            command=lambda: refresh_mainframe())
+            command=lambda: refresh_panelframe())
     menubar.add_command(
             label='Follow streamer',
             command=lambda: follow_dialog())
@@ -273,5 +273,5 @@ root = tk.Tk()
 root.title("GUI for wtwitch")
 menu_bar()
 main_panel()
-vod_frame()
+vod_panel()
 root.mainloop()
