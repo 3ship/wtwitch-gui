@@ -4,6 +4,7 @@ import subprocess
 import re
 import tempfile
 import tkinter as tk
+from tkinter import ttk
 from tkinter.messagebox import askyesno
 from tkinter.messagebox import showinfo
 from tkinter import simpledialog
@@ -185,7 +186,7 @@ def unfollow_confirmation(streamer):
     if answer:
         subprocess.run(['wtwitch', 'u', streamer])
         check_status()
-        mainframe.pack_forget()
+        panelframe.pack_forget()
         main_panel()
 
 def follow_dialog():
@@ -193,13 +194,13 @@ def follow_dialog():
     '''
     streamer = simpledialog.askstring(title='Follow',
                                 prompt='Enter streamer name: ',
-                                parent=mainframe)
+                                parent=panelframe)
     if streamer is None:
         return
     elif len(streamer) > 0:
         subprocess.run(['wtwitch', 's', streamer])
         check_status()
-        mainframe.pack_forget()
+        panelframe.pack_forget()
         main_panel()
     else:
         return
@@ -209,7 +210,7 @@ def vod_frame():
     main panel gets refreshed.
     '''
     global vodframe
-    vodframe = tk.Frame(root)
+    vodframe = tk.Frame(mainframe)
     vodframe.pack(side='right', anchor='nw', fill='x', pady=10)
     return vodframe
 
@@ -217,8 +218,8 @@ def refresh_mainframe():
     '''Runs wtwitch c and then rebuilds the main panel.
     '''
     check_status()
-    mainframe.pack_forget()
-    mainframe.destroy()
+    panelframe.pack_forget()
+    panelframe.destroy()
     main_panel()
     root.geometry("")
 
@@ -228,16 +229,28 @@ def main_panel():
     '''
     global mainframe
     mainframe = tk.Frame(root)
-    mainframe.pack(side='left', anchor='nw', fill='x')
+    mainframe.pack(fill='both', expand='1')
+    """scrollframe = tk.Frame(mainframe)
+    scrollframe.pack(fill='y', side='right')
+    maincanvas = tk.Canvas(mainframe)
+    maincanvas.pack(side='right', fill='both', expand='1')
+    y_scrollbar = ttk.Scrollbar(scrollframe, orient='vertical', command=maincanvas.yview)
+    maincanvas.configure(yscrollcommand=y_scrollbar.set)
+    maincanvas.bind("<Configure>",lambda e: maincanvas.config(scrollregion=maincanvas.bbox(all)))
+    subframe = tk.Frame(maincanvas)
+    maincanvas.create_window((0,0),window=subframe, anchor='nw')"""
+    global panelframe
+    panelframe = tk.Frame(mainframe)
+    panelframe.pack(side='left', anchor='nw', fill='x')
     # Create section of online streamers with 'watch' and VOD buttons:
-    topframe = tk.Frame(mainframe)
+    topframe = tk.Frame(panelframe)
     topframe.pack(side='top', fill='x')
     section_label(topframe, 'Online: ')
     streamer_buttons(topframe, 0, 'normal')
     info_buttons(topframe)
     unfollow_buttons(topframe, 0)
     # Create offline streamer section with VOD buttons:
-    bottomframe = tk.Frame(mainframe)
+    bottomframe = tk.Frame(panelframe)
     bottomframe.pack(side='bottom', fill='x')
     section_label(bottomframe, 'Offline: ')
     streamer_buttons(bottomframe, 1, 'disabled')
