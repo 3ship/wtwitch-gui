@@ -210,7 +210,7 @@ def vod_panel():
     main panel gets refreshed.
     '''
     global vodframe
-    vodframe = tk.Frame(mainframe)
+    vodframe = tk.Frame(root)
     vodframe.pack(side='right', anchor='nw', fill='x', pady=10)
     return vodframe
 
@@ -227,20 +227,8 @@ def main_panel():
     '''Always active after window start. Segmented into a top and bottom frame
     for online and offline streamers
     '''
-    global mainframe
-    mainframe = tk.Frame(root)
-    mainframe.pack(fill='both', expand='1')
-    """scrollframe = tk.Frame(mainframe)
-    scrollframe.pack(fill='y', side='right')
-    maincanvas = tk.Canvas(mainframe)
-    maincanvas.pack(side='right', fill='both', expand='1')
-    y_scrollbar = ttk.Scrollbar(scrollframe, orient='vertical', command=maincanvas.yview)
-    maincanvas.configure(yscrollcommand=y_scrollbar.set)
-    maincanvas.bind("<Configure>",lambda e: maincanvas.config(scrollregion=maincanvas.bbox(all)))
-    subframe = tk.Frame(maincanvas)
-    maincanvas.create_window((0,0),window=subframe, anchor='nw')"""
     global panelframe
-    panelframe = tk.Frame(mainframe)
+    panelframe = tk.Frame(root)
     panelframe.pack(side='left', anchor='nw', fill='x')
     # Create section of online streamers with 'watch' and VOD buttons:
     topframe = tk.Frame(panelframe)
