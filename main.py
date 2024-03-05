@@ -302,6 +302,7 @@ def menu_bar():
             subprocess.run(['wtwitch', 'q', '720p,720p60,480p,best']))
     quality_menu.add_command(label='Low',
             command=lambda: subprocess.run(['wtwitch', 'q', 'worst']))
+    quality_menu.add_separator()
     quality_menu.add_command(label='Custom',
             command=lambda: custom_quality())
     # Sub-menu for player options:
@@ -311,6 +312,7 @@ def menu_bar():
             command=lambda: subprocess.run(['wtwitch', 'p', 'mpv']))
     player_menu.add_command(label='VLC',
             command=lambda: subprocess.run(['wtwitch', 'p', 'vlc']))
+    player_menu.add_separator()
     player_menu.add_command(label='Custom',
             command=lambda: custom_player())
 
