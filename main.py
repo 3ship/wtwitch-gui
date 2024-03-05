@@ -5,7 +5,7 @@ import re
 import tkinter as tk
 from tkinter.messagebox import askyesno
 from tkinter.messagebox import showinfo
-from tkinter import simpledialog
+from tkinter.simpledialog import askstring
 
 def call_wtwitch():
     '''Run wtwitch c and use regex to extract all streamers and their online
@@ -185,9 +185,9 @@ def unfollow_confirmation(streamer):
 def follow_dialog():
     '''Opens a text dialog and adds the entered string to the follow list.
     '''
-    streamer = simpledialog.askstring(title='Follow',
-                                prompt='Enter streamer name: ',
-                                parent=panelframe)
+    streamer = askstring(title='Follow',
+                        prompt='Enter streamer name: ',
+                        parent=panelframe)
     if streamer is None:
         return
     elif len(streamer) > 0:
@@ -237,15 +237,58 @@ def main_panel():
     streamer_buttons(bottomframe, 1, 'disabled')
     unfollow_buttons(bottomframe, 1)
 
+def player_dialog():
+    player = askstring(title='Player',
+                        prompt='Enter your media player:')
+    if player is None:
+        return
+    else:
+        subprocess.run(['wtwitch', 'p', player])
+
+def quality_dialog():
+    quality = askstring(title='Quality',
+                        prompt= 'Options: 1080p60, 720p60, 720p, 480p,\n'
+                                '360p, 160p, best, worst, and audio_only\n'
+                                '\n'
+                                'Specify fallbacks separated by a comma:\n'
+                                'E.g. "720p,480p,worst"\n',
+                        initialvalue='720p,480p,worst',
+                        parent=panelframe)
+    if quality is None:
+        return
+    else:
+        subprocess.run(['wtwitch', 'q', quality])
+
 def menu_bar():
     menubar = tk.Menu(root)
     root.config(menu=menubar)
-    menubar.add_command(
-            label='Refresh',
+    menubar.add_command(label='Refresh',
             command=lambda: refresh_panelframe())
-    menubar.add_command(
-            label='Follow streamer',
+    menubar.add_command(label='Follow streamer',
             command=lambda: follow_dialog())
+    options_menu = tk.Menu(menubar, tearoff=False)
+    menubar.add_cascade(label='Options', menu=options_menu)
+
+    quality_menu = tk.Menu(options_menu)
+    options_menu.add_cascade(label='Quality', menu=quality_menu)
+    quality_menu.add_command(label='High',
+            command=lambda: subprocess.run(['wtwitch', 'q', 'best']))
+    quality_menu.add_command(label='Medium',
+            command=lambda:
+            subprocess.run(['wtwitch', 'q', '720p,720p60,480p,best']))
+    quality_menu.add_command(label='Low',
+            command=lambda: subprocess.run(['wtwitch', 'q', 'worst']))
+    quality_menu.add_command(label='Custom',
+            command=lambda: quality_dialog())
+
+    player_menu = tk.Menu(options_menu)
+    options_menu.add_cascade(label='Player', menu=player_menu)
+    player_menu.add_command(label='mpv',
+            command=lambda: subprocess.run(['wtwitch', 'p', 'mpv']))
+    player_menu.add_command(label='VLC',
+            command=lambda: subprocess.run(['wtwitch', 'p', 'vlc']))
+    player_menu.add_command(label='Custom',
+            command=lambda: player_dialog())
 
 # Check the online/offline status once before window initialization:
 status = call_wtwitch()
