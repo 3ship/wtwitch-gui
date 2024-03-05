@@ -5,6 +5,7 @@ import re
 import tkinter as tk
 from tkinter.messagebox import askyesno
 from tkinter.messagebox import showinfo
+from tkinter.messagebox import showerror
 from tkinter.simpledialog import askstring
 
 def call_wtwitch():
@@ -15,6 +16,8 @@ def call_wtwitch():
                             capture_output=True,
                             text=True
                             )
+    global wtwitch_c_full
+    wtwitch_c_full = wtwitch_c.stdout
     off_streamers1 = re.findall('\[90m(\S*)\x1b', wtwitch_c.stdout)
     off_streamers2 = re.findall('\[90m(\S*),', wtwitch_c.stdout)
     offline_streamers = off_streamers1 + off_streamers2
@@ -182,15 +185,13 @@ def follow_dialog():
     streamer = askstring(title='Follow',
                         prompt='Enter streamer name: ',
                         parent=panel_frame)
-    if streamer is None:
+    if streamer is None or len(streamer) == 0:
         return
-    elif len(streamer) > 0:
+    else:
         subprocess.run(['wtwitch', 's', streamer])
         check_status()
         panel_frame.pack_forget()
         main_panel()
-    else:
-        return
 
 def vod_panel():
     '''Create the vod frame separately to avoid adding a new one, when the
@@ -241,26 +242,44 @@ def custom_player():
     player = askstring(title='Player',
                         prompt='Enter your media player:',
                         parent=panel_frame)
-    if player is None:
+    if player is None or len(player) == 0:
         return
     else:
-        subprocess.run(['wtwitch', 'p', player])
+        confirmation = subprocess.run(['wtwitch', 'p', player],
+                                        text=True,
+                                        capture_output=True)
+        confirmation = re.findall('\n\s(.*)\n\x1b\[0m', confirmation.stdout)
+        return showinfo(title='Quality',
+                        message=confirmation[0])
 
 def custom_quality():
     '''Opens a dialog to set a custom stream quality.
     '''
-    quality = askstring(title='Quality',
+    current_quality = re.findall('Quality set to (\S.*)', wtwitch_c_full)
+    current_quality = current_quality[0]
+    new_quality = askstring(title='Quality',
                         prompt= '\n Options: 1080p60, 720p60, 720p, 480p, \n'
                                 ' 360p, 160p, best, worst, and audio_only \n'
                                 '\n'
                                 ' Specify fallbacks separated by a comma: \n'
                                 ' E.g. "720p,480p,worst" \n',
-                        initialvalue='720p,480p,worst',
+                        initialvalue=current_quality,
                         parent=panel_frame)
-    if quality is None:
+    if new_quality is None or len(new_quality) == 0:
         return
     else:
-        subprocess.run(['wtwitch', 'q', quality])
+        set_quality = subprocess.run(['wtwitch', 'q', new_quality],
+                                        text=True,
+                                        capture_output=True)
+        confirmation = re.findall('\n\s(.*)\n\x1b\[0m', set_quality.stdout)
+        if len(confirmation) >= 1:
+            return showinfo(title='Quality',
+                        message=confirmation[0])
+            current_quality = new_quality
+        else:
+            error = re.findall('\[0m: (.*quality\.)', set_quality.stderr)
+            return showerror(title='Error',
+                        message=error[0])
 
 def menu_bar():
     '''The entire menu bar of the root window.
