@@ -41,12 +41,13 @@ def fetch_vods(streamer):
                             capture_output=True,
                             text=True
                             )
-    timestamps = re.findall('\[96m\[(\S* \S*)\]', wtwitch_v.stdout)
+    timestamps = re.findall('\[96m\[(\S* \d.*:\d.*):\d.*\]', wtwitch_v.stdout)
     titles = re.findall('\]\x1b\[0m\s*(\S.*)\s\x1b\[93m', wtwitch_v.stdout)
+    length = re.findall('\x1b\[93m(\S*)\x1b\[0m', wtwitch_v.stdout)
     for i in range(len(titles)):
-        if len(titles[i]) > 60:
-            titles[i] = titles[i][:60] + "..."
-    return timestamps, titles
+        if len(titles[i]) > 50:
+            titles[i] = titles[i][:50] + "..."
+    return timestamps, titles, length
 
 def vod_panel_buttons(streamer):
     '''Shows a streamer's VODs inside the vod_frame on the right side of the
@@ -91,9 +92,9 @@ def vod_panel_buttons(streamer):
         watch_b.grid(column=1, row=vod_number, ipadx=12)
         vod_number += 1
     vod_number = 1
-    for title in vods[1]:
-        title_l = tk.Label(parent, text=title)
-        title_l.grid(column=2, row=vod_number, sticky='w', ipadx=20)
+    for title, length in zip(vods[1], vods[2]):
+        title_l = tk.Label(parent, text=title + ' ' + length)
+        title_l.grid(column=2, row=vod_number, sticky='w', ipadx=10)
         vod_number += 1
 
 def streamer_buttons(parent, onoff, state):
