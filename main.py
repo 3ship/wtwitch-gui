@@ -54,8 +54,8 @@ def vod_panel_buttons(streamer):
     of the last 20 VODs
     '''
     # Clear the vod_panel before redrawing it, in case it was already opened
-    vodframe.forget()
-    vodframe.destroy()
+    vod_frame.forget()
+    vod_frame.destroy()
     parent = vod_panel()
     root.geometry("")
     # Close button recalls this function and returns without drawing content:
@@ -100,7 +100,7 @@ def streamer_buttons(parent, onoff, state):
     '''Create two rows of buttons. On the left the streamers (disabled if
     offline) and on the right their respective VOD buttons
     '''
-    streamers = tk.Frame(parent, pady=10)
+    streamers = tk.Frame(parent)
     streamers.pack(side='left')
     for streamer in status[onoff]:
         watch_b = tk.Button(streamers,
@@ -117,7 +117,7 @@ def streamer_buttons(parent, onoff, state):
                             )
         watch_b.pack(fill='x', side='top')
     # VOD Buttons:
-    vods = tk.Frame(parent, pady=10)
+    vods = tk.Frame(parent)
     vods.pack(side='right')
     for streamer in status[onoff]:
         vod_b = tk.Button(vods,
@@ -129,11 +129,11 @@ def streamer_buttons(parent, onoff, state):
                         )
         vod_b.pack(fill='x', side='top')
 
-def info_buttons(topframe):
+def info_buttons(parent):
     '''Adds info buttons for every streamer, to show and info dialog with the
     stream title and stream category.
     '''
-    info_box = tk.Frame(topframe, pady=10)
+    info_box = tk.Frame(parent)
     info_box.pack(side='left')
     for index, streamer in enumerate(status[0]):
         info_b = tk.Button(info_box,
@@ -151,10 +151,10 @@ def info_dialog(index, streamer):
     info = showinfo(title=f"{streamer} is streaming:",
                     message=f"{status[2][index]} ({status[3][index]})")
 
-def unfollow_buttons(frame, onoff):
+def unfollow_buttons(parent, onoff):
     '''Adds unfollow buttons for every streamer.
     '''
-    unfollow = tk.Frame(frame, pady=10)
+    unfollow = tk.Frame(parent)
     unfollow.pack(side='right')
     for streamer in status[onoff]:
         unfollow_b = tk.Button(unfollow,
@@ -197,10 +197,10 @@ def vod_panel():
     '''Create the vod frame separately to avoid adding a new one, when the
     main panel gets refreshed.
     '''
-    global vodframe
-    vodframe = tk.Frame(root)
-    vodframe.pack(side='right', anchor='nw', fill='x', pady=10)
-    return vodframe
+    global vod_frame
+    vod_frame = tk.Frame(root)
+    vod_frame.pack(side='right', anchor='nw', fill='x', pady=10)
+    return vod_frame
 
 def refresh_main_panel():
     '''Runs wtwitch c and then rebuilds the main panel.
@@ -256,14 +256,13 @@ def custom_quality():
     '''Opens a dialog to set a custom stream quality.
     '''
     current_quality = re.findall('Quality set to (\S.*)', wtwitch_c_full)
-    current_quality = current_quality[0]
     new_quality = askstring(title='Quality',
                         prompt= '\n Options: 1080p60, 720p60, 720p, 480p, \n'
                                 ' 360p, 160p, best, worst, and audio_only \n'
                                 '\n'
                                 ' Specify fallbacks separated by a comma: \n'
                                 ' E.g. "720p,480p,worst" \n',
-                        initialvalue=current_quality,
+                        initialvalue=current_quality[0],
                         parent=panel_frame)
     if new_quality is None or len(new_quality) == 0:
         return
