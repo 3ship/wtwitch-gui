@@ -62,7 +62,7 @@ def vod_panel_buttons(streamer):
     # Close button recalls this function and returns without drawing content:
     if streamer == "close_the_panel":
         return
-    close_button = tk.Button(parent, text='x',
+    close_button = tk.Button(parent, text='\U0001F5D9', relief='sunken',
                         command=lambda s="close_the_panel":
                         vod_panel_buttons(s)
                         )
@@ -72,7 +72,7 @@ def vod_panel_buttons(streamer):
     # Attach label with streamer name to the top left:
     vods_label = tk.Label(parent, text=f"{streamer}'s VODs:")
     vods_label.grid(column=0, row=0, sticky='nw', ipadx=30, ipady=10)
-    # Account for streamer having no VODs:
+    # Account for streamers having no VODs:
     if len(vods[0]) == 0:
         warning_l = tk.Label(parent, text=f"{streamer} has no VODs")
         warning_l.grid(column=0, row=1, ipadx=10, ipady=10)
@@ -80,16 +80,17 @@ def vod_panel_buttons(streamer):
     vod_number = 1
     for timestamp in vods[0]:
         time_l = tk.Label(parent, text=timestamp)
-        time_l.grid(column=0, row=vod_number, sticky='e', ipadx=20)
+        time_l.grid(column=0, row=vod_number, sticky='e', ipadx=10)
         vod_number += 1
     vod_number = 1
     for title in vods[1]:
         watch_b = tk.Button(parent,
-                    text="Watch",
+                    text='\U000025B6',
+                    relief='flat',
                     command=lambda s=streamer, v=vod_number:
                     [subprocess.run(['wtwitch', 'v', s, str(v)])]
                     )
-        watch_b.grid(column=1, row=vod_number, ipadx=12)
+        watch_b.grid(column=1, row=vod_number, ipadx=10)
         vod_number += 1
     vod_number = 1
     for title, length in zip(vods[1], vods[2]):
@@ -102,16 +103,21 @@ def streamer_buttons(parent, onoff, state):
     offline) and on the right their respective VOD buttons
     '''
     streamers = tk.Frame(parent)
-    streamers.pack(side='left')
+    streamers.pack(side='left', pady=15)
+    if onoff == 0:
+        s_icon = '\U0001F7E2  '
+    elif onoff == 1:
+        s_icon = '\U0001F534  '
     for streamer in status[onoff]:
         watch_b = tk.Button(streamers,
-                            text=streamer,
+                            text=s_icon + streamer,
                             justify='left',
-                            padx=15,
+                            padx=5,
                             font=('Cantarell', '11', 'bold'),
                             anchor='w',
                             state=state,
                             width=15,
+                            relief='flat',
                             disabledforeground='#464646',
                             command=lambda s=streamer:
                             [subprocess.run(['wtwitch', 'w', s])]
@@ -122,8 +128,9 @@ def streamer_buttons(parent, onoff, state):
     vods.pack(side='right')
     for streamer in status[onoff]:
         vod_b = tk.Button(vods,
-                        text="Vods",
+                        text='\U0001F4FC',
                         justify='right',
+                        relief='flat',
                         font=('Cantarell', '11'),
                         command=lambda s=streamer:
                         vod_panel_buttons(s)
@@ -138,8 +145,9 @@ def info_buttons(parent):
     info_box.pack(side='left')
     for index, streamer in enumerate(status[0]):
         info_b = tk.Button(info_box,
-                            text="Info",
+                            text='\U00002139',
                             justify='left',
+                            relief='flat',
                             font=('Cantarell', '11'),
                             command=lambda i=index, s=streamer:
                             info_dialog(i, s)
@@ -159,8 +167,9 @@ def unfollow_buttons(parent, onoff):
     unfollow.pack(side='right')
     for streamer in status[onoff]:
         unfollow_b = tk.Button(unfollow,
-                            text="U",
+                            text="\U0000274C",
                             justify='left',
+                            relief='flat',
                             font=('Cantarell', '11'),
                             command=lambda s=streamer:
                             [unfollow_confirmation(s)]
@@ -200,7 +209,7 @@ def vod_panel():
     '''
     global vod_frame
     vod_frame = tk.Frame(root)
-    vod_frame.pack(side='right', anchor='nw', fill='x', pady=10)
+    vod_frame.pack(side='right', anchor='nw', fill='x', pady=10, padx=5)
     return vod_frame
 
 def refresh_main_panel():
@@ -218,22 +227,16 @@ def main_panel():
     '''
     global panel_frame
     panel_frame = tk.Frame(root)
-    panel_frame.pack(side='left', anchor='nw', fill='x')
+    panel_frame.pack(side='left', anchor='nw', fill='x', padx=10)
     # Create section of online streamers with 'watch' and VOD buttons:
     top_frame = tk.Frame(panel_frame)
     top_frame.pack(side='top', fill='x')
-    top_label = tk.Label(top_frame,
-                    text='Online:',justify='left',anchor='s')
-    top_label.pack(ipady=10, ipadx=10, anchor='sw')
     streamer_buttons(top_frame, 0, 'normal')
     info_buttons(top_frame)
     unfollow_buttons(top_frame, 0)
     # Create offline streamer section with VOD buttons:
     bottom_frame = tk.Frame(panel_frame)
     bottom_frame.pack(side='bottom', fill='x')
-    top_label = tk.Label(bottom_frame,
-                    text='Offline:',justify='left',anchor='s')
-    top_label.pack(ipady=10, ipadx=10, anchor='sw')
     streamer_buttons(bottom_frame, 1, 'disabled')
     unfollow_buttons(bottom_frame, 1)
 
