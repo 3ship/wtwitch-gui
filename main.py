@@ -46,7 +46,7 @@ def fetch_vods(streamer):
     return timestamps, titles
 
 def vod_panel_buttons(streamer):
-    '''Draws the VOD panel inside the vod_frame on the right side of the
+    '''Shows a streamer's VODs inside the vod_frame on the right side of the
     window. Three for-loops to draw the timestamps, watch buttons and titles
     of the last 20 VODs
     '''
@@ -63,7 +63,7 @@ def vod_panel_buttons(streamer):
                         vod_panel_buttons(s)
                         )
     close_button.grid(column=2, row=0, sticky='ne')
-    # Retreive the streamer's VODs:
+    # Retrieve the streamer's VODs:
     vods = fetch_vods(streamer)
     # Attach label with streamer name to the top left:
     vods_label = tk.Label(parent, text=f"{streamer}'s VODs:")
@@ -236,6 +236,8 @@ def main_panel():
     unfollow_buttons(bottom_frame, 1)
 
 def custom_player():
+    '''Opens a dialog to set a custom media player.
+    '''
     player = askstring(title='Player',
                         prompt='Enter your media player:',
                         parent=panel_frame)
@@ -245,6 +247,8 @@ def custom_player():
         subprocess.run(['wtwitch', 'p', player])
 
 def custom_quality():
+    '''Opens a dialog to set a custom stream quality.
+    '''
     quality = askstring(title='Quality',
                         prompt= '\n Options: 1080p60, 720p60, 720p, 480p, \n'
                                 ' 360p, 160p, best, worst, and audio_only \n'
@@ -259,6 +263,8 @@ def custom_quality():
         subprocess.run(['wtwitch', 'q', quality])
 
 def menu_bar():
+    '''The entire menu bar of the root window.
+    '''
     menubar = tk.Menu(root)
     root.config(menu=menubar)
     menubar.add_command(label='Refresh',
