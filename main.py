@@ -93,12 +93,6 @@ def vod_panel_buttons(streamer):
         title_l.grid(column=2, row=vodno, sticky='w', ipadx=20)
         vodno += 1
 
-def section_label(parent, text):
-    '''Create text labels for window sections
-    '''
-    label = tk.Label(parent, text=text, justify='left', anchor='s')
-    label.pack(ipady=10, ipadx=10, anchor='sw')
-
 def streamer_buttons(parent, onoff, state):
     '''Create two rows of buttons. On the left the streamers (disabled if
     offline) and on the right their respective VOD buttons
@@ -179,7 +173,7 @@ def unfollow_confirmation(streamer):
     if answer:
         subprocess.run(['wtwitch', 'u', streamer])
         check_status()
-        panelframe.pack_forget()
+        panel_frame.pack_forget()
         main_panel()
 
 def follow_dialog():
@@ -187,13 +181,13 @@ def follow_dialog():
     '''
     streamer = askstring(title='Follow',
                         prompt='Enter streamer name: ',
-                        parent=panelframe)
+                        parent=panel_frame)
     if streamer is None:
         return
     elif len(streamer) > 0:
         subprocess.run(['wtwitch', 's', streamer])
         check_status()
-        panelframe.pack_forget()
+        panel_frame.pack_forget()
         main_panel()
     else:
         return
@@ -207,12 +201,12 @@ def vod_panel():
     vodframe.pack(side='right', anchor='nw', fill='x', pady=10)
     return vodframe
 
-def refresh_panelframe():
+def refresh_main_panel():
     '''Runs wtwitch c and then rebuilds the main panel.
     '''
     check_status()
-    panelframe.pack_forget()
-    panelframe.destroy()
+    panel_frame.pack_forget()
+    panel_frame.destroy()
     main_panel()
     root.geometry("")
 
@@ -220,40 +214,45 @@ def main_panel():
     '''Always active after window start. Segmented into a top and bottom frame
     for online and offline streamers
     '''
-    global panelframe
-    panelframe = tk.Frame(root)
-    panelframe.pack(side='left', anchor='nw', fill='x')
+    global panel_frame
+    panel_frame = tk.Frame(root)
+    panel_frame.pack(side='left', anchor='nw', fill='x')
     # Create section of online streamers with 'watch' and VOD buttons:
-    topframe = tk.Frame(panelframe)
-    topframe.pack(side='top', fill='x')
-    section_label(topframe, 'Online: ')
-    streamer_buttons(topframe, 0, 'normal')
-    info_buttons(topframe)
-    unfollow_buttons(topframe, 0)
+    top_frame = tk.Frame(panel_frame)
+    top_frame.pack(side='top', fill='x')
+    top_label = tk.Label(top_frame,
+                    text='Online:',justify='left',anchor='s')
+    top_label.pack(ipady=10, ipadx=10, anchor='sw')
+    streamer_buttons(top_frame, 0, 'normal')
+    info_buttons(top_frame)
+    unfollow_buttons(top_frame, 0)
     # Create offline streamer section with VOD buttons:
-    bottomframe = tk.Frame(panelframe)
-    bottomframe.pack(side='bottom', fill='x')
-    section_label(bottomframe, 'Offline: ')
-    streamer_buttons(bottomframe, 1, 'disabled')
-    unfollow_buttons(bottomframe, 1)
+    bottom_frame = tk.Frame(panel_frame)
+    bottom_frame.pack(side='bottom', fill='x')
+    top_label = tk.Label(bottom_frame,
+                    text='Offline:',justify='left',anchor='s')
+    top_label.pack(ipady=10, ipadx=10, anchor='sw')
+    streamer_buttons(bottom_frame, 1, 'disabled')
+    unfollow_buttons(bottom_frame, 1)
 
-def player_dialog():
+def custom_player():
     player = askstring(title='Player',
-                        prompt='Enter your media player:')
+                        prompt='Enter your media player:',
+                        parent=panel_frame)
     if player is None:
         return
     else:
         subprocess.run(['wtwitch', 'p', player])
 
-def quality_dialog():
+def custom_quality():
     quality = askstring(title='Quality',
-                        prompt= 'Options: 1080p60, 720p60, 720p, 480p,\n'
-                                '360p, 160p, best, worst, and audio_only\n'
+                        prompt= '\n Options: 1080p60, 720p60, 720p, 480p, \n'
+                                ' 360p, 160p, best, worst, and audio_only \n'
                                 '\n'
-                                'Specify fallbacks separated by a comma:\n'
-                                'E.g. "720p,480p,worst"\n',
+                                ' Specify fallbacks separated by a comma: \n'
+                                ' E.g. "720p,480p,worst" \n',
                         initialvalue='720p,480p,worst',
-                        parent=panelframe)
+                        parent=panel_frame)
     if quality is None:
         return
     else:
@@ -263,13 +262,14 @@ def menu_bar():
     menubar = tk.Menu(root)
     root.config(menu=menubar)
     menubar.add_command(label='Refresh',
-            command=lambda: refresh_panelframe())
+            command=lambda: refresh_main_panel())
     menubar.add_command(label='Follow streamer',
             command=lambda: follow_dialog())
+    # Options drop-down menu:
     options_menu = tk.Menu(menubar, tearoff=False)
     menubar.add_cascade(label='Options', menu=options_menu)
-
-    quality_menu = tk.Menu(options_menu)
+    # Sub-menu for quality options:
+    quality_menu = tk.Menu(options_menu, tearoff=False)
     options_menu.add_cascade(label='Quality', menu=quality_menu)
     quality_menu.add_command(label='High',
             command=lambda: subprocess.run(['wtwitch', 'q', 'best']))
@@ -279,16 +279,16 @@ def menu_bar():
     quality_menu.add_command(label='Low',
             command=lambda: subprocess.run(['wtwitch', 'q', 'worst']))
     quality_menu.add_command(label='Custom',
-            command=lambda: quality_dialog())
-
-    player_menu = tk.Menu(options_menu)
+            command=lambda: custom_quality())
+    # Sub-menu for player options:
+    player_menu = tk.Menu(options_menu, tearoff=False)
     options_menu.add_cascade(label='Player', menu=player_menu)
     player_menu.add_command(label='mpv',
             command=lambda: subprocess.run(['wtwitch', 'p', 'mpv']))
     player_menu.add_command(label='VLC',
             command=lambda: subprocess.run(['wtwitch', 'p', 'vlc']))
     player_menu.add_command(label='Custom',
-            command=lambda: player_dialog())
+            command=lambda: custom_player())
 
 # Check the online/offline status once before window initialization:
 status = call_wtwitch()
