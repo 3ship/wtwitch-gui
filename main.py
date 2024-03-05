@@ -62,7 +62,7 @@ def vod_panel_buttons(streamer):
     # Close button recalls this function and returns without drawing content:
     if streamer == "close_the_panel":
         return
-    close_button = tk.Button(parent, text='\U0001F5D9', relief='sunken',
+    close_button = tk.Button(parent, text='\U0001F5D9', relief='ridge',
                         command=lambda s="close_the_panel":
                         vod_panel_buttons(s)
                         )
@@ -336,6 +336,11 @@ toggle_color()
 # Create the main window
 root = tk.Tk()
 root.title("GUI for wtwitch")
+"""sb = tk.Scrollbar(root)
+sb.pack(side='right', fill ='y')
+c = tk.Canvas(root, yscrollcommand=sb.set)
+c.pack(side='top', fill='x')
+sb.config(command=c.yview)"""
 menu_bar()
 main_panel()
 vod_panel()
