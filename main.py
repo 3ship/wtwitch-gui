@@ -73,25 +73,25 @@ def vod_panel_buttons(streamer):
         warning_l = tk.Label(parent, text=f"{streamer} has no VODs")
         warning_l.grid(column=0, row=1, ipadx=10, ipady=10)
     # The three for-loops:
-    vodno = 1
+    vod_number = 1
     for timestamp in vods[0]:
         time_l = tk.Label(parent, text=timestamp)
-        time_l.grid(column=0, row=vodno, sticky='e', ipadx=20)
-        vodno += 1
-    vodno = 1
+        time_l.grid(column=0, row=vod_number, sticky='e', ipadx=20)
+        vod_number += 1
+    vod_number = 1
     for title in vods[1]:
         watch_b = tk.Button(parent,
                     text="Watch",
-                    command=lambda s=streamer, vodno=vodno:
-                    [subprocess.run(['wtwitch', 'v', s, str(vodno)])]
+                    command=lambda s=streamer, v=vod_number:
+                    [subprocess.run(['wtwitch', 'v', s, str(v)])]
                     )
-        watch_b.grid(column=1, row=vodno, ipadx=12)
-        vodno += 1
-    vodno = 1
+        watch_b.grid(column=1, row=vod_number, ipadx=12)
+        vod_number += 1
+    vod_number = 1
     for title in vods[1]:
         title_l = tk.Label(parent, text=title)
-        title_l.grid(column=2, row=vodno, sticky='w', ipadx=20)
-        vodno += 1
+        title_l.grid(column=2, row=vod_number, sticky='w', ipadx=20)
+        vod_number += 1
 
 def streamer_buttons(parent, onoff, state):
     '''Create two rows of buttons. On the left the streamers (disabled if
