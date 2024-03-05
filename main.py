@@ -316,8 +316,19 @@ def menu_bar():
     player_menu.add_command(label='Custom',
             command=lambda: custom_player())
 
+def toggle_color():
+    wtwitch_l = subprocess.run(['wtwitch', 'l'],
+                            capture_output=True,
+                            text=True)
+    if re.search('Turned colors on.', wtwitch_l.stdout):
+        return
+    else:
+        toggle_color()
+
 # Check the online/offline status once before window initialization:
 status = call_wtwitch()
+# Make sure that colors in the terminal output are activated:
+toggle_color()
 # Create the main window
 root = tk.Tk()
 root.title("GUI for wtwitch")
