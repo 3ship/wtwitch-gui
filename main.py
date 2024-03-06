@@ -102,15 +102,22 @@ def streamer_buttons(parent, onoff, state):
     '''Create two rows of buttons. On the left the streamers (disabled if
     offline) and on the right their respective VOD buttons
     '''
-    streamers = tk.Frame(parent)
-    streamers.pack(side='left', pady=15)
     if onoff == 0:
         s_icon = '\U0001F7E2  '
     elif onoff == 1:
         s_icon = '\U0001F534  '
+    count = 0
     for streamer in status[onoff]:
-        watch_b = tk.Button(streamers,
-                            text=s_icon + streamer,
+        status_icon = tk.Button(parent,
+                            text=s_icon,
+                            relief='flat',
+                            state='disabled')
+        status_icon.grid(column=0, row=count)
+        count += 1
+    count = 0
+    for streamer in status[onoff]:
+        watch_b = tk.Button(parent,
+                            text=streamer,
                             justify='left',
                             padx=5,
                             font=('Cantarell', '11', 'bold'),
@@ -122,12 +129,12 @@ def streamer_buttons(parent, onoff, state):
                             command=lambda s=streamer:
                             [subprocess.run(['wtwitch', 'w', s])]
                             )
-        watch_b.pack(fill='x', side='top')
+        watch_b.grid(column=1, row=count)
+        count += 1
     # VOD Buttons:
-    vods = tk.Frame(parent)
-    vods.pack(side='right')
+    count = 0
     for streamer in status[onoff]:
-        vod_b = tk.Button(vods,
+        vod_b = tk.Button(parent,
                         text='\U0001F4FC',
                         justify='right',
                         relief='flat',
@@ -135,16 +142,17 @@ def streamer_buttons(parent, onoff, state):
                         command=lambda s=streamer:
                         vod_panel_buttons(s)
                         )
-        vod_b.pack(fill='x', side='top')
+        vod_b.grid(column=4, row=count)
+        count += 1
 
-def info_buttons(parent):
+def info_buttons(parent, onoff):
     '''Adds info buttons for every streamer, to show and info dialog with the
     stream title and stream category.
     '''
-    info_box = tk.Frame(parent)
-    info_box.pack(side='left')
-    for index, streamer in enumerate(status[0]):
-        info_b = tk.Button(info_box,
+    count = 0
+    if onoff == 0:
+        for index, streamer in enumerate(status[0]):
+            info_b = tk.Button(parent,
                             text='\U00002139',
                             justify='left',
                             relief='flat',
@@ -152,7 +160,20 @@ def info_buttons(parent):
                             command=lambda i=index, s=streamer:
                             info_dialog(i, s)
                             )
-        info_b.pack(fill='x', side='top')
+            info_b.grid(column=2, row=count)
+            count += 1
+    elif onoff == 1:
+        for streamer in status[1]:
+            info_b = tk.Button(parent,
+                            text='\U00002139',
+                            justify='left',
+                            relief='flat',
+                            state='disabled',
+                            font=('Cantarell', '11'),
+                            )
+            info_b.grid(column=2, row=count)
+            count += 1
+
 
 def info_dialog(index, streamer):
     '''Info dialog, including stream title and stream category
@@ -163,10 +184,9 @@ def info_dialog(index, streamer):
 def unfollow_buttons(parent, onoff):
     '''Adds unfollow buttons for every streamer.
     '''
-    unfollow = tk.Frame(parent)
-    unfollow.pack(side='right')
+    count = 0
     for streamer in status[onoff]:
-        unfollow_b = tk.Button(unfollow,
+        unfollow_b = tk.Button(parent,
                             text="\U0000274C",
                             justify='left',
                             relief='flat',
@@ -174,7 +194,8 @@ def unfollow_buttons(parent, onoff):
                             command=lambda s=streamer:
                             [unfollow_confirmation(s)]
                             )
-        unfollow_b.pack(fill='x', side='top')
+        unfollow_b.grid(column=3, row=count)
+        count += 1
 
 def unfollow_confirmation(streamer):
     '''Asks for confirmation, if the unfollow button is pressed. Rebuild the
@@ -232,12 +253,13 @@ def main_panel():
     top_frame = tk.Frame(panel_frame)
     top_frame.pack(side='top', fill='x')
     streamer_buttons(top_frame, 0, 'normal')
-    info_buttons(top_frame)
+    info_buttons(top_frame, 0)
     unfollow_buttons(top_frame, 0)
     # Create offline streamer section with VOD buttons:
     bottom_frame = tk.Frame(panel_frame)
     bottom_frame.pack(side='bottom', fill='x')
     streamer_buttons(bottom_frame, 1, 'disabled')
+    info_buttons(bottom_frame, 1)
     unfollow_buttons(bottom_frame, 1)
 
 def custom_player():
