@@ -319,7 +319,7 @@ def toggle_color():
 # Check the online/offline status once before window initialization:
 status = call_wtwitch()
 # Make sure that colors in the terminal output are activated:
-toggle_color()
+#toggle_color()
 # Create the main window
 root = tk.Tk()
 root.title("GUI for wtwitch")
