@@ -103,9 +103,9 @@ def streamer_buttons(parent, onoff, state):
     offline) and on the right their respective VOD buttons
     '''
     if onoff == 0:
-        s_icon = '\U0001F7E2  '
+        s_icon = '\U0001F7E2'
     elif onoff == 1:
-        s_icon = '\U0001F534  '
+        s_icon = '\U0001F534'
     count = 0
     for streamer in status[onoff]:
         status_icon = tk.Button(parent,
