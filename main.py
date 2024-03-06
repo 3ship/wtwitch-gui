@@ -248,7 +248,7 @@ def main_panel():
     '''
     global panel_frame
     panel_frame = tk.Frame(root)
-    panel_frame.pack(side='left', anchor='nw', fill='x', padx=10)
+    panel_frame.pack(side='left', anchor='nw', fill='x', padx=10, pady=10)
     # Create section of online streamers with 'watch' and VOD buttons:
     top_frame = tk.Frame(panel_frame)
     top_frame.pack(side='top', fill='x')
