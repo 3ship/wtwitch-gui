@@ -62,16 +62,16 @@ def vod_panel_buttons(streamer):
     # Close button recalls this function and returns without drawing content:
     if streamer == "close_the_panel":
         return
-    close_button = tk.Button(parent, text='\U0001F5D9', relief='ridge',
+    close_button = tk.Button(parent, image=close_icon, relief='flat',
                         command=lambda s="close_the_panel":
                         vod_panel_buttons(s)
                         )
-    close_button.grid(column=2, row=0, sticky='ne')
+    close_button.grid(column=2, row=0, sticky='ne', padx=5)
     # Retrieve the streamer's VODs:
     vods = fetch_vods(streamer)
     # Attach label with streamer name to the top left:
     vods_label = tk.Label(parent, text=f"{streamer}'s VODs:")
-    vods_label.grid(column=0, row=0, sticky='nw', ipadx=30, ipady=10)
+    vods_label.grid(column=0, row=0, sticky='nw', ipady=6)
     # Account for streamers having no VODs:
     if len(vods[0]) == 0:
         warning_l = tk.Label(parent, text=f"{streamer} has no VODs")
@@ -85,12 +85,12 @@ def vod_panel_buttons(streamer):
     vod_number = 1
     for title in vods[1]:
         watch_b = tk.Button(parent,
-                    text='\U000025B6',
+                    image=play_icon,
                     relief='flat',
                     command=lambda s=streamer, v=vod_number:
                     [subprocess.run(['wtwitch', 'v', s, str(v)])]
                     )
-        watch_b.grid(column=1, row=vod_number, ipadx=10)
+        watch_b.grid(column=1, row=vod_number, sticky='w', ipadx=10)
         vod_number += 1
     vod_number = 1
     for title, length in zip(vods[1], vods[2]):
@@ -98,131 +98,102 @@ def vod_panel_buttons(streamer):
         title_l.grid(column=2, row=vod_number, sticky='w', ipadx=10)
         vod_number += 1
 
-def streamer_buttons(parent, onoff, state):
-    '''Create two rows of buttons. On the left the streamers (disabled if
-    offline) and on the right their respective VOD buttons
-    '''
+def streamer_buttons(parent, onoff):
+    global count_row
     if onoff == 0:
-        s_icon = '\U0001F7E2'
+        streamer_list = status[0]
+        s_image = streaming_icon
+        state = 'normal'
+        info_command = ''
     elif onoff == 1:
-        s_icon = '\U0001F534'
-    count = 0
-    for streamer in status[onoff]:
-        status_icon = tk.Button(parent,
-                            text=s_icon,
-                            relief='flat',
-                            state='disabled')
-        status_icon.grid(column=0, row=count)
-        count += 1
-    count = 0
-    for streamer in status[onoff]:
-        watch_b = tk.Button(parent,
+        streamer_list = status[1]
+        s_image = offline_icon
+        state = 'disabled'
+        info_command = ''
+    for index, streamer in enumerate(streamer_list):
+        status_icon = tk.Label(parent, image=s_image)
+        status_icon.grid(column=0, row=count_row, sticky='we')
+        watch_button = tk.Button(parent,
                             text=streamer,
-                            justify='left',
-                            padx=5,
+                            justify='left', anchor='w', padx=5,
                             font=('Cantarell', '11', 'bold'),
-                            anchor='w',
-                            state=state,
+                            state=state, relief='flat',
                             width=15,
-                            relief='flat',
                             disabledforeground='#464646',
                             command=lambda s=streamer:
                             [subprocess.run(['wtwitch', 'w', s])]
                             )
-        watch_b.grid(column=1, row=count)
-        count += 1
-    # VOD Buttons:
-    count = 0
-    for streamer in status[onoff]:
+        watch_button.grid(column=1, row=count_row)
+        if onoff == 0:
+            info_button = tk.Button(parent,
+                            image=info_icon,
+                            justify='left',
+                            relief='flat',
+                            state=state,
+                            font=('Cantarell', '11'),
+                            command=lambda i=index, s=streamer:
+                            info_dialog(i, s)
+                            )
+        else:
+            info_button = tk.Label(parent, image=empty_icon)
+        info_button.grid(column=2, row=count_row)
+        unfollow_b = tk.Button(parent,
+                            image=unfollow_icon,
+                            justify='left',
+                            relief='flat',
+                            font=('Cantarell', '11'),
+                            command=lambda s=streamer:
+                            [unfollow_dialog(s)]
+                            )
+        unfollow_b.grid(column=3, row=count_row)
         vod_b = tk.Button(parent,
-                        text='\U0001F4FC',
+                        image=vod_icon,
                         justify='right',
                         relief='flat',
                         font=('Cantarell', '11'),
                         command=lambda s=streamer:
                         vod_panel_buttons(s)
                         )
-        vod_b.grid(column=4, row=count)
-        count += 1
-
-def info_buttons(parent, onoff):
-    '''Adds info buttons for every streamer, to show and info dialog with the
-    stream title and stream category.
-    '''
-    count = 0
-    if onoff == 0:
-        for index, streamer in enumerate(status[0]):
-            info_b = tk.Button(parent,
-                            text='\U00002139',
-                            justify='left',
-                            relief='flat',
-                            font=('Cantarell', '11'),
-                            command=lambda i=index, s=streamer:
-                            info_dialog(i, s)
-                            )
-            info_b.grid(column=2, row=count)
-            count += 1
-    elif onoff == 1:
-        for streamer in status[1]:
-            info_b = tk.Button(parent,
-                            text='\U00002139',
-                            justify='left',
-                            relief='flat',
-                            state='disabled',
-                            font=('Cantarell', '11'),
-                            )
-            info_b.grid(column=2, row=count)
-            count += 1
-
+        vod_b.grid(column=4, row=count_row)
+        count_row += 1
 
 def info_dialog(index, streamer):
     '''Info dialog, including stream title and stream category
     '''
     info = showinfo(title=f"{streamer} is streaming:",
-                    message=f"{status[2][index]} ({status[3][index]})")
+                    message=f"{status[2][index]} ({status[3][index]})",
+                    parent=root)
 
-def unfollow_buttons(parent, onoff):
-    '''Adds unfollow buttons for every streamer.
-    '''
-    count = 0
-    for streamer in status[onoff]:
-        unfollow_b = tk.Button(parent,
-                            text="\U0000274C",
-                            justify='left',
-                            relief='flat',
-                            font=('Cantarell', '11'),
-                            command=lambda s=streamer:
-                            [unfollow_confirmation(s)]
-                            )
-        unfollow_b.grid(column=3, row=count)
-        count += 1
-
-def unfollow_confirmation(streamer):
+def unfollow_dialog(streamer):
     '''Asks for confirmation, if the unfollow button is pressed. Rebuild the
     main panel, if confirmed.
     '''
     answer = askyesno(title='Unfollow',
-            message=f'Are you sure that you want to unfollow {streamer}?',
-            default='no')
+                message=f'Are you sure that you want to unfollow {streamer}?',
+                default='no',
+                parent=root)
     if answer:
-        subprocess.run(['wtwitch', 'u', streamer])
+        update = subprocess.run(['wtwitch', 'u', streamer])
         check_status()
         panel_frame.pack_forget()
         main_panel()
+        showinfo(message=f'You have un-followed {streamer}',
+                parent=root)
 
 def follow_dialog():
     '''Opens a text dialog and adds the entered string to the follow list.
     '''
     streamer = askstring(title='Follow',
                         prompt='Enter streamer name: ',
-                        parent=panel_frame)
+                        parent=root)
     if streamer is None or len(streamer) == 0:
         return
     else:
-        subprocess.run(['wtwitch', 's', streamer])
+        update = subprocess.run(['wtwitch', 's', streamer])
         check_status()
         panel_frame.pack_forget()
         main_panel()
+        showinfo(message=f'You are now following {streamer}')
 
 def vod_panel():
     '''Create the vod frame separately to avoid adding a new one, when the
@@ -249,25 +220,17 @@ def main_panel():
     global panel_frame
     panel_frame = tk.Frame(root)
     panel_frame.pack(side='left', anchor='nw', fill='x', padx=10, pady=10)
-    # Create section of online streamers with 'watch' and VOD buttons:
-    top_frame = tk.Frame(panel_frame)
-    top_frame.pack(side='top', fill='x')
-    streamer_buttons(top_frame, 0, 'normal')
-    info_buttons(top_frame, 0)
-    unfollow_buttons(top_frame, 0)
-    # Create offline streamer section with VOD buttons:
-    bottom_frame = tk.Frame(panel_frame)
-    bottom_frame.pack(side='bottom', fill='x')
-    streamer_buttons(bottom_frame, 1, 'disabled')
-    info_buttons(bottom_frame, 1)
-    unfollow_buttons(bottom_frame, 1)
+    global count_row
+    count_row = 0
+    streamer_buttons(panel_frame, 0)
+    streamer_buttons(panel_frame, 1)
 
 def custom_player():
     '''Opens a dialog to set a custom media player.
     '''
     player = askstring(title='Player',
                         prompt='Enter your media player:',
-                        parent=panel_frame)
+                        parent=root)
     if player is None or len(player) == 0:
         return
     else:
@@ -276,7 +239,8 @@ def custom_player():
                                         capture_output=True)
         confirmation = re.findall('\n\s(.*)\n\x1b\[0m', confirmation.stdout)
         return showinfo(title='Quality',
-                        message=confirmation[0])
+                        message=confirmation[0],
+                        parent=root)
 
 def custom_quality():
     '''Opens a dialog to set a custom stream quality.
@@ -289,7 +253,7 @@ def custom_quality():
                                 ' Specify fallbacks separated by a comma: \n'
                                 ' E.g. "720p,480p,worst" \n',
                         initialvalue=current_quality[0],
-                        parent=panel_frame)
+                        parent=root)
     if new_quality is None or len(new_quality) == 0:
         return
     else:
@@ -299,12 +263,14 @@ def custom_quality():
         confirmation = re.findall('\n\s(.*)\n\x1b\[0m', set_quality.stdout)
         if len(confirmation) >= 1:
             return showinfo(title='Quality',
-                        message=confirmation[0])
+                        message=confirmation[0],
+                        parent=root)
             current_quality = new_quality
         else:
             error = re.findall('\[0m: (.*quality\.)', set_quality.stderr)
             return showerror(title='Error',
-                        message=error[0])
+                        message=error[0],
+                        parent=root)
 
 def menu_bar():
     '''The entire menu bar of the root window.
@@ -353,16 +319,30 @@ def toggle_color():
 
 # Check the online/offline status once before window initialization:
 status = call_wtwitch()
+
 # Make sure that colors in the terminal output are activated:
-toggle_color()
+# toggle_color()
+
 # Create the main window
 root = tk.Tk()
 root.title("GUI for wtwitch")
+
 """sb = tk.Scrollbar(root)
 sb.pack(side='right', fill ='y')
 c = tk.Canvas(root, yscrollcommand=sb.set)
 c.pack(side='top', fill='x')
 sb.config(command=c.yview)"""
+
+# Import icons:
+unfollow_icon = tk.PhotoImage(file='icons/unfollow_icon.png')
+info_icon = tk.PhotoImage(file='icons/info_icon.png')
+empty_icon = tk.PhotoImage(file='icons/empty_icon.png')
+vod_icon = tk.PhotoImage(file='icons/vod_icon.png')
+streaming_icon = tk.PhotoImage(file='icons/streaming_icon.png')
+offline_icon = tk.PhotoImage(file='icons/offline_icon.png')
+play_icon = tk.PhotoImage(file='icons/play_icon.png')
+close_icon = tk.PhotoImage(file='icons/close_icon.png')
+
 menu_bar()
 main_panel()
 vod_panel()
