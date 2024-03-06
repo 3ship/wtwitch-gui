@@ -102,37 +102,30 @@ def streamer_buttons(parent, onoff):
     global count_row
     if onoff == 0:
         streamer_list = status[0]
-        #s_icon = '\U0001F7E2'
         s_image = streaming
         state = 'normal'
         info_command = ''
     elif onoff == 1:
         streamer_list = status[1]
-        #s_icon = '\U0001F534'
         s_image = notstreaming
         state = 'disabled'
         info_command = ''
     for index, streamer in enumerate(streamer_list):
-        status_icon = tk.Label(parent,
-                            #text=s_icon,
-                            image=s_image)
+        status_icon = tk.Label(parent, image=s_image)
         status_icon.grid(column=0, row=count_row)
         watch_button = tk.Button(parent,
                             text=streamer,
-                            justify='left',
-                            padx=5,
+                            justify='left', anchor='w', padx=5,
                             font=('Cantarell', '11', 'bold'),
-                            anchor='w',
-                            state=state,
+                            state=state, relief='flat',
                             width=15,
-                            relief='flat',
                             disabledforeground='#464646',
                             command=lambda s=streamer:
                             [subprocess.run(['wtwitch', 'w', s])]
                             )
         watch_button.grid(column=1, row=count_row)
-        info_button = tk.Button(parent,
-                            text='\U00002139',
+        if onoff == 0:
+            info_button = tk.Button(parent,
                             image=info_icon,
                             justify='left',
                             relief='flat',
@@ -141,9 +134,10 @@ def streamer_buttons(parent, onoff):
                             command=lambda i=index, s=streamer:
                             info_dialog(i, s)
                             )
+        else:
+            info_button = tk.Label(parent, image=info_icon2)
         info_button.grid(column=2, row=count_row)
         unfollow_b = tk.Button(parent,
-                            text='\U0000274C',
                             image=unfollow_icon,
                             justify='left',
                             relief='flat',
@@ -153,7 +147,6 @@ def streamer_buttons(parent, onoff):
                             )
         unfollow_b.grid(column=3, row=count_row)
         vod_b = tk.Button(parent,
-                        text='\U0001F4FC',
                         image=vod_icon,
                         justify='right',
                         relief='flat',
@@ -330,6 +323,7 @@ c.pack(side='top', fill='x')
 sb.config(command=c.yview)"""
 unfollow_icon = tk.PhotoImage(file='cross-circle.png')
 info_icon = tk.PhotoImage(file='exclamation.png')
+info_icon2 = tk.PhotoImage(file='empty.png')
 vod_icon = tk.PhotoImage(file='online-video.png')
 streaming = tk.PhotoImage(file='streaming.png')
 notstreaming = tk.PhotoImage(file='notstreaming.png')
