@@ -102,12 +102,12 @@ def streamer_buttons(parent, onoff):
     global count_row
     if onoff == 0:
         streamer_list = status[0]
-        s_image = streaming
+        s_image = streaming_icon
         state = 'normal'
         info_command = ''
     elif onoff == 1:
         streamer_list = status[1]
-        s_image = notstreaming
+        s_image = offline_icon
         state = 'disabled'
         info_command = ''
     for index, streamer in enumerate(streamer_list):
@@ -135,7 +135,7 @@ def streamer_buttons(parent, onoff):
                             info_dialog(i, s)
                             )
         else:
-            info_button = tk.Label(parent, image=info_icon2)
+            info_button = tk.Label(parent, image=empty_icon)
         info_button.grid(column=2, row=count_row)
         unfollow_b = tk.Button(parent,
                             image=unfollow_icon,
@@ -145,7 +145,7 @@ def streamer_buttons(parent, onoff):
                             command=lambda s=streamer:
                             [unfollow_confirmation(s)]
                             )
-        unfollow_b.grid(column=3, row=count_row)
+        unfollow_b.grid(column=3, row=count_row, padx=10)
         vod_b = tk.Button(parent,
                         image=vod_icon,
                         justify='right',
@@ -321,12 +321,12 @@ sb.pack(side='right', fill ='y')
 c = tk.Canvas(root, yscrollcommand=sb.set)
 c.pack(side='top', fill='x')
 sb.config(command=c.yview)"""
-unfollow_icon = tk.PhotoImage(file='cross-circle.png')
-info_icon = tk.PhotoImage(file='exclamation.png')
-info_icon2 = tk.PhotoImage(file='empty.png')
-vod_icon = tk.PhotoImage(file='online-video.png')
-streaming = tk.PhotoImage(file='streaming.png')
-notstreaming = tk.PhotoImage(file='notstreaming.png')
+unfollow_icon = tk.PhotoImage(file='icons/unfollow_icon.png')
+info_icon = tk.PhotoImage(file='icons/info_icon.png')
+empty_icon = tk.PhotoImage(file='icons/empty_icon.png')
+vod_icon = tk.PhotoImage(file='icons/vod_icon.png')
+streaming_icon = tk.PhotoImage(file='icons/streaming_icon.png')
+offline_icon = tk.PhotoImage(file='icons/offline_icon.png')
 menu_bar()
 main_panel()
 vod_panel()
