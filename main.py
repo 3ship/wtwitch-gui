@@ -103,15 +103,16 @@ def streamer_buttons(parent, onoff, state):
     offline) and on the right their respective VOD buttons
     '''
     if onoff == 0:
-        s_icon = '\U0001F7E2'
+        s_symb = '\U0001F7E2'
+        s_icon = streaming
     elif onoff == 1:
-        s_icon = '\U0001F534'
+        s_symb = '\U0001F534'
+        s_icon = ''
     count = 0
     for streamer in status[onoff]:
-        status_icon = tk.Button(parent,
-                            text=s_icon,
-                            relief='flat',
-                            state='disabled')
+        status_icon = tk.Label(parent,
+                            text=s_symb,
+                            image=s_icon)
         status_icon.grid(column=0, row=count)
         count += 1
     count = 0
@@ -136,6 +137,7 @@ def streamer_buttons(parent, onoff, state):
     for streamer in status[onoff]:
         vod_b = tk.Button(parent,
                         text='\U0001F4FC',
+                        image=vod_icon,
                         justify='right',
                         relief='flat',
                         font=('Cantarell', '11'),
@@ -154,6 +156,7 @@ def info_buttons(parent, onoff):
         for index, streamer in enumerate(status[0]):
             info_b = tk.Button(parent,
                             text='\U00002139',
+                            image=info_icon,
                             justify='left',
                             relief='flat',
                             font=('Cantarell', '11'),
@@ -166,6 +169,7 @@ def info_buttons(parent, onoff):
         for streamer in status[1]:
             info_b = tk.Button(parent,
                             text='\U00002139',
+                            image=info_icon,
                             justify='left',
                             relief='flat',
                             state='disabled',
@@ -188,6 +192,7 @@ def unfollow_buttons(parent, onoff):
     for streamer in status[onoff]:
         unfollow_b = tk.Button(parent,
                             text="\U0000274C",
+                            image=unfollow_icon,
                             justify='left',
                             relief='flat',
                             font=('Cantarell', '11'),
@@ -255,12 +260,9 @@ def main_panel():
     streamer_buttons(top_frame, 0, 'normal')
     info_buttons(top_frame, 0)
     unfollow_buttons(top_frame, 0)
-    # Create offline streamer section with VOD buttons:
-    bottom_frame = tk.Frame(panel_frame)
-    bottom_frame.pack(side='bottom', fill='x')
-    streamer_buttons(bottom_frame, 1, 'disabled')
-    info_buttons(bottom_frame, 1)
-    unfollow_buttons(bottom_frame, 1)
+    streamer_buttons(top_frame, 1, 'disabled')
+    info_buttons(top_frame, 1)
+    unfollow_buttons(top_frame, 1)
 
 def custom_player():
     '''Opens a dialog to set a custom media player.
@@ -363,6 +365,10 @@ sb.pack(side='right', fill ='y')
 c = tk.Canvas(root, yscrollcommand=sb.set)
 c.pack(side='top', fill='x')
 sb.config(command=c.yview)"""
+unfollow_icon = tk.PhotoImage(file='cross-circle.png')
+info_icon = tk.PhotoImage(file='exclamation.png')
+vod_icon = tk.PhotoImage(file='online-video.png')
+streaming = tk.PhotoImage(file='streaming.png')
 menu_bar()
 main_panel()
 vod_panel()
