@@ -62,16 +62,16 @@ def vod_panel_buttons(streamer):
     # Close button recalls this function and returns without drawing content:
     if streamer == "close_the_panel":
         return
-    close_button = tk.Button(parent, text='\U0001F5D9', relief='ridge',
+    close_button = tk.Button(parent, image=close_icon, relief='flat',
                         command=lambda s="close_the_panel":
                         vod_panel_buttons(s)
                         )
-    close_button.grid(column=2, row=0, sticky='ne')
+    close_button.grid(column=2, row=0, sticky='ne', padx=5)
     # Retrieve the streamer's VODs:
     vods = fetch_vods(streamer)
     # Attach label with streamer name to the top left:
     vods_label = tk.Label(parent, text=f"{streamer}'s VODs:")
-    vods_label.grid(column=0, row=0, sticky='nw', ipadx=30, ipady=10)
+    vods_label.grid(column=0, row=0, sticky='nw', ipady=6)
     # Account for streamers having no VODs:
     if len(vods[0]) == 0:
         warning_l = tk.Label(parent, text=f"{streamer} has no VODs")
@@ -85,12 +85,12 @@ def vod_panel_buttons(streamer):
     vod_number = 1
     for title in vods[1]:
         watch_b = tk.Button(parent,
-                    text='\U000025B6',
+                    image=play_icon,
                     relief='flat',
                     command=lambda s=streamer, v=vod_number:
                     [subprocess.run(['wtwitch', 'v', s, str(v)])]
                     )
-        watch_b.grid(column=1, row=vod_number, ipadx=10)
+        watch_b.grid(column=1, row=vod_number, sticky='w', ipadx=10)
         vod_number += 1
     vod_number = 1
     for title, length in zip(vods[1], vods[2]):
@@ -112,7 +112,7 @@ def streamer_buttons(parent, onoff):
         info_command = ''
     for index, streamer in enumerate(streamer_list):
         status_icon = tk.Label(parent, image=s_image)
-        status_icon.grid(column=0, row=count_row)
+        status_icon.grid(column=0, row=count_row, sticky='we')
         watch_button = tk.Button(parent,
                             text=streamer,
                             justify='left', anchor='w', padx=5,
@@ -143,9 +143,9 @@ def streamer_buttons(parent, onoff):
                             relief='flat',
                             font=('Cantarell', '11'),
                             command=lambda s=streamer:
-                            [unfollow_confirmation(s)]
+                            [unfollow_dialog(s)]
                             )
-        unfollow_b.grid(column=3, row=count_row, padx=10)
+        unfollow_b.grid(column=3, row=count_row)
         vod_b = tk.Button(parent,
                         image=vod_icon,
                         justify='right',
@@ -161,34 +161,39 @@ def info_dialog(index, streamer):
     '''Info dialog, including stream title and stream category
     '''
     info = showinfo(title=f"{streamer} is streaming:",
-                    message=f"{status[2][index]} ({status[3][index]})")
+                    message=f"{status[2][index]} ({status[3][index]})",
+                    parent=root)
 
-def unfollow_confirmation(streamer):
+def unfollow_dialog(streamer):
     '''Asks for confirmation, if the unfollow button is pressed. Rebuild the
     main panel, if confirmed.
     '''
     answer = askyesno(title='Unfollow',
-            message=f'Are you sure that you want to unfollow {streamer}?',
-            default='no')
+                message=f'Are you sure that you want to unfollow {streamer}?',
+                default='no',
+                parent=root)
     if answer:
-        subprocess.run(['wtwitch', 'u', streamer])
+        update = subprocess.run(['wtwitch', 'u', streamer])
         check_status()
         panel_frame.pack_forget()
         main_panel()
+        showinfo(message=f'You have un-followed {streamer}',
+                parent=root)
 
 def follow_dialog():
     '''Opens a text dialog and adds the entered string to the follow list.
     '''
     streamer = askstring(title='Follow',
                         prompt='Enter streamer name: ',
-                        parent=panel_frame)
+                        parent=root)
     if streamer is None or len(streamer) == 0:
         return
     else:
-        subprocess.run(['wtwitch', 's', streamer])
+        update = subprocess.run(['wtwitch', 's', streamer])
         check_status()
         panel_frame.pack_forget()
         main_panel()
+        showinfo(message=f'You are now following {streamer}')
 
 def vod_panel():
     '''Create the vod frame separately to avoid adding a new one, when the
@@ -225,7 +230,7 @@ def custom_player():
     '''
     player = askstring(title='Player',
                         prompt='Enter your media player:',
-                        parent=panel_frame)
+                        parent=root)
     if player is None or len(player) == 0:
         return
     else:
@@ -234,7 +239,8 @@ def custom_player():
                                         capture_output=True)
         confirmation = re.findall('\n\s(.*)\n\x1b\[0m', confirmation.stdout)
         return showinfo(title='Quality',
-                        message=confirmation[0])
+                        message=confirmation[0],
+                        parent=root)
 
 def custom_quality():
     '''Opens a dialog to set a custom stream quality.
@@ -247,7 +253,7 @@ def custom_quality():
                                 ' Specify fallbacks separated by a comma: \n'
                                 ' E.g. "720p,480p,worst" \n',
                         initialvalue=current_quality[0],
-                        parent=panel_frame)
+                        parent=root)
     if new_quality is None or len(new_quality) == 0:
         return
     else:
@@ -257,12 +263,14 @@ def custom_quality():
         confirmation = re.findall('\n\s(.*)\n\x1b\[0m', set_quality.stdout)
         if len(confirmation) >= 1:
             return showinfo(title='Quality',
-                        message=confirmation[0])
+                        message=confirmation[0],
+                        parent=root)
             current_quality = new_quality
         else:
             error = re.findall('\[0m: (.*quality\.)', set_quality.stderr)
             return showerror(title='Error',
-                        message=error[0])
+                        message=error[0],
+                        parent=root)
 
 def menu_bar():
     '''The entire menu bar of the root window.
@@ -311,22 +319,30 @@ def toggle_color():
 
 # Check the online/offline status once before window initialization:
 status = call_wtwitch()
+
 # Make sure that colors in the terminal output are activated:
-#toggle_color()
+# toggle_color()
+
 # Create the main window
 root = tk.Tk()
 root.title("GUI for wtwitch")
+
 """sb = tk.Scrollbar(root)
 sb.pack(side='right', fill ='y')
 c = tk.Canvas(root, yscrollcommand=sb.set)
 c.pack(side='top', fill='x')
 sb.config(command=c.yview)"""
+
+# Import icons:
 unfollow_icon = tk.PhotoImage(file='icons/unfollow_icon.png')
 info_icon = tk.PhotoImage(file='icons/info_icon.png')
 empty_icon = tk.PhotoImage(file='icons/empty_icon.png')
 vod_icon = tk.PhotoImage(file='icons/vod_icon.png')
 streaming_icon = tk.PhotoImage(file='icons/streaming_icon.png')
 offline_icon = tk.PhotoImage(file='icons/offline_icon.png')
+play_icon = tk.PhotoImage(file='icons/play_icon.png')
+close_icon = tk.PhotoImage(file='icons/close_icon.png')
+
 menu_bar()
 main_panel()
 vod_panel()
