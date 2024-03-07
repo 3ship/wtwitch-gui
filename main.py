@@ -129,6 +129,7 @@ def streamer_buttons(parent, onoff):
                             image=info_icon,
                             justify='left',
                             relief='flat',
+                            height=26, width=20,
                             state=state,
                             font=('Cantarell', '11'),
                             command=lambda i=index, s=streamer:
@@ -141,19 +142,21 @@ def streamer_buttons(parent, onoff):
                             image=unfollow_icon,
                             justify='left',
                             relief='flat',
+                            height=26, width=20,
                             font=('Cantarell', '11'),
                             command=lambda s=streamer:
                             [unfollow_dialog(s)]
                             )
         unfollow_b.grid(column=3, row=count_row)
         vod_b = tk.Button(parent,
-                        image=vod_icon,
-                        justify='right',
-                        relief='flat',
-                        font=('Cantarell', '11'),
-                        command=lambda s=streamer:
-                        vod_panel_buttons(s)
-                        )
+                            image=vod_icon,
+                            justify='right',
+                            relief='flat',
+                            height=26, width=20,
+                            font=('Cantarell', '11'),
+                            command=lambda s=streamer:
+                            vod_panel_buttons(s)
+                            )
         vod_b.grid(column=4, row=count_row)
         count_row += 1
 
