@@ -177,9 +177,7 @@ def unfollow_dialog(streamer):
                 parent=root)
     if answer:
         update = subprocess.run(['wtwitch', 'u', streamer])
-        check_status()
-        panel_frame.pack_forget()
-        main_panel()
+        refresh_main_panel()
         showinfo(message=f'You have un-followed {streamer}',
                 parent=root)
 
@@ -193,9 +191,7 @@ def follow_dialog():
         return
     else:
         update = subprocess.run(['wtwitch', 's', streamer])
-        check_status()
-        panel_frame.pack_forget()
-        main_panel()
+        refresh_main_panel()
         showinfo(message=f'You are now following {streamer}')
 
 def vod_panel():
@@ -217,8 +213,7 @@ def refresh_main_panel():
     root.geometry("")
 
 def main_panel():
-    '''Always active after window start. Segmented into a top and bottom frame
-    for online and offline streamers
+    '''Always active after window start.
     '''
     global panel_frame
     panel_frame = tk.Frame(root)
@@ -241,7 +236,7 @@ def custom_player():
                                         text=True,
                                         capture_output=True)
         confirmation = re.findall('\n\s(.*)\n\x1b\[0m', confirmation.stdout)
-        return showinfo(title='Quality',
+        return showinfo(title='Player',
                         message=confirmation[0],
                         parent=root)
 
