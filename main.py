@@ -99,7 +99,7 @@ def vod_panel_buttons(streamer):
         vod_number += 1
 
 def streamer_buttons(parent, onoff):
-    global count_row
+    global count_rows
     if onoff == 0:
         streamer_list = status[0]
         s_image = streaming_icon
@@ -112,7 +112,7 @@ def streamer_buttons(parent, onoff):
         info_command = ''
     for index, streamer in enumerate(streamer_list):
         status_icon = tk.Label(parent, image=s_image)
-        status_icon.grid(column=0, row=count_row, sticky='we')
+        status_icon.grid(column=0, row=count_rows, sticky='we')
         watch_button = tk.Button(parent,
                             text=streamer,
                             justify='left', anchor='w', padx=5,
@@ -123,42 +123,35 @@ def streamer_buttons(parent, onoff):
                             command=lambda s=streamer:
                             [subprocess.run(['wtwitch', 'w', s])]
                             )
-        watch_button.grid(column=1, row=count_row)
+        watch_button.grid(column=1, row=count_rows)
         if onoff == 0:
             info_button = tk.Button(parent,
                             image=info_icon,
-                            justify='left',
                             relief='flat',
                             height=26, width=20,
-                            state=state,
-                            font=('Cantarell', '11'),
                             command=lambda i=index, s=streamer:
                             info_dialog(i, s)
                             )
         else:
             info_button = tk.Label(parent, image=empty_icon)
-        info_button.grid(column=2, row=count_row)
+        info_button.grid(column=2, row=count_rows)
         unfollow_b = tk.Button(parent,
                             image=unfollow_icon,
-                            justify='left',
                             relief='flat',
                             height=26, width=20,
-                            font=('Cantarell', '11'),
                             command=lambda s=streamer:
                             [unfollow_dialog(s)]
                             )
-        unfollow_b.grid(column=3, row=count_row)
+        unfollow_b.grid(column=3, row=count_rows)
         vod_b = tk.Button(parent,
                             image=vod_icon,
-                            justify='right',
                             relief='flat',
                             height=26, width=20,
-                            font=('Cantarell', '11'),
                             command=lambda s=streamer:
                             vod_panel_buttons(s)
                             )
-        vod_b.grid(column=4, row=count_row)
-        count_row += 1
+        vod_b.grid(column=4, row=count_rows)
+        count_rows += 1
 
 def info_dialog(index, streamer):
     '''Info dialog, including stream title and stream category
@@ -200,7 +193,7 @@ def vod_panel():
     '''
     global vod_frame
     vod_frame = tk.Frame(root)
-    vod_frame.pack(side='right', anchor='nw', fill='x', pady=10, padx=5)
+    vod_frame.pack(side='right', anchor='n', pady=10, padx=5)
     return vod_frame
 
 def refresh_main_panel():
@@ -208,7 +201,7 @@ def refresh_main_panel():
     '''
     check_status()
     panel_frame.pack_forget()
-    panel_frame.destroy()
+    #panel_frame.destroy()
     main_panel()
     root.geometry("")
 
@@ -218,8 +211,8 @@ def main_panel():
     global panel_frame
     panel_frame = tk.Frame(root)
     panel_frame.pack(side='left', anchor='nw', fill='x', padx=10, pady=10)
-    global count_row
-    count_row = 0
+    global count_rows
+    count_rows = 0
     streamer_buttons(panel_frame, 0)
     streamer_buttons(panel_frame, 1)
 
