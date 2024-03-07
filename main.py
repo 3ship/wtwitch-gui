@@ -201,7 +201,7 @@ def refresh_main_panel():
     '''
     check_status()
     panel_frame.pack_forget()
-    #panel_frame.destroy()
+    panel_frame.destroy()
     main_panel()
     root.geometry("")
 
