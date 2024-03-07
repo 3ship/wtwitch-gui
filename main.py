@@ -245,7 +245,7 @@ def custom_player():
 def custom_quality():
     '''Opens a dialog to set a custom stream quality.
     '''
-    current_quality = re.findall('Quality set to (\S.*)', wtwitch_c_full)
+    current_quality = re.findall('\s(\S*)\n\x1b\[0m', wtwitch_c_full)
     new_quality = askstring(title='Quality',
                         prompt= '\n Options: 1080p60, 720p60, 720p, 480p, \n'
                                 ' 360p, 160p, best, worst, and audio_only \n'
@@ -267,7 +267,7 @@ def custom_quality():
                         parent=root)
             current_quality = new_quality
         else:
-            error = re.findall('\[0m: (.*quality\.)', set_quality.stderr)
+            error = re.findall('\[0m: (\S.*?\.)', set_quality.stderr)
             return showerror(title='Error',
                         message=error[0],
                         parent=root)
