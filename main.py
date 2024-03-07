@@ -341,6 +341,9 @@ offline_icon = tk.PhotoImage(file='icons/offline_icon.png')
 play_icon = tk.PhotoImage(file='icons/play_icon.png')
 close_icon = tk.PhotoImage(file='icons/close_icon.png')
 
+app_icon = tk.PhotoImage(file='icons/app_icon.png')
+root.wm_iconphoto(False, app_icon)
+
 menu_bar()
 main_panel()
 vod_panel()
