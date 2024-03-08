@@ -102,55 +102,49 @@ def streamer_buttons(parent, onoff):
     global count_rows
     if onoff == 0:
         streamer_list = status[0]
-        s_image = streaming_icon
+        image = streaming_icon
         state = 'normal'
-        info_command = ''
     elif onoff == 1:
         streamer_list = status[1]
-        s_image = offline_icon
+        image = offline_icon
         state = 'disabled'
-        info_command = ''
     for index, streamer in enumerate(streamer_list):
-        status_icon = tk.Label(parent, image=s_image)
-        status_icon.grid(column=0, row=count_rows, sticky='we')
-        watch_button = tk.Button(parent,
+        if onoff == 0:
+            watch_button = tk.Button(parent, image=image,
+                                relief='flat', height=27,
+                                command=lambda s=streamer:
+                                [subprocess.run(['wtwitch', 'w', s])]
+                                )
+        else:
+            watch_button = tk.Label(parent, image=image)
+        watch_button.grid(column=0, row=count_rows)
+        info_button = tk.Button(parent,
                             text=streamer,
-                            justify='left', anchor='w', padx=5,
+                            anchor='w', #justify='left',
                             font=('Cantarell', '11', 'bold'),
                             state=state, relief='flat',
                             width=15,
                             disabledforeground='#464646',
-                            command=lambda s=streamer:
-                            [subprocess.run(['wtwitch', 'w', s])]
-                            )
-        watch_button.grid(column=1, row=count_rows)
-        if onoff == 0:
-            info_button = tk.Button(parent,
-                            image=info_icon,
-                            relief='flat',
-                            height=26, width=20,
                             command=lambda i=index, s=streamer:
                             info_dialog(i, s)
                             )
-        else:
-            info_button = tk.Label(parent, image=empty_icon)
-        info_button.grid(column=2, row=count_rows)
+        info_button.grid(column=1, row=count_rows)
         unfollow_b = tk.Button(parent,
                             image=unfollow_icon,
                             relief='flat',
-                            height=26, width=20,
+                            height=27, width=20,
                             command=lambda s=streamer:
                             [unfollow_dialog(s)]
                             )
-        unfollow_b.grid(column=3, row=count_rows)
+        unfollow_b.grid(column=2, row=count_rows)
         vod_b = tk.Button(parent,
                             image=vod_icon,
                             relief='flat',
-                            height=26, width=20,
+                            height=27, width=20,
                             command=lambda s=streamer:
                             vod_panel_buttons(s)
                             )
-        vod_b.grid(column=4, row=count_rows)
+        vod_b.grid(column=3, row=count_rows)
         count_rows += 1
 
 def info_dialog(index, streamer):
