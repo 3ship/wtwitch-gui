@@ -63,9 +63,9 @@ def vod_panel_buttons(streamer):
     if streamer == "close_the_panel":
         return
     close_button = tk.Button(parent, image=close_icon, relief='flat',
-                        command=lambda s="close_the_panel":
-                        vod_panel_buttons(s)
-                        )
+                            command=lambda s="close_the_panel":
+                            vod_panel_buttons(s)
+                            )
     close_button.grid(column=2, row=0, sticky='ne', padx=5)
     # Retrieve the streamer's VODs:
     vods = fetch_vods(streamer)
@@ -86,18 +86,18 @@ def vod_panel_buttons(streamer):
     vod_number = 1
     for title in vods[1]:
         watch_b = tk.Button(parent,
-                    image=play_icon,
-                    relief='flat',
-                    command=lambda s=streamer, v=vod_number:
-                    [subprocess.run(['wtwitch', 'v', s, str(v)])]
-                    )
+                            image=play_icon,
+                            relief='flat',
+                            command=lambda s=streamer, v=vod_number:
+                            [subprocess.run(['wtwitch', 'v', s, str(v)])]
+                            )
         watch_b.grid(column=1, row=vod_number, sticky='w', ipadx=10)
         vod_number += 1
     vod_number = 1
     for title, length in zip(vods[1], vods[2]):
         title_l = tk.Label(parent, text=title + ' ' + length,
-                    font=('Cantarell', '9')
-                    )
+                            font=('Cantarell', '9')
+                            )
         title_l.grid(column=2, row=vod_number, sticky='nw', ipadx=5)
         vod_number += 1
 
@@ -114,10 +114,10 @@ def streamer_buttons(parent, onoff):
     for index, streamer in enumerate(streamer_list):
         if onoff == 0:
             watch_button = tk.Button(parent, image=image,
-                                relief='flat', height=27,
-                                command=lambda s=streamer:
-                                [subprocess.run(['wtwitch', 'w', s])]
-                                )
+                            relief='flat', height=27,
+                            command=lambda s=streamer:
+                            [subprocess.run(['wtwitch', 'w', s])]
+                            )
         else:
             watch_button = tk.Label(parent, image=image)
         watch_button.grid(column=0, row=count_rows)
@@ -162,21 +162,22 @@ def unfollow_dialog(streamer):
     main panel, if confirmed.
     '''
     answer = askyesno(title='Unfollow',
-                message=f'Are you sure that you want to unfollow {streamer}?',
-                default='no',
-                parent=root)
+                    message='Are you sure that you '
+                            f'want to unfollow {streamer}?',
+                    default='no',
+                    parent=root)
     if answer:
         update = subprocess.run(['wtwitch', 'u', streamer])
         refresh_main_panel()
         showinfo(message=f'You have un-followed {streamer}',
-                parent=root)
+                    parent=root)
 
 def follow_dialog():
     '''Opens a text dialog and adds the entered string to the follow list.
     '''
     streamer = askstring(title='Follow',
-                        prompt='Enter streamer name: ',
-                        parent=root)
+                    prompt='Enter streamer name: ',
+                    parent=root)
     if streamer is None or len(streamer) <= 2:
         return
     else:
@@ -190,7 +191,7 @@ def vod_panel():
     '''
     global vod_frame
     vod_frame = tk.Frame(root)
-    vod_frame.pack(side='right', anchor='e', pady=10, padx=5)
+    vod_frame.pack(side='right', anchor='ne', pady=10, padx=5)
     return vod_frame
 
 def refresh_main_panel():
@@ -223,8 +224,8 @@ def custom_player():
         return
     else:
         confirmation = subprocess.run(['wtwitch', 'p', player],
-                                        text=True,
-                                        capture_output=True)
+                        text=True,
+                        capture_output=True)
         confirmation = re.findall('\n\s(.*)\n\x1b\[0m', confirmation.stdout)
         return showinfo(title='Player',
                         message=confirmation[0],
@@ -246,8 +247,8 @@ def custom_quality():
         return
     else:
         set_quality = subprocess.run(['wtwitch', 'q', new_quality],
-                                        text=True,
-                                        capture_output=True)
+                        text=True,
+                        capture_output=True)
         confirmation = re.findall('\n\s(.*)\n\x1b\[0m', set_quality.stdout)
         if len(confirmation) >= 1:
             return showinfo(title='Quality',
