@@ -70,8 +70,9 @@ def vod_panel_buttons(streamer):
     # Retrieve the streamer's VODs:
     vods = fetch_vods(streamer)
     # Attach label with streamer name to the top left:
-    vods_label = tk.Label(parent, text=f"{streamer}'s VODs:")
-    vods_label.grid(column=0, row=0, sticky='nw', ipady=6)
+    vods_label = tk.Label(parent, text=f"{streamer}'s VODs:",
+                    font=('Cantarell', '9'))
+    vods_label.grid(column=2, row=0, sticky='w', pady=10, padx=5)
     # Account for streamers having no VODs:
     if len(vods[0]) == 0:
         warning_l = tk.Label(parent, text=f"{streamer} has no VODs")
@@ -79,8 +80,8 @@ def vod_panel_buttons(streamer):
     # The three for-loops:
     vod_number = 1
     for timestamp in vods[0]:
-        time_l = tk.Label(parent, text=timestamp)
-        time_l.grid(column=0, row=vod_number, sticky='e', ipadx=10)
+        time_l = tk.Label(parent, text=timestamp, font=('', '8'))
+        time_l.grid(column=0, row=vod_number, padx=5)
         vod_number += 1
     vod_number = 1
     for title in vods[1]:
@@ -94,8 +95,10 @@ def vod_panel_buttons(streamer):
         vod_number += 1
     vod_number = 1
     for title, length in zip(vods[1], vods[2]):
-        title_l = tk.Label(parent, text=title + ' ' + length)
-        title_l.grid(column=2, row=vod_number, sticky='w', ipadx=10)
+        title_l = tk.Label(parent, text=title + ' ' + length,
+                    font=('Cantarell', '9')
+                    )
+        title_l.grid(column=2, row=vod_number, sticky='nw', ipadx=5)
         vod_number += 1
 
 def streamer_buttons(parent, onoff):
@@ -187,7 +190,7 @@ def vod_panel():
     '''
     global vod_frame
     vod_frame = tk.Frame(root)
-    vod_frame.pack(side='right', anchor='n', pady=10, padx=5)
+    vod_frame.pack(side='right', anchor='e', pady=10, padx=5)
     return vod_frame
 
 def refresh_main_panel():
