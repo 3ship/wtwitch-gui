@@ -260,37 +260,39 @@ def custom_quality():
 def menu_bar():
     '''The entire menu bar of the root window.
     '''
+    font = ('Cantarell', '10')
+    font2 = ('Cantarell', '10', 'bold')
     menubar = tk.Menu(root)
     root.config(menu=menubar)
-    menubar.add_command(label='Refresh',
+    menubar.add_command(label='Refresh', font=font2,
             command=lambda: refresh_main_panel())
-    menubar.add_command(label='Follow streamer',
+    menubar.add_command(label='Follow streamer', font=font,
             command=lambda: follow_dialog())
     # Options drop-down menu:
     options_menu = tk.Menu(menubar, tearoff=False)
-    menubar.add_cascade(label='Options', menu=options_menu)
+    menubar.add_cascade(label='Options', menu=options_menu, font=font)
     # Sub-menu for quality options:
     quality_menu = tk.Menu(options_menu, tearoff=False)
-    options_menu.add_cascade(label='Quality', menu=quality_menu)
-    quality_menu.add_command(label='High',
+    options_menu.add_cascade(label='Quality', menu=quality_menu, font=font)
+    quality_menu.add_command(label='High', font=font,
             command=lambda: subprocess.run(['wtwitch', 'q', 'best']))
-    quality_menu.add_command(label='Medium',
+    quality_menu.add_command(label='Medium', font=font,
             command=lambda:
             subprocess.run(['wtwitch', 'q', '720p,720p60,480p,best']))
-    quality_menu.add_command(label='Low',
+    quality_menu.add_command(label='Low', font=font,
             command=lambda: subprocess.run(['wtwitch', 'q', 'worst']))
     quality_menu.add_separator()
-    quality_menu.add_command(label='Custom',
+    quality_menu.add_command(label='Custom', font=font,
             command=lambda: custom_quality())
     # Sub-menu for player options:
     player_menu = tk.Menu(options_menu, tearoff=False)
     options_menu.add_cascade(label='Player', menu=player_menu)
-    player_menu.add_command(label='mpv',
+    player_menu.add_command(label='mpv', font=font,
             command=lambda: subprocess.run(['wtwitch', 'p', 'mpv']))
-    player_menu.add_command(label='VLC',
+    player_menu.add_command(label='VLC', font=font,
             command=lambda: subprocess.run(['wtwitch', 'p', 'vlc']))
     player_menu.add_separator()
-    player_menu.add_command(label='Custom',
+    player_menu.add_command(label='Custom', font=font,
             command=lambda: custom_player())
 
 def toggle_color():
