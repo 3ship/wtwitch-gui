@@ -177,7 +177,7 @@ def follow_dialog():
     streamer = askstring(title='Follow',
                         prompt='Enter streamer name: ',
                         parent=root)
-    if streamer is None or len(streamer) == 0:
+    if streamer is None or len(streamer) <= 2:
         return
     else:
         update = subprocess.run(['wtwitch', 's', streamer])
