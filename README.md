@@ -6,6 +6,8 @@ A GUI for the bash script [wtwitch](https://github.com/krathalan/wtwitch), writt
 
 This is my first GUI-based project while learning Python. There's currently no binary or installation method, but if you have Python, wtwitch (and its dependencies) installed, you can test the program by cloning the repo and running the main.py from the terminal.
 
-## Screenshot
+## Screenshots
 
-<p align="center"><img src=screenshot.png alt="screenshot"/></p>
+<p align="center"><img src=screenshot1.png alt="screenshot"/></p>
+
+<p align="center"><img src=screenshot2.png alt="screenshot"/></p>
