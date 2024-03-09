@@ -71,7 +71,7 @@ def vod_panel_buttons(streamer):
     vods = fetch_vods(streamer)
     # Attach label with streamer name to the top left:
     vods_label = tk.Label(parent, text=f"{streamer}'s VODs:",
-                    font=('Cantarell', '9'))
+                        font=('Cantarell', '9'))
     vods_label.grid(column=2, row=0, sticky='w', pady=10, padx=5)
     # Account for streamers having no VODs:
     if len(vods[0]) == 0:
