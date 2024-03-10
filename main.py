@@ -174,8 +174,6 @@ def unfollow_dialog(streamer):
                         text=True
                         )
         refresh_main_panel()
-        showinfo(message=f'You have un-followed {streamer}',
-                    parent=root)
 
 def follow_dialog():
     '''Opens a text dialog and adds the entered string to the follow list.
@@ -192,7 +190,6 @@ def follow_dialog():
                         text=True
                         )
         refresh_main_panel()
-        showinfo(message=f'You are now following {streamer}')
 
 def vod_panel():
     '''Create the vod frame separately to avoid adding a new one, when the
