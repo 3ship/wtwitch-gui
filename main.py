@@ -18,13 +18,13 @@ def call_wtwitch():
                         )
     global wtwitch_c_full
     wtwitch_c_full = wtwitch_c.stdout
-    off_streamers1 = re.findall('\[90m(\S*)\x1b', wtwitch_c.stdout)
-    off_streamers2 = re.findall('\[90m(\S*),', wtwitch_c.stdout)
+    off_streamers1 = re.findall('\\[90m(\S*)\x1b', wtwitch_c.stdout)
+    off_streamers2 = re.findall('\\[90m(\S*),', wtwitch_c.stdout)
     offline_streamers = off_streamers1 + off_streamers2
     offline_streamers.sort()
-    online_streamers = re.findall('\[92m(\S*)\x1b', wtwitch_c.stdout)
-    stream_titles = re.findall('\[0m: (\S.*)\s\x1b\[93m\(', wtwitch_c.stdout)
-    stream_categs = re.findall('\[93m\((\S.*)\)\x1b\[0m\n', wtwitch_c.stdout)
+    online_streamers = re.findall('\\[92m(\S*)\x1b', wtwitch_c.stdout)
+    stream_titles = re.findall('\\[0m: (\S.*)\s\x1b\[93m\(', wtwitch_c.stdout)
+    stream_categs = re.findall('\\[93m\((\S.*)\)\x1b\[0m\n', wtwitch_c.stdout)
     return online_streamers, offline_streamers, stream_titles, stream_categs
 
 def check_status():
@@ -41,9 +41,9 @@ def fetch_vods(streamer):
                         capture_output=True,
                         text=True
                         )
-    timestamps = re.findall('\[96m\[(\S* \d.*:\d.*):\d.*\]', wtwitch_v.stdout)
-    titles = re.findall('\]\x1b\[0m\s*(\S.*)\s\x1b\[93m', wtwitch_v.stdout)
-    length = re.findall('\x1b\[93m(\S*)\x1b\[0m', wtwitch_v.stdout)
+    timestamps = re.findall('\\[96m\[(\S* \d.*:\d.*):\d.*\]', wtwitch_v.stdout)
+    titles = re.findall('\\]\x1b\[0m\s*(\S.*)\s\x1b\[93m', wtwitch_v.stdout)
+    length = re.findall('\x1b\\[93m(\S*)\x1b\[0m', wtwitch_v.stdout)
     for i in range(len(titles)):
         if len(titles[i]) > 50:
             titles[i] = titles[i][:50] + "..."
@@ -233,7 +233,7 @@ def custom_player():
                         text=True,
                         capture_output=True
                         )
-        confirmation = re.findall('\n\s(.*)\n\x1b\[0m', confirmation.stdout)
+        confirmation = re.findall('\n\\s(.*)\n\x1b\[0m', confirmation.stdout)
         return showinfo(title='Player',
                         message=confirmation[0],
                         parent=root)
@@ -241,7 +241,7 @@ def custom_player():
 def custom_quality():
     '''Opens a dialog to set a custom stream quality.
     '''
-    current_quality = re.findall('\s(\S*)\n\x1b\[0m', wtwitch_c_full)
+    current_quality = re.findall('\\s(\S*)\n\x1b\[0m', wtwitch_c_full)
     new_quality = askstring(title='Quality',
                         prompt= '\n Options: 1080p60, 720p60, 720p, 480p, \n'
                                 ' 360p, 160p, best, worst, and audio_only \n'
@@ -257,14 +257,14 @@ def custom_quality():
                         text=True,
                         capture_output=True
                         )
-        confirmation = re.findall('\n\s(.*)\n\x1b\[0m', set_quality.stdout)
+        confirmation = re.findall('\n\\s(.*)\n\x1b\[0m', set_quality.stdout)
         if len(confirmation) >= 1:
             return showinfo(title='Quality',
                         message=confirmation[0],
                         parent=root)
             current_quality = new_quality
         else:
-            error = re.findall('\[0m: (\S.*?\.)', set_quality.stderr)
+            error = re.findall('\\[0m: (\S.*?\.)', set_quality.stderr)
             return showerror(title='Error',
                         message=error[0],
                         parent=root)
@@ -312,7 +312,7 @@ def toggle_color():
                         capture_output=True,
                         text=True
                         )
-    if not re.search('\[32m', wtwitch_l.stdout):
+    if not re.search('\\[32m', wtwitch_l.stdout):
         toggle_color()
     else:
         return
