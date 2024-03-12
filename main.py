@@ -327,12 +327,6 @@ toggle_color()
 root = tk.Tk()
 root.title("GUI for wtwitch")
 
-"""sb = tk.Scrollbar(root)
-sb.pack(side='right', fill ='y')
-c = tk.Canvas(root, yscrollcommand=sb.set)
-c.pack(side='top', fill='x')
-sb.config(command=c.yview)"""
-
 # Import icons:
 unfollow_icon = tk.PhotoImage(file='icons/unfollow_icon.png')
 info_icon = tk.PhotoImage(file='icons/info_icon.png')
