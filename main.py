@@ -17,7 +17,7 @@ def call_wtwitch():
                         text=True
                         )
     global wtwitch_c_full
-    wtwitch_c_full = wtwitch_c.stdout
+    wtwitch_c_full = repr(wtwitch_c.stdout)
     off_streamers1 = re.findall(r'\[90m(\S*)\x1b', wtwitch_c.stdout)
     off_streamers2 = re.findall(r'\[90m(\S*),', wtwitch_c.stdout)
     offline_streamers = off_streamers1 + off_streamers2
