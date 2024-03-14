@@ -296,7 +296,7 @@ def menu_bar():
             command=lambda: custom_quality())
     # Sub-menu for player options:
     player_menu = tk.Menu(options_menu, tearoff=False)
-    options_menu.add_cascade(label='Player', menu=player_menu)
+    options_menu.add_cascade(label='Player', menu=player_menu, font=font)
     player_menu.add_command(label='mpv', font=font,
             command=lambda: subprocess.run(['wtwitch', 'p', 'mpv']))
     player_menu.add_command(label='VLC', font=font,
