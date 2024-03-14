@@ -241,14 +241,12 @@ def custom_player():
 def custom_quality():
     '''Opens a dialog to set a custom stream quality.
     '''
-    current_quality = re.findall(r'\s(\S*)\n\x1b\[0m', wtwitch_c_full)
     new_quality = askstring(title='Quality',
                         prompt= '\n Options: 1080p60, 720p60, 720p, 480p, \n'
                                 ' 360p, 160p, best, worst, and audio_only \n'
                                 '\n'
                                 ' Specify fallbacks separated by a comma: \n'
                                 ' E.g. "720p,480p,worst" \n',
-                        initialvalue=current_quality[0],
                         parent=root)
     if new_quality is None or len(new_quality) == 0:
         return
