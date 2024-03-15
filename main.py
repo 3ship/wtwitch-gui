@@ -49,16 +49,18 @@ def fetch_vods(streamer):
             titles[i] = titles[i][:50] + "..."
     return timestamps, titles, length
 
-def vod_panel_buttons(streamer):
+def vod_panel_buttons(streamer, close):
     '''Shows a streamer's VODs inside the vod_frame on the right side of the
     window. Three for-loops to draw the timestamps, watch buttons and titles
     of the last 20 VODs
     '''
-    # Clear the vod_panel before redrawing it, in case it was already opened
+    # Clear the vod_panel before redrawing it, return if close was pressed
     vod_frame.forget()
     vod_frame.destroy()
     parent = vod_panel()
     root.geometry("")
+    if close:
+        return
     # Frame for vods_label and close_button:
     vod_header = tk.Frame(parent)
     vod_header.grid(column='2', row='0', sticky='ew', pady='5')
@@ -76,11 +78,8 @@ def vod_panel_buttons(streamer):
                         font=('Cantarell', '9'))
         vods_label.pack(anchor='w', side='left', ipadx=5)
     # Close button recalls this function and returns without drawing content:
-    if streamer == "close_the_panel":
-        return
     close_button = tk.Button(vod_header, image=close_icon, relief='flat',
-                        command=lambda s="close_the_panel":
-                        vod_panel_buttons(s)
+                        command=lambda: vod_panel_buttons('', True)
                         )
     close_button.pack(anchor='e', side='right')
     # The three for-loops:
@@ -145,7 +144,7 @@ def streamer_buttons(parent, onoff):
                         relief='flat',
                         height=27, width=20,
                         command=lambda s=streamer:
-                        vod_panel_buttons(s)
+                        vod_panel_buttons(s, False)
                         )
         vod_b.grid(column=3, row=count_rows)
         count_rows += 1
