@@ -59,32 +59,35 @@ def vod_panel_buttons(streamer):
     vod_frame.destroy()
     parent = vod_panel()
     root.geometry("")
-    # Close button recalls this function and returns without drawing content:
-    if streamer == "close_the_panel":
-        return
-    close_button = tk.Button(parent, image=close_icon, relief='flat',
-                        command=lambda s="close_the_panel":
-                        vod_panel_buttons(s)
-                        )
-    close_button.grid(column=2, row=0, sticky='ne', padx=5)
+    # Frame for vods_label and close_button:
+    vod_header = tk.Frame(parent)
+    vod_header.grid(column='2', row='0', sticky='ew', pady='5')
     # Retrieve the streamer's VODs:
     vods = fetch_vods(streamer)
     # Attach label with streamer name to the top left:
-    vods_label = tk.Label(parent, text=f"{streamer}'s VODs:",
-                        font=('Cantarell', '9'))
-    vods_label.grid(column=2, row=0, sticky='w', pady=10, padx=5)
-    # Account for streamers having no VODs:
     if len(vods[0]) == 0:
-        warning_l = tk.Label(parent, text=f"{streamer} has no VODs")
-        warning_l.grid(column=0, row=1, ipadx=10, ipady=10)
+        vods_label = showinfo(title=f"No VODs",
+                        message=f"{streamer} has no VODs",
+                        parent=root
+                        )
+        return
+    else:
+        vods_label = tk.Label(vod_header, text=f"{streamer}'s VODs:",
+                        font=('Cantarell', '9'))
+        vods_label.pack(anchor='w', side='left', ipadx=5)
+    # Close button recalls this function and returns without drawing content:
+    if streamer == "close_the_panel":
+        return
+    close_button = tk.Button(vod_header, image=close_icon, relief='flat',
+                        command=lambda s="close_the_panel":
+                        vod_panel_buttons(s)
+                        )
+    close_button.pack(anchor='e', side='right')
     # The three for-loops:
     vod_number = 1
-    for timestamp in vods[0]:
+    for timestamp, title, length in zip(vods[0], vods[1], vods[2]):
         time_l = tk.Label(parent, text=timestamp, font=('', '8'))
         time_l.grid(column=0, row=vod_number, padx=5)
-        vod_number += 1
-    vod_number = 1
-    for title in vods[1]:
         watch_b = tk.Button(parent,
                         image=play_icon,
                         relief='flat',
@@ -92,9 +95,6 @@ def vod_panel_buttons(streamer):
                         [subprocess.run(['wtwitch', 'v', s, str(v)])]
                         )
         watch_b.grid(column=1, row=vod_number, sticky='w', ipadx=10)
-        vod_number += 1
-    vod_number = 1
-    for title, length in zip(vods[1], vods[2]):
         title_l = tk.Label(parent, text=title + ' ' + length,
                         font=('Cantarell', '9')
                         )
