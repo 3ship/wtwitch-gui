@@ -50,11 +50,10 @@ def fetch_vods(streamer):
     return timestamps, titles, length
 
 def vod_panel_buttons(streamer, close):
-    '''Shows a streamer's VODs inside the vod_frame on the right side of the
-    window. Three for-loops to draw the timestamps, watch buttons and titles
-    of the last 20 VODs
+    '''Draw 3 columns for the timestamps, watch buttons and titles of the last
+    20 VODs. Destroy frame and re-create it, if another VOD- or the close
+    button is pressed.
     '''
-    # Clear the vod_panel before redrawing it, return if close was pressed
     vod_frame.forget()
     vod_frame.destroy()
     parent = vod_panel()
@@ -63,10 +62,10 @@ def vod_panel_buttons(streamer, close):
         return
     # Frame for vods_label and close_button:
     vod_header = tk.Frame(parent)
-    vod_header.grid(column='2', row='0', sticky='ew', pady='5')
+    vod_header.grid(column='2', row='0', sticky='ew', pady='10')
     # Retrieve the streamer's VODs:
     vods = fetch_vods(streamer)
-    # Attach label with streamer name to the top left:
+    # Account for streamer having zero VODs:
     if len(vods[0]) == 0:
         vods_label = showinfo(title=f"No VODs",
                         message=f"{streamer} has no VODs",
@@ -82,7 +81,7 @@ def vod_panel_buttons(streamer, close):
                         command=lambda: vod_panel_buttons('', True)
                         )
     close_button.pack(anchor='e', side='right')
-    # The three for-loops:
+    # Draw the grid:
     vod_number = 1
     for timestamp, title, length in zip(vods[0], vods[1], vods[2]):
         time_l = tk.Label(parent, text=timestamp, font=('', '8'))
@@ -101,6 +100,9 @@ def vod_panel_buttons(streamer, close):
         vod_number += 1
 
 def streamer_buttons(parent, onoff):
+    ''' Draws rows of buttons/labels for each streamer into the main panel.
+    Called two times to sort online before offline streamers.
+    '''
     global count_rows
     if onoff == 0:
         streamer_list = status[0]
