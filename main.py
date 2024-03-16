@@ -93,8 +93,8 @@ def vod_window(streamer):
                         )
         watch_button.grid(column=0, row=vod_number)
         timestamp_button = tk.Button(vod_frame, text=f"{timestamp} {length}",
-                        command=lambda t=title, p=vod_window:
-                        showinfo("Title", t, parent=p),
+                        command=lambda ts=timestamp, t=title, p=vod_window:
+                        showinfo(ts, t, parent=p),
                         font=('', '8'),
                         relief='flat',
                         )
