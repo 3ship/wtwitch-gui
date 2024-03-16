@@ -59,25 +59,26 @@ def vod_window(streamer):
     # Account for streamer having zero VODs:
     if len(vods[0]) == 0:
         no_vods = showinfo(title=f"No VODs",
-                            message=f"{streamer} has no VODs",
-                            parent=root
-                            )
+                        message=f"{streamer} has no VODs",
+                        parent=root
+                        )
         return
     vod_window = tk.Toplevel(root)
     vod_window.title(f"{streamer}'s VODs")
     vod_window.geometry("250x400")
+    vod_window.resizable(False, True)
     vw_frame = tk.Frame(vod_window)
     vw_frame.grid(column='0', row='0', sticky='nsew')
     vw_canvas = tk.Canvas(vw_frame)
     vw_scrollbar = ttk.Scrollbar(vw_frame,orient="vertical",
-                            command=vw_canvas.yview
-                            )
+                        command=vw_canvas.yview
+                        )
     vw_canvas.configure(yscrollcommand=vw_scrollbar.set)
     vod_frame = ttk.Frame(vod_window)
     vod_frame.bind("<Configure>", lambda e:
-                            vw_canvas.configure(
-                            scrollregion=vw_canvas.bbox("all"))
-                            )
+                        vw_canvas.configure(
+                        scrollregion=vw_canvas.bbox("all"))
+                        )
     vod_frame.config(padding='10')
     # Draw the grid:
     vod_number = 1
@@ -346,6 +347,7 @@ toggle_color()
 root = tk.Tk()
 root.title("GUI for wtwitch")
 root.geometry("280x400")
+root.resizable(False, True)
 # Import icons:
 unfollow_icon = tk.PhotoImage(file='icons/unfollow_icon.png')
 info_icon = tk.PhotoImage(file='icons/info_icon.png')
