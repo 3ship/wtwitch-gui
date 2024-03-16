@@ -3,6 +3,7 @@
 import subprocess
 import re
 import tkinter as tk
+from tkinter import ttk
 from tkinter.messagebox import askyesno
 from tkinter.messagebox import showinfo
 from tkinter.messagebox import showerror
@@ -35,7 +36,7 @@ def check_status():
 
 def fetch_vods(streamer):
     '''Run wtwitch v and extract all timestamps/titles of the streamer's VODs
-    with regex. Cap the title length at 70 characters.
+    with regex. Cap the title length at 50 characters.
     '''
     wtwitch_v = subprocess.run(['wtwitch', 'v', streamer],
                         capture_output=True,
@@ -44,60 +45,67 @@ def fetch_vods(streamer):
     timestamps = re.findall(r'\[96m\[(\S* \d.*:\d.*):\d.*\]', wtwitch_v.stdout)
     titles = re.findall(r'\]\x1b\[0m\s*(\S.*)\s\x1b\[93m', wtwitch_v.stdout)
     length = re.findall(r'\x1b\[93m(\S*)\x1b\[0m', wtwitch_v.stdout)
-    for i in range(len(titles)):
-        if len(titles[i]) > 50:
-            titles[i] = titles[i][:50] + "..."
+    #for i in range(len(titles)):
+    #    if len(titles[i]) > 50:
+    #        titles[i] = titles[i][:50] + "..."
     return timestamps, titles, length
 
-def vod_panel_buttons(streamer, close):
-    '''Draw 3 columns for the timestamps, watch buttons and titles of the last
-    20 VODs. Destroy frame and re-create it, if another VOD- or the close
-    button is pressed.
+def vod_window(streamer):
+    '''Draw 2 columns for the watch buttons and timestamps/stream length of
+    the last 20 VODs.
     '''
-    vod_frame.forget()
-    vod_frame.destroy()
-    parent = vod_panel()
-    root.geometry("")
-    if close:
-        return
-    # Frame for vods_label and close_button:
-    vod_header = tk.Frame(parent)
-    vod_header.grid(column='2', row='0', sticky='ew', pady='10')
     # Retrieve the streamer's VODs:
     vods = fetch_vods(streamer)
     # Account for streamer having zero VODs:
     if len(vods[0]) == 0:
-        vods_label = showinfo(title=f"No VODs",
-                        message=f"{streamer} has no VODs",
-                        parent=root
-                        )
+        no_vods = showinfo(title=f"No VODs",
+                            message=f"{streamer} has no VODs",
+                            parent=root
+                            )
         return
-    else:
-        vods_label = tk.Label(vod_header, text=f"{streamer}'s VODs:",
-                        font=('Cantarell', '9'))
-        vods_label.pack(anchor='w', side='left', ipadx=5)
-    # Close button recalls this function and returns without drawing content:
-    close_button = tk.Button(vod_header, image=close_icon, relief='flat',
-                        command=lambda: vod_panel_buttons('', True)
-                        )
-    close_button.pack(anchor='e', side='right')
+    vod_window = tk.Toplevel(root)
+    vod_window.title(f"{streamer}'s VODs")
+    vod_window.geometry("250x400")
+    vw_frame = tk.Frame(vod_window)
+    vw_frame.grid(column='0', row='0', sticky='nsew')
+    vw_canvas = tk.Canvas(vw_frame)
+    vw_scrollbar = ttk.Scrollbar(vw_frame,orient="vertical",
+                            command=vw_canvas.yview
+                            )
+    vw_canvas.configure(yscrollcommand=vw_scrollbar.set)
+    vod_frame = ttk.Frame(vod_window)
+    vod_frame.bind("<Configure>", lambda e:
+                            vw_canvas.configure(
+                            scrollregion=vw_canvas.bbox("all"))
+                            )
+    vod_frame.config(padding='10')
     # Draw the grid:
     vod_number = 1
     for timestamp, title, length in zip(vods[0], vods[1], vods[2]):
-        time_l = tk.Label(parent, text=timestamp, font=('', '8'))
-        time_l.grid(column=0, row=vod_number, padx=5)
-        watch_b = tk.Button(parent,
+        watch_button = tk.Button(vod_frame,
                         image=play_icon,
                         relief='flat',
+                        height='24', width='24',
                         command=lambda s=streamer, v=vod_number:
                         [subprocess.run(['wtwitch', 'v', s, str(v)])]
                         )
-        watch_b.grid(column=1, row=vod_number, sticky='w', ipadx=10)
-        title_l = tk.Label(parent, text=title + ' ' + length,
-                        font=('Cantarell', '9')
+        watch_button.grid(column=0, row=vod_number)
+        timestamp_button = tk.Button(vod_frame, text=f"{timestamp} {length}",
+                        command=lambda t=title, p=vod_window:
+                        showinfo("Title", t, parent=p),
+                        font=('', '8'),
+                        relief='flat',
                         )
-        title_l.grid(column=2, row=vod_number, sticky='nw', ipadx=5)
+        timestamp_button.grid(column=1, row=vod_number, sticky='w')
         vod_number += 1
+    vod_window.columnconfigure(0, weight=1)
+    vod_window.rowconfigure(0, weight=1)
+    vw_frame.columnconfigure(0, weight=1)
+    vw_frame.rowconfigure(0, weight=1)
+    vw_canvas.create_window((0, 0), window=vod_frame, anchor="nw")
+    vw_canvas.grid(row=0, column=0, sticky="nsew")
+    vw_scrollbar.grid(row=0, column=1, sticky="ns")
+    vw_canvas.bind_all("<MouseWheel>", mouse_scroll)
 
 def streamer_buttons(parent, onoff):
     ''' Draws rows of buttons/labels for each streamer into the main panel.
@@ -124,7 +132,7 @@ def streamer_buttons(parent, onoff):
         watch_button.grid(column=0, row=count_rows)
         info_button = tk.Button(parent,
                         text=streamer,
-                        anchor='w', #justify='left',
+                        anchor='w',
                         font=('Cantarell', '11', 'bold'),
                         state=state, relief='flat',
                         width=15,
@@ -146,7 +154,7 @@ def streamer_buttons(parent, onoff):
                         relief='flat',
                         height=27, width=20,
                         command=lambda s=streamer:
-                        vod_panel_buttons(s, False)
+                        vod_window(s)
                         )
         vod_b.grid(column=3, row=count_rows)
         count_rows += 1
@@ -192,34 +200,46 @@ def follow_dialog():
                         )
         refresh_main_panel()
 
-def vod_panel():
-    '''Create the vod frame separately to avoid adding a new one, when the
-    main panel gets refreshed.
-    '''
-    global vod_frame
-    vod_frame = tk.Frame(root)
-    vod_frame.pack(side='right', anchor='ne', pady=10, padx=5)
-    return vod_frame
-
 def refresh_main_panel():
     '''Runs wtwitch c and then rebuilds the main panel.
     '''
     check_status()
     panel_frame.pack_forget()
     panel_frame.destroy()
-    main_panel()
-    root.geometry("")
+    main_window()
 
-def main_panel():
-    '''Always active after window start.
+def mouse_scroll(event):
+    meta_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+def main_window():
+    '''The main window. Calls streamer_buttons() twice, to draw buttons for
+    online and offline streamers.
     '''
+    meta_frame = ttk.Frame(root)
+    meta_frame.grid(column='0', row='0', sticky='nsew')
+    meta_canvas = tk.Canvas(meta_frame)
+    scrollbar = ttk.Scrollbar(meta_frame,
+                        orient="vertical", command=meta_canvas.yview)
+    meta_canvas.configure(yscrollcommand=scrollbar.set)
     global panel_frame
-    panel_frame = tk.Frame(root)
-    panel_frame.pack(side='left', anchor='nw', fill='x', padx=10, pady=10)
+    panel_frame = ttk.Frame(meta_canvas)
+    panel_frame.bind("<Configure>", lambda e:
+                        meta_canvas.configure(
+                        scrollregion=meta_canvas.bbox("all"))
+                        )
+    panel_frame.config(padding='10')
     global count_rows
     count_rows = 0
     streamer_buttons(panel_frame, 0)
     streamer_buttons(panel_frame, 1)
+    root.columnconfigure(0, weight=1)
+    root.rowconfigure(0, weight=1)
+    meta_frame.columnconfigure(0, weight=1)
+    meta_frame.rowconfigure(0, weight=1)
+    meta_canvas.create_window((0, 0), window=panel_frame, anchor="nw")
+    meta_canvas.grid(row=0, column=0, sticky="nsew")
+    scrollbar.grid(row=0, column=1, sticky="ns")
+    meta_canvas.bind_all("<MouseWheel>", mouse_scroll)
 
 def custom_player():
     '''Opens a dialog to set a custom media player.
@@ -325,11 +345,10 @@ toggle_color()
 # Create the main window
 root = tk.Tk()
 root.title("GUI for wtwitch")
-
+root.geometry("280x400")
 # Import icons:
 unfollow_icon = tk.PhotoImage(file='icons/unfollow_icon.png')
 info_icon = tk.PhotoImage(file='icons/info_icon.png')
-empty_icon = tk.PhotoImage(file='icons/empty_icon.png')
 vod_icon = tk.PhotoImage(file='icons/vod_icon.png')
 streaming_icon = tk.PhotoImage(file='icons/streaming_icon.png')
 offline_icon = tk.PhotoImage(file='icons/offline_icon.png')
@@ -337,9 +356,8 @@ play_icon = tk.PhotoImage(file='icons/play_icon.png')
 close_icon = tk.PhotoImage(file='icons/close_icon.png')
 
 app_icon = tk.PhotoImage(file='icons/app_icon.png')
-root.wm_iconphoto(False, app_icon)
+root.wm_iconphoto(True, app_icon)
 
 menu_bar()
-main_panel()
-vod_panel()
+main_window()
 root.mainloop()
