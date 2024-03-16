@@ -67,6 +67,7 @@ def vod_window(streamer):
     vod_window.title(f"{streamer}'s VODs")
     vod_window.geometry("250x400")
     vod_window.resizable(False, True)
+    vod_window.transient(root)
     vw_frame = tk.Frame(vod_window)
     vw_frame.grid(column='0', row='0', sticky='nsew')
     vw_canvas = tk.Canvas(vw_frame)
