@@ -336,10 +336,13 @@ def window_size():
     the follow list, up to a maximum of 650 px.
     """
     window_width = "280"
+    min_height = 360
+    max_height = 600
     variable_height = len(status[0])*27+len(status[1])*27+100
-    max_height = 650
     if variable_height > max_height:
         window_height = str(max_height)
+    elif variable_height < min_height:
+        window_height = str(min_height)
     else:
         window_height = str(variable_height)
     return f"{window_width}x{window_height}"
