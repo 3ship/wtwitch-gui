@@ -107,7 +107,7 @@ def vod_panel(streamer):
         vod_number += 1
     # Finish the scrollbar
     vw_canvas.create_window((0, 0), window=vod_frame, anchor="nw")
-    vw_canvas.grid(row=0, column=0, sticky="nsew")
+    vw_canvas.grid(row=0, column=0, sticky="nsew", padx=8, pady=5)
     vw_scrollbar.grid(row=0, column=1, sticky="ns")
     vw_canvas.bind_all("<MouseWheel>", mouse_scroll)
 
@@ -233,18 +233,15 @@ def main_window():
                         meta_canvas.configure(
                         scrollregion=meta_canvas.bbox("all"))
                         )
-    main_frame.config(padding='10')
     global count_rows
     count_rows = 0
     streamer_buttons(main_frame, 0)
     streamer_buttons(main_frame, 1)
     # Finish scrollbar:
-    root.columnconfigure(0, weight=1)
-    root.rowconfigure(0, weight=1)
     meta_frame.columnconfigure(0, weight=1)
     meta_frame.rowconfigure(0, weight=1)
     meta_canvas.create_window((0, 0), window=main_frame, anchor="nw")
-    meta_canvas.grid(row=0, column=0, sticky="nsew")
+    meta_canvas.grid(row=0, column=0, sticky="nsew", pady=10, padx=10)
     scrollbar.grid(row=0, column=1, sticky="ns")
     meta_canvas.bind_all("<MouseWheel>", mouse_scroll)
 
@@ -354,6 +351,8 @@ root = tk.Tk()
 root.title("GUI for wtwitch")
 root.geometry("280x450")
 root.resizable(False, True)
+root.columnconfigure(0, weight=1)
+root.rowconfigure(0, weight=1)
 
 # Import icons:
 unfollow_icon = tk.PhotoImage(file='icons/unfollow_icon.png')
