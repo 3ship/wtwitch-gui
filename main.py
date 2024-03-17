@@ -99,7 +99,7 @@ def vod_panel(streamer):
         watch_button.grid(column=0, row=vod_number, sticky='ew')
         timestamp_button = tk.Button(vod_frame, text=f"{timestamp} {length}",
                         command=lambda ts=timestamp, t=title, p=root:
-                        showinfo(ts, t, parent=p),
+                        showinfo("VOD", ts, detail=t, parent=p),
                         font=('', '8'),
                         relief='flat',
                         width=25, anchor='w'
@@ -167,9 +167,10 @@ def streamer_buttons(parent, onoff):
 def info_dialog(index, streamer):
     '''Info dialog, including stream title and stream category
     '''
-    info = showinfo(title=f"{streamer} is streaming:",
-                        message=f"{status[2][index]} ({status[3][index]})",
-                        parent=root
+    info = showinfo(title=f"{streamer} is streaming",
+                        message=f"{status[3][index]}",
+                        detail=f"{status[2][index]}",
+                        parent=root,
                         )
 
 def unfollow_dialog(streamer):
