@@ -102,6 +102,7 @@ def vod_panel(streamer):
                         showinfo(ts, t, parent=p),
                         font=('', '8'),
                         relief='flat',
+                        width=25, anchor='w'
                         )
         timestamp_button.grid(column=1, row=vod_number, sticky='w')
         vod_number += 1
@@ -156,7 +157,7 @@ def streamer_buttons(parent, onoff):
         vod_b = tk.Button(parent,
                         image=vod_icon,
                         relief='flat',
-                        height=27, width=20,
+                        height=27, width=30,
                         command=lambda s=streamer:
                         vod_panel(s)
                         )
@@ -241,7 +242,7 @@ def main_window():
     meta_frame.columnconfigure(0, weight=1)
     meta_frame.rowconfigure(0, weight=1)
     meta_canvas.create_window((0, 0), window=main_frame, anchor="nw")
-    meta_canvas.grid(row=0, column=0, sticky="nsew", pady=10, padx=10)
+    meta_canvas.grid(row=0, column=0, sticky="nsew", pady=5, padx=5)
     scrollbar.grid(row=0, column=1, sticky="ns")
     meta_canvas.bind_all("<MouseWheel>", mouse_scroll)
 
