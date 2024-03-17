@@ -8,4 +8,4 @@ This is my first GUI-based project while learning Python. There's currently no b
 
 ## Screenshots
 
-<p align="center"><img src=screenshot1.png alt="Main window and VOD window"/></p>
+<img align='center' src=screenshot1.png alt="Main window"/><img align='center' src=screenshot2.png alt="Main window with VODs"/>
