@@ -334,9 +334,8 @@ def menu_bar():
 
 def window_size():
     """Sets the default window length, depending on the number of streamers in
-    the follow list, up to a maximum of 650 px.
+    the follow list. Fixed between 360 and 600 px. Width fixed at 280 px.
     """
-    window_width = "280"
     min_height = 360
     max_height = 600
     variable_height = len(status[0])*27+len(status[1])*27+100
@@ -346,11 +345,11 @@ def window_size():
         window_height = str(min_height)
     else:
         window_height = str(variable_height)
-    return f"{window_width}x{window_height}"
+    return f"280x{window_height}"
 
 def toggle_color():
     """Toggles wtwitch color output until it is on. This is needed to capture
-    wtwitch output with regex, independent of the user's system language.
+    wtwitch output with regex independently of the user's system language.
     """
     wtwitch_l = subprocess.run(['wtwitch', 'l'],
                         capture_output=True,
