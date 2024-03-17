@@ -50,7 +50,7 @@ def fetch_vods(streamer):
     #        titles[i] = titles[i][:50] + "..."
     return timestamps, titles, length
 
-def vod_window(streamer):
+def vod_panel(streamer):
     '''Draw 2 columns for the watch buttons and timestamps/stream length of
     the last 20 VODs.
     '''
@@ -63,25 +63,30 @@ def vod_window(streamer):
                         parent=root
                         )
         return
-    vod_window = tk.Toplevel(root)
-    vod_window.title(f"{streamer}'s VODs")
-    vod_window.geometry("250x400")
-    vod_window.resizable(False, True)
-    vod_window.transient(root)
-    vw_frame = tk.Frame(vod_window)
-    vw_frame.grid(column='0', row='0', sticky='nsew')
+    # frame-canvas-frame to attach a scrollbar:
+    vw_frame = tk.Frame(root)
+    vw_frame.grid(column='0', row='1', sticky='nsew')
+    vw_frame.columnconfigure(0, weight=1)
+    vw_frame.rowconfigure(0, weight=1)
     vw_canvas = tk.Canvas(vw_frame)
     vw_scrollbar = ttk.Scrollbar(vw_frame,orient="vertical",
                         command=vw_canvas.yview
                         )
     vw_canvas.configure(yscrollcommand=vw_scrollbar.set)
-    vod_frame = ttk.Frame(vod_window)
+    vod_frame = ttk.Frame(vw_frame, padding='10', relief='sunken')
     vod_frame.bind("<Configure>", lambda e:
                         vw_canvas.configure(
                         scrollregion=vw_canvas.bbox("all"))
                         )
-    vod_frame.config(padding='10')
-    # Draw the grid:
+    # Show streamer name and close button before the VODs
+    vods_label = tk.Label(vod_frame, text=f"{streamer}'s VODs:",
+                        font=('Cantarell', '9', 'bold'))
+    vods_label.grid(column=1, row=0)
+    close_button = tk.Button(vod_frame, image=close_icon, relief='flat',
+                        command=lambda: [vw_frame.forget(), vw_frame.destroy()]
+                        )
+    close_button.grid(column=2, row=0, sticky='e')
+    # Draw the VOD grid:
     vod_number = 1
     for timestamp, title, length in zip(vods[0], vods[1], vods[2]):
         watch_button = tk.Button(vod_frame,
@@ -91,19 +96,16 @@ def vod_window(streamer):
                         command=lambda s=streamer, v=vod_number:
                         [subprocess.run(['wtwitch', 'v', s, str(v)])]
                         )
-        watch_button.grid(column=0, row=vod_number)
+        watch_button.grid(column=0, row=vod_number, sticky='ew')
         timestamp_button = tk.Button(vod_frame, text=f"{timestamp} {length}",
-                        command=lambda ts=timestamp, t=title, p=vod_window:
+                        command=lambda ts=timestamp, t=title, p=root:
                         showinfo(ts, t, parent=p),
                         font=('', '8'),
                         relief='flat',
                         )
         timestamp_button.grid(column=1, row=vod_number, sticky='w')
         vod_number += 1
-    vod_window.columnconfigure(0, weight=1)
-    vod_window.rowconfigure(0, weight=1)
-    vw_frame.columnconfigure(0, weight=1)
-    vw_frame.rowconfigure(0, weight=1)
+    # Finish the scrollbar
     vw_canvas.create_window((0, 0), window=vod_frame, anchor="nw")
     vw_canvas.grid(row=0, column=0, sticky="nsew")
     vw_scrollbar.grid(row=0, column=1, sticky="ns")
@@ -156,7 +158,7 @@ def streamer_buttons(parent, onoff):
                         relief='flat',
                         height=27, width=20,
                         command=lambda s=streamer:
-                        vod_window(s)
+                        vod_panel(s)
                         )
         vod_b.grid(column=3, row=count_rows)
         count_rows += 1
@@ -350,7 +352,7 @@ toggle_color()
 # Create the main window
 root = tk.Tk()
 root.title("GUI for wtwitch")
-root.geometry("280x400")
+root.geometry("280x450")
 root.resizable(False, True)
 
 # Import icons:
@@ -359,6 +361,7 @@ vod_icon = tk.PhotoImage(file='icons/vod_icon.png')
 streaming_icon = tk.PhotoImage(file='icons/streaming_icon.png')
 offline_icon = tk.PhotoImage(file='icons/offline_icon.png')
 play_icon = tk.PhotoImage(file='icons/play_icon.png')
+close_icon = tk.PhotoImage(file='icons/close_icon.png')
 
 app_icon = tk.PhotoImage(file='icons/app_icon.png')
 root.wm_iconphoto(True, app_icon)
