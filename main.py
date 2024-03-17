@@ -345,6 +345,9 @@ def window_size():
     return f"{window_width}x{window_height}"
 
 def toggle_color():
+    """Toggles wtwitch color output until it is on. Needed to capture wtwitch
+    output with regex, independent of the user's system language.
+    """
     wtwitch_l = subprocess.run(['wtwitch', 'l'],
                         capture_output=True,
                         text=True
