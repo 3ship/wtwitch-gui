@@ -206,8 +206,8 @@ def refresh_main_panel():
     '''Runs wtwitch c and then rebuilds the main panel.
     '''
     check_status()
-    panel_frame.pack_forget()
-    panel_frame.destroy()
+    main_frame.pack_forget()
+    main_frame.destroy()
     main_window()
 
 def mouse_scroll(event):
@@ -217,28 +217,31 @@ def main_window():
     '''The main window. Calls streamer_buttons() twice, to draw buttons for
     online and offline streamers.
     '''
+    # Create basis for scrollbar:
     meta_frame = ttk.Frame(root)
     meta_frame.grid(column='0', row='0', sticky='nsew')
     meta_canvas = tk.Canvas(meta_frame)
     scrollbar = ttk.Scrollbar(meta_frame,
                         orient="vertical", command=meta_canvas.yview)
     meta_canvas.configure(yscrollcommand=scrollbar.set)
-    global panel_frame
-    panel_frame = ttk.Frame(meta_canvas)
-    panel_frame.bind("<Configure>", lambda e:
+    # Draw main content:
+    global main_frame
+    main_frame = ttk.Frame(meta_canvas)
+    main_frame.bind("<Configure>", lambda e:
                         meta_canvas.configure(
                         scrollregion=meta_canvas.bbox("all"))
                         )
-    panel_frame.config(padding='10')
+    main_frame.config(padding='10')
     global count_rows
     count_rows = 0
-    streamer_buttons(panel_frame, 0)
-    streamer_buttons(panel_frame, 1)
+    streamer_buttons(main_frame, 0)
+    streamer_buttons(main_frame, 1)
+    # Finish scrollbar:
     root.columnconfigure(0, weight=1)
     root.rowconfigure(0, weight=1)
     meta_frame.columnconfigure(0, weight=1)
     meta_frame.rowconfigure(0, weight=1)
-    meta_canvas.create_window((0, 0), window=panel_frame, anchor="nw")
+    meta_canvas.create_window((0, 0), window=main_frame, anchor="nw")
     meta_canvas.grid(row=0, column=0, sticky="nsew")
     scrollbar.grid(row=0, column=1, sticky="ns")
     meta_canvas.bind_all("<MouseWheel>", mouse_scroll)
