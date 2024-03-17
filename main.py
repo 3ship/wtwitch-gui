@@ -211,29 +211,29 @@ def refresh_main_panel():
     check_status()
     main_frame.pack_forget()
     main_frame.destroy()
-    main_window()
+    draw_main_frame()
 
 def mouse_scroll(event):
     meta_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
-def main_window():
+def draw_main_frame():
     '''The main window. Calls streamer_buttons() twice, to draw buttons for
     online and offline streamers.
     '''
-    # Create basis for scrollbar:
+    # frame-canvas-frame to attach a scrollbar:
     meta_frame = ttk.Frame(root)
     meta_frame.grid(column='0', row='0', sticky='nsew')
     meta_canvas = tk.Canvas(meta_frame)
     scrollbar = ttk.Scrollbar(meta_frame,
                         orient="vertical", command=meta_canvas.yview)
     meta_canvas.configure(yscrollcommand=scrollbar.set)
-    # Draw main content:
     global main_frame
     main_frame = ttk.Frame(meta_canvas)
     main_frame.bind("<Configure>", lambda e:
                         meta_canvas.configure(
                         scrollregion=meta_canvas.bbox("all"))
                         )
+    # Draw main content:
     global count_rows
     count_rows = 0
     streamer_buttons(main_frame, 0)
@@ -348,15 +348,17 @@ def window_size():
     return f"{window_width}x{window_height}"
 
 def toggle_color():
-    """Toggles wtwitch color output until it is on. Needed to capture wtwitch
-    output with regex, independent of the user's system language.
+    """Toggles wtwitch color output until it is on. This is needed to capture
+    wtwitch output with regex, independent of the user's system language.
     """
     wtwitch_l = subprocess.run(['wtwitch', 'l'],
                         capture_output=True,
                         text=True
                         )
-    if not re.search('\\[32m', wtwitch_l.stdout):
+    if not re.search('\\[32m', wtwitch_l.stdout) and not wtwitch_l.stderr:
         toggle_color()
+    elif wtwitch_l.stderr:
+        showerror("Error", wtwitch_l.stderr)
     else:
         return
 
@@ -383,8 +385,8 @@ play_icon = tk.PhotoImage(file='icons/play_icon.png')
 close_icon = tk.PhotoImage(file='icons/close_icon.png')
 
 app_icon = tk.PhotoImage(file='icons/app_icon.png')
-root.wm_iconphoto(True, app_icon)
+root.wm_iconphoto(False, app_icon)
 
 menu_bar()
-main_window()
+draw_main_frame()
 root.mainloop()
