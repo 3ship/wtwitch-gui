@@ -331,6 +331,19 @@ def menu_bar():
     player_menu.add_command(label='Custom', font=font,
             command=lambda: custom_player())
 
+def window_size():
+    """Sets the default window length, depending on the number of streamers in
+    the follow list, up to a maximum of 650 px.
+    """
+    window_width = "280"
+    variable_height = len(status[0])*27+len(status[1])*27+100
+    max_height = 650
+    if variable_height > max_height:
+        window_height = str(max_height)
+    else:
+        window_height = str(variable_height)
+    return f"{window_width}x{window_height}"
+
 def toggle_color():
     wtwitch_l = subprocess.run(['wtwitch', 'l'],
                         capture_output=True,
@@ -350,7 +363,7 @@ toggle_color()
 # Create the main window
 root = tk.Tk()
 root.title("GUI for wtwitch")
-root.geometry("280x450")
+root.geometry(window_size())
 root.resizable(False, True)
 root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
