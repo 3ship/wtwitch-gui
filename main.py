@@ -349,14 +349,13 @@ root = tk.Tk()
 root.title("GUI for wtwitch")
 root.geometry("280x400")
 root.resizable(False, True)
+
 # Import icons:
 unfollow_icon = tk.PhotoImage(file='icons/unfollow_icon.png')
-info_icon = tk.PhotoImage(file='icons/info_icon.png')
 vod_icon = tk.PhotoImage(file='icons/vod_icon.png')
 streaming_icon = tk.PhotoImage(file='icons/streaming_icon.png')
 offline_icon = tk.PhotoImage(file='icons/offline_icon.png')
 play_icon = tk.PhotoImage(file='icons/play_icon.png')
-close_icon = tk.PhotoImage(file='icons/close_icon.png')
 
 app_icon = tk.PhotoImage(file='icons/app_icon.png')
 root.wm_iconphoto(True, app_icon)
