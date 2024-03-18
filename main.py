@@ -285,7 +285,6 @@ def custom_quality():
             return showinfo(title='Quality',
                         message=confirmation[0],
                         parent=root)
-            current_quality = new_quality
         else:
             error = re.findall(r'\[0m: (\S.*?\.)', set_quality.stderr)
             return showerror(title='Error',
@@ -307,27 +306,48 @@ def menu_bar():
     options_menu = tk.Menu(menubar, tearoff=False)
     menubar.add_cascade(label='Options', menu=options_menu, font=font)
     # Sub-menu for quality options:
+    save_quality = open('quality-setting.txt', 'w')
     quality_menu = tk.Menu(options_menu, tearoff=False)
     options_menu.add_cascade(label='Quality', menu=quality_menu, font=font)
-    quality_menu.add_command(label='High', font=font,
-            command=lambda: subprocess.run(['wtwitch', 'q', 'best']))
-    quality_menu.add_command(label='Medium', font=font,
-            command=lambda:
-            subprocess.run(['wtwitch', 'q', '720p,720p60,480p,best']))
-    quality_menu.add_command(label='Low', font=font,
-            command=lambda: subprocess.run(['wtwitch', 'q', 'worst']))
+    quality_menu.add_radiobutton(label='High', font=font,
+            command=lambda: [
+                subprocess.run(['wtwitch', 'q', 'best']),
+                save_quality.write('High')
+                ]
+            )
+    quality_menu.add_radiobutton(label='Medium', font=font,
+            command=lambda: [
+                subprocess.run(['wtwitch', 'q', '720p,720p60,480p,best']),
+                save_quality.write('Medium')
+                ]
+            )
+    quality_menu.add_radiobutton(label='Low', font=font,
+            command=lambda: [
+                subprocess.run(['wtwitch', 'q', 'worst']),
+                save_quality.write('Low')
+                ]
+            )
     quality_menu.add_separator()
-    quality_menu.add_command(label='Custom', font=font,
+    quality_menu.add_radiobutton(label='Custom', font=font,
             command=lambda: custom_quality())
     # Sub-menu for player options:
+    save_player = open('player-setting.txt', 'w')
     player_menu = tk.Menu(options_menu, tearoff=False)
     options_menu.add_cascade(label='Player', menu=player_menu, font=font)
-    player_menu.add_command(label='mpv', font=font,
-            command=lambda: subprocess.run(['wtwitch', 'p', 'mpv']))
-    player_menu.add_command(label='VLC', font=font,
-            command=lambda: subprocess.run(['wtwitch', 'p', 'vlc']))
+    player_menu.add_radiobutton(label='mpv', font=font,
+            command=lambda: [
+                subprocess.run(['wtwitch', 'p', 'mpv']),
+                save_player.write('mpv')
+                ]
+            )
+    player_menu.add_radiobutton(label='VLC', font=font,
+            command=lambda: [
+                subprocess.run(['wtwitch', 'p', 'vlc']),
+                save_player.write('vlc')
+                ]
+            )
     player_menu.add_separator()
-    player_menu.add_command(label='Custom', font=font,
+    player_menu.add_radiobutton(label='Custom', font=font,
             command=lambda: custom_player())
 
 def window_size():
