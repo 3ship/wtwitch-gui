@@ -112,27 +112,25 @@ def vod_panel(streamer):
     vw_scrollbar.grid(row=0, column=1, sticky="ns")
     vw_canvas.bind_all("<MouseWheel>", mouse_scroll)
 
-def streamer_buttons(parent, onoff):
+def streamer_buttons(parent, state):
     ''' Draws rows of buttons/labels for each streamer into the main panel.
     Called two times to sort online before offline streamers.
     '''
-    global count_rows
-    if onoff == 0:
+    if state == 'normal':
         streamer_list = status[0]
         image = streaming_icon
-        state = 'normal'
-    elif onoff == 1:
+    elif state == 'disabled':
         streamer_list = status[1]
         image = offline_icon
-        state = 'disabled'
+    global count_rows
     for index, streamer in enumerate(streamer_list):
-        if onoff == 0:
+        if state == 'normal':
             watch_button = tk.Button(parent, image=image,
                         relief='flat', height=27,
                         command=lambda s=streamer:
                         [subprocess.run(['wtwitch', 'w', s])]
                         )
-        else:
+        elif state == 'disabled':
             watch_button = tk.Label(parent, image=image)
         watch_button.grid(column=0, row=count_rows)
         info_button = tk.Button(parent,
