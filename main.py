@@ -235,8 +235,8 @@ def draw_main_frame():
     # Draw main content:
     global count_rows
     count_rows = 0
-    streamer_buttons(main_frame, 0)
-    streamer_buttons(main_frame, 1)
+    streamer_buttons(main_frame, 'normal')
+    streamer_buttons(main_frame, 'disabled')
     # Finish scrollbar:
     meta_frame.columnconfigure(0, weight=1)
     meta_frame.rowconfigure(0, weight=1)
