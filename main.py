@@ -332,10 +332,10 @@ def menu_bar():
 
 def window_size():
     """Sets the default window length, depending on the number of streamers in
-    the follow list. Fixed between 360 and 600 px. Width fixed at 280 px.
+    the follow list. Fixed between 360 and 550 px. Width fixed at 280 px.
     """
     min_height = 360
-    max_height = 600
+    max_height = 550
     variable_height = len(status[0])*27+len(status[1])*27+100
     if variable_height > max_height:
         window_height = str(max_height)
