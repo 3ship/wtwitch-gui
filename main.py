@@ -2,12 +2,11 @@
 
 import subprocess
 import re
+import os
+import json
 import tkinter as tk
 from tkinter import ttk
-from tkinter.messagebox import askyesno
-from tkinter.messagebox import showinfo
-from tkinter.messagebox import showerror
-from tkinter.simpledialog import askstring
+from tkinter import messagebox
 
 def call_wtwitch():
     '''Run wtwitch c and use regex to extract all streamers and their online
@@ -58,7 +57,7 @@ def vod_panel(streamer):
     vods = fetch_vods(streamer)
     # Account for streamer having zero VODs:
     if len(vods[0]) == 0:
-        no_vods = showinfo(title=f"No VODs",
+        no_vods = messagebox.showinfo(title=f"No VODs",
                         message=f"{streamer} has no VODs",
                         parent=root
                         )
@@ -99,7 +98,7 @@ def vod_panel(streamer):
         watch_button.grid(column=0, row=vod_number, sticky='ew')
         timestamp_button = tk.Button(vod_frame, text=f"{timestamp} {length}",
                         command=lambda ts=timestamp, t=title, p=root:
-                        showinfo("VOD", ts, detail=t, parent=p),
+                        messagebox.showinfo("VOD", ts, detail=t, parent=p),
                         font=('', '8'),
                         relief='flat',
                         width=25, anchor='w'
@@ -165,7 +164,7 @@ def streamer_buttons(parent, state):
 def info_dialog(index, streamer):
     '''Info dialog, including stream title and stream category
     '''
-    info = showinfo(title=f"{streamer} is streaming",
+    info = messagebox.showinfo(title=f"{streamer} is streaming",
                         message=f"{status[3][index]}",
                         detail=f"{status[2][index]}",
                         parent=root,
@@ -175,7 +174,7 @@ def unfollow_dialog(streamer):
     '''Asks for confirmation, if the unfollow button is pressed. Rebuild the
     main panel, if confirmed.
     '''
-    answer = askyesno(title='Unfollow',
+    answer = messagebox.askyesno(title='Unfollow',
                         message='Are you sure that you '
                                 f'want to unfollow {streamer}?',
                         default='no',
@@ -191,7 +190,7 @@ def unfollow_dialog(streamer):
 def follow_dialog():
     '''Opens a text dialog and adds the entered string to the follow list.
     '''
-    streamer = askstring(title='Follow',
+    streamer = tk.simpledialog.askstring(title='Follow',
                         prompt='Enter streamer name: ',
                         parent=root
                         )
@@ -248,7 +247,7 @@ def draw_main():
 def custom_player():
     '''Opens a dialog to set a custom media player.
     '''
-    player = askstring(title='Player',
+    player = tk.simpledialog.askstring(title='Player',
                         prompt='Enter your media player:',
                         parent=root)
     if player is None or len(player) == 0:
@@ -259,14 +258,14 @@ def custom_player():
                         capture_output=True
                         )
         confirmation = re.findall(r'\n\\s(.*)\n\x1b\[0m', confirmation.stdout)
-        return showinfo(title='Player',
+        return messagebox.showinfo(title='Player',
                         message=confirmation[0],
                         parent=root)
 
 def custom_quality():
     '''Opens a dialog to set a custom stream quality.
     '''
-    new_quality = askstring(title='Quality',
+    new_quality = tk.simpledialog.askstring(title='Quality',
                         prompt= '\n Options: 1080p60, 720p60, 720p, 480p, \n'
                                 ' 360p, 160p, best, worst, and audio_only \n'
                                 '\n'
@@ -282,12 +281,12 @@ def custom_quality():
                         )
         confirmation = re.findall(r'\n\s(.*)\n\x1b\[0m', set_quality.stdout)
         if len(confirmation) >= 1:
-            return showinfo(title='Quality',
+            return messagebox.showinfo(title='Quality',
                         message=confirmation[0],
                         parent=root)
         else:
             error = re.findall(r'\[0m: (\S.*?\.)', set_quality.stderr)
-            return showerror(title='Error',
+            return messagebox.showerror(title='Error',
                         message=error[0],
                         parent=root)
 
@@ -376,7 +375,7 @@ def toggle_color():
     if not re.search('\\[32m', wtwitch_l.stdout) and not wtwitch_l.stderr:
         toggle_color()
     elif wtwitch_l.stderr:
-        showerror("Error", wtwitch_l.stderr)
+        messagebox.showerror("Error", wtwitch_l.stderr)
     else:
         return
 
