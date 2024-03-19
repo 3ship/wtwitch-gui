@@ -186,7 +186,7 @@ def unfollow_dialog(streamer):
                         capture_output=True,
                         text=True
                         )
-        refresh_main_panel()
+        refresh_main()
 
 def follow_dialog():
     '''Opens a text dialog and adds the entered string to the follow list.
@@ -202,20 +202,20 @@ def follow_dialog():
                         capture_output=True,
                         text=True
                         )
-        refresh_main_panel()
+        refresh_main()
 
-def refresh_main_panel():
+def refresh_main():
     '''Runs wtwitch c and then rebuilds the main panel.
     '''
     check_status()
     main_frame.pack_forget()
     main_frame.destroy()
-    draw_main_frame()
+    draw_main()
 
 def mouse_scroll(event):
     meta_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
-def draw_main_frame():
+def draw_main():
     '''The main window. Calls streamer_buttons() twice, to draw buttons for
     online and offline streamers.
     '''
@@ -299,7 +299,7 @@ def menu_bar():
     menubar = tk.Menu(root)
     root.config(menu=menubar)
     menubar.add_command(label='Refresh', font=font2,
-            command=lambda: refresh_main_panel())
+            command=lambda: refresh_main())
     menubar.add_command(label='Follow streamer', font=font,
             command=lambda: follow_dialog())
     # Options drop-down menu:
@@ -406,5 +406,5 @@ app_icon = tk.PhotoImage(file='icons/app_icon.png')
 root.wm_iconphoto(False, app_icon)
 
 menu_bar()
-draw_main_frame()
+draw_main()
 root.mainloop()
