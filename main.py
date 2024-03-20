@@ -350,7 +350,8 @@ def menu_bar():
                 )
     quality_menu.add_separator()
     quality_menu.add_radiobutton(label='Custom', font=font,
-            command=lambda: custom_quality())
+                value='custom', variable=selected_quality,
+                command=lambda: custom_quality())
     # Sub-menu for player options:
     player_menu = tk.Menu(options_menu, tearoff=False)
     options_menu.add_cascade(label='Player', font=font, menu=player_menu)
@@ -364,7 +365,8 @@ def menu_bar():
                 )
     player_menu.add_separator()
     player_menu.add_radiobutton(label='Custom', font=font,
-            command=lambda: custom_player())
+                value='custom', variable=selected_player,
+                command=lambda: custom_player())
 
 def window_size():
     """Sets the default window length, depending on the number of streamers in
