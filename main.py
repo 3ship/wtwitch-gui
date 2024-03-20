@@ -7,6 +7,7 @@ import json
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+from tkinter import simpledialog
 
 def call_wtwitch():
     '''Run wtwitch c and use regex to extract all streamers and their online
@@ -190,7 +191,7 @@ def unfollow_dialog(streamer):
 def follow_dialog():
     '''Opens a text dialog and adds the entered string to the follow list.
     '''
-    streamer = tk.simpledialog.askstring(title='Follow',
+    streamer = simpledialog.askstring(title='Follow',
                         prompt='Enter streamer name: ',
                         parent=root
                         )
@@ -247,7 +248,7 @@ def draw_main():
 def custom_player():
     '''Opens a dialog to set a custom media player.
     '''
-    player = tk.simpledialog.askstring(title='Player',
+    new_player = simpledialog.askstring(title='Player',
                         prompt='Enter your media player:',
                         parent=root)
     if player is None or len(player) == 0:
@@ -265,7 +266,7 @@ def custom_player():
 def custom_quality():
     '''Opens a dialog to set a custom stream quality.
     '''
-    new_quality = tk.simpledialog.askstring(title='Quality',
+    new_quality = simpledialog.askstring(title='Quality',
                         prompt= '\n Options: 1080p60, 720p60, 720p, 480p, \n'
                                 ' 360p, 160p, best, worst, and audio_only \n'
                                 '\n'
