@@ -272,6 +272,8 @@ def refresh_main():
     '''Runs wtwitch c and then rebuilds the main panel.
     '''
     check_status()
+    global streamer_status
+    streamer_status = extract_streamer_status()
     main_frame.pack_forget()
     main_frame.destroy()
     draw_main()
