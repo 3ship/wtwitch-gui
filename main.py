@@ -9,30 +9,60 @@ from tkinter import ttk
 from tkinter import messagebox
 from tkinter import simpledialog
 
-def call_wtwitch():
-    '''Run wtwitch c and use regex to extract all streamers and their online
-    status. Return lists for both, along with online streamer information.
+def wtwitch_config_file():
+    if 'APPDATA' in os.environ:
+        confighome = os.environ['APPDATA']
+    elif 'XDG_CONFIG_HOME' in os.environ:
+        confighome = os.environ['XDG_CONFIG_HOME']
+    else:
+        confighome = os.path.join(os.environ['HOME'], '.config')
+    configfile = os.path.join(confighome, 'wtwitch/config.json')
+    return configfile
+
+def wtwitch_subscription_cache():
+    if 'LOCALAPPDATA' in os.environ:
+        cachehome = os.environ['LOCALAPPDATA']
+    elif 'XDG_CONFIG_HOME' in os.environ:
+        cachehome = os.environ['XDG_CACHE_HOME']
+    else:
+        cachehome = os.path.join(os.environ['HOME'], '.cache')
+    cachepath = os.path.join(cachehome, 'wtwitch/subscription-cache.json')
+    return cachepath
+
+def extract_streamer_status():
+    online_streamers = []
+    online_package = []
+    offline_streamers = []
+    with open(subsciption_cache, 'r') as cache:
+        cachefile = json.load(cache)
+        for streamer in cachefile['data']:
+            online_streamers.append(streamer['user_login'])
+            name = streamer['user_name']
+            login = streamer['user_login']
+            categ = streamer['game_name']
+            title = streamer['title']
+            views = streamer['viewer_count']
+            package = name,login,categ,title,views
+            online_package.append(package)
+    with open(config_file, 'r') as config:
+        configfile = json.load(config)
+        subscriptions = configfile['subscriptions']
+        for diction in subscriptions:
+            streamer = diction['streamer']
+            if streamer not in online_streamers:
+                offline_streamers.append(streamer)
+    online_streamers.sort()
+    online_package.sort()
+    offline_streamers.sort()
+    return online_package, offline_streamers
+
+def check_status():
+    '''Call wtwitch c again when pressing the refresh button
     '''
     wtwitch_c = subprocess.run(['wtwitch', 'c'],
                         capture_output=True,
                         text=True
                         )
-    global wtwitch_c_full
-    wtwitch_c_full = repr(wtwitch_c.stdout)
-    off_streamers1 = re.findall(r'\[90m(\S*)\x1b', wtwitch_c.stdout)
-    off_streamers2 = re.findall(r'\[90m(\S*),', wtwitch_c.stdout)
-    offline_streamers = off_streamers1 + off_streamers2
-    offline_streamers.sort()
-    online_streamers = re.findall(r'\[92m(\S*)\x1b', wtwitch_c.stdout)
-    stream_titles = re.findall(r'\[0m: (\S.*)\s\x1b\[93m\(', wtwitch_c.stdout)
-    stream_categs = re.findall(r'\[93m\((\S.*)\)\x1b\[0m\n', wtwitch_c.stdout)
-    return online_streamers, offline_streamers, stream_titles, stream_categs
-
-def check_status():
-    '''Call wtwitch c again when pressing the refresh button
-    '''
-    global status
-    status = call_wtwitch()
 
 def fetch_vods(streamer):
     '''Run wtwitch v and extract all timestamps/titles of the streamer's VODs
@@ -112,36 +142,59 @@ def vod_panel(streamer):
     vw_scrollbar.grid(row=0, column=1, sticky="ns")
     vw_canvas.bind_all("<MouseWheel>", mouse_scroll)
 
-def streamer_buttons(parent, state):
-    ''' Draws rows of buttons/labels for each streamer into the main panel.
-    Called two times to sort online before offline streamers.
-    '''
-    if state == 'normal':
-        streamer_list = status[0]
-        image = streaming_icon
-    elif state == 'disabled':
-        streamer_list = status[1]
-        image = offline_icon
+def streamer_buttons_online(parent):
+    online_streamers = streamer_status[0]
     global count_rows
-    for index, streamer in enumerate(streamer_list):
-        if state == 'normal':
-            watch_button = tk.Button(parent, image=image,
-                        relief='flat', height=27,
-                        command=lambda s=streamer:
-                        [subprocess.run(['wtwitch', 'w', s])]
+    for package in online_streamers:
+        watch_button = tk.Button(parent, image=streaming_icon,
+                    relief='flat', height=27,
+                    command=lambda s=package[1]:
+                    [subprocess.run(['wtwitch', 'w', s])]
+                    )
+        watch_button.grid(column=0, row=count_rows)
+        info_button = tk.Button(parent,
+                        text=package[0],
+                        anchor='w',
+                        font=('Cantarell', '11', 'bold'),
+                        relief='flat',
+                        width=15,
+                        disabledforeground='#464646',
+                        command= lambda s=package[1], c=package[2],
+                                        t=package[3], v=package[4]:
+                        info_dialog(s, c, t, v)
                         )
-        elif state == 'disabled':
-            watch_button = tk.Label(parent, image=image)
+        info_button.grid(column=1, row=count_rows)
+        unfollow_b = tk.Button(parent,
+                        image=unfollow_icon,
+                        relief='flat',
+                        height=27, width=20,
+                        command=lambda s=package[1]:
+                        [unfollow_dialog(s)]
+                        )
+        unfollow_b.grid(column=2, row=count_rows)
+        vod_b = tk.Button(parent,
+                        image=vod_icon,
+                        relief='flat',
+                        height=27, width=30,
+                        command=lambda s=package[0]:
+                        vod_panel(s)
+                        )
+        vod_b.grid(column=3, row=count_rows)
+        count_rows += 1
+
+def streamer_buttons_offline(parent):
+    offline_streamers = streamer_status[1]
+    global count_rows
+    for streamer in offline_streamers:
+        watch_button = tk.Label(parent, image=offline_icon)
         watch_button.grid(column=0, row=count_rows)
         info_button = tk.Button(parent,
                         text=streamer,
                         anchor='w',
                         font=('Cantarell', '11', 'bold'),
-                        state=state, relief='flat',
+                        state='disabled', relief='flat',
                         width=15,
-                        disabledforeground='#464646',
-                        command=lambda i=index, s=streamer:
-                        info_dialog(i, s)
+                        disabledforeground='#464646'
                         )
         info_button.grid(column=1, row=count_rows)
         unfollow_b = tk.Button(parent,
@@ -162,12 +215,12 @@ def streamer_buttons(parent, state):
         vod_b.grid(column=3, row=count_rows)
         count_rows += 1
 
-def info_dialog(index, streamer):
+def info_dialog(streamer, category, title, viewers):
     '''Info dialog, including stream title and stream category
     '''
     info = messagebox.showinfo(title=f"{streamer} is streaming",
-                        message=f"{status[3][index]}",
-                        detail=f"{status[2][index]}",
+                        message=category,
+                        detail=f"{title}\n({viewers} viewers)",
                         parent=root,
                         )
 
@@ -186,7 +239,7 @@ def unfollow_dialog(streamer):
                         capture_output=True,
                         text=True
                         )
-        refresh_main()
+        refresh_main_quiet()
 
 def follow_dialog():
     '''Opens a text dialog and adds the entered string to the follow list.
@@ -202,7 +255,18 @@ def follow_dialog():
                         capture_output=True,
                         text=True
                         )
-        refresh_main()
+        refresh_main_quiet()
+
+def refresh_main_quiet():
+    '''Refresh the main panel without running wtwitch c to avoid unnecessary
+    Twitch API calls.
+    '''
+    global streamer_status
+    streamer_status = extract_streamer_status()
+    extract_streamer_status()
+    main_frame.pack_forget()
+    main_frame.destroy()
+    draw_main()
 
 def refresh_main():
     '''Runs wtwitch c and then rebuilds the main panel.
@@ -235,8 +299,8 @@ def draw_main():
     # Draw main content:
     global count_rows
     count_rows = 0
-    streamer_buttons(main_frame, 'normal')
-    streamer_buttons(main_frame, 'disabled')
+    streamer_buttons_online(main_frame)
+    streamer_buttons_offline(main_frame)
     # Finish scrollbar:
     meta_frame.columnconfigure(0, weight=1)
     meta_frame.rowconfigure(0, weight=1)
@@ -299,17 +363,8 @@ def custom_quality():
                         parent=root)
 
 def check_config():
-    if 'APPDATA' in os.environ:
-        confighome = os.environ['APPDATA']
-    elif 'XDG_CONFIG_HOME' in os.environ:
-        confighome = os.environ['XDG_CONFIG_HOME']
-    else:
-        confighome = os.path.join(os.environ['HOME'], '.config')
-    configfile = os.path.join(confighome, 'wtwitch/config.json')
-
-    with open(configfile, 'r') as config:
+    with open(config_file, 'r') as config:
         config = json.load(config)
-        print(config)
         player = config['player']
         quality = config['quality']
         colors = config['colors']
@@ -374,7 +429,7 @@ def window_size():
     """
     min_height = 360
     max_height = 550
-    variable_height = len(status[0])*27+len(status[1])*27+100
+    variable_height = len(streamer_status[0])*27+len(streamer_status[1])*27+100
     if variable_height > max_height:
         window_height = str(max_height)
     elif variable_height < min_height:
@@ -407,11 +462,14 @@ def toggle_settings():
 
 
 # Get user settings:
+config_file = wtwitch_config_file()
+subsciption_cache = wtwitch_subscription_cache()
 user_settings = check_config()
 # Make sure that colors in the terminal output are activated:
 toggle_settings()
 # Check the online/offline status once before window initialization:
-status = call_wtwitch()
+check_status()
+streamer_status = extract_streamer_status()
 
 # Create the main window
 root = tk.Tk()
@@ -432,7 +490,7 @@ close_icon = tk.PhotoImage(file='icons/close_icon.png')
 app_icon = tk.PhotoImage(file='icons/app_icon.png')
 root.wm_iconphoto(False, app_icon)
 
-# Set variables for the main menu's radiobuttons:
+# Set variables for the main menu's radiobuttons. Only works as global var:
 selected_player = tk.StringVar()
 selected_player.set(user_settings[0])
 selected_quality = tk.StringVar()
