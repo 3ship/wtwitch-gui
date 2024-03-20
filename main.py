@@ -290,6 +290,23 @@ def custom_quality():
                         message=error[0],
                         parent=root)
 
+def check_config():
+    if 'APPDATA' in os.environ:
+        confighome = os.environ['APPDATA']
+    elif 'XDG_CONFIG_HOME' in os.environ:
+        confighome = os.environ['XDG_CONFIG_HOME']
+    else:
+        confighome = os.path.join(os.environ['HOME'], '.config')
+    configfile = os.path.join(confighome, 'wtwitch/config.json')
+
+    with open(configfile, 'r') as config:
+        config = json.load(config)
+        print(config)
+        player = config['player']
+        quality = config['quality']
+        colors = config['colors']
+    return player, quality, colors
+
 def menu_bar():
     '''The entire menu bar of the root window.
     '''
