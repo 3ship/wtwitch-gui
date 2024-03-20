@@ -272,6 +272,7 @@ def custom_quality():
                                 '\n'
                                 ' Specify fallbacks separated by a comma: \n'
                                 ' E.g. "720p,480p,worst" \n',
+                        initialvalue=user_settings[1],
                         parent=root)
     if new_quality is None or len(new_quality) == 0:
         return
