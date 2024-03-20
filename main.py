@@ -159,7 +159,7 @@ def streamer_buttons_online(parent):
                         relief='flat',
                         width=15,
                         disabledforeground='#464646',
-                        command= lambda s=package[1], c=package[2],
+                        command= lambda s=package[0], c=package[2],
                                         t=package[3], v=package[4]:
                         info_dialog(s, c, t, v)
                         )
