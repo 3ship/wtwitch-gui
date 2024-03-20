@@ -374,19 +374,18 @@ def window_size():
     return f"280x{window_height}"
 
 def toggle_color():
-    """Toggles wtwitch color output until it is on. This is needed to capture
+    """Checks if wtwitch color output is on. This is needed to capture
     wtwitch output with regex independently of the user's system language.
     """
-    wtwitch_l = subprocess.run(['wtwitch', 'l'],
+    if user_settings[2] == 'true':
+        return
+    else:
+        wtwitch_l = subprocess.run(['wtwitch', 'l'],
                         capture_output=True,
                         text=True
                         )
-    if not re.search('\\[32m', wtwitch_l.stdout) and not wtwitch_l.stderr:
-        toggle_color()
-    elif wtwitch_l.stderr:
-        messagebox.showerror("Error", wtwitch_l.stderr)
-    else:
-        return
+        if wtwitch_l.stderr:
+            messagebox.showerror("Error", wtwitch_l.stderr)
 
 
 # Get user settings:
