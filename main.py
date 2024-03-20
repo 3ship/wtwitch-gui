@@ -251,16 +251,22 @@ def custom_player():
     new_player = simpledialog.askstring(title='Player',
                         prompt='Enter your media player:',
                         parent=root)
-    if player is None or len(player) == 0:
+    if new_player is None or len(new_player) == 0:
         return
     else:
-        confirmation = subprocess.run(['wtwitch', 'p', player],
+        set_player = subprocess.run(['wtwitch', 'p', new_player],
                         text=True,
                         capture_output=True
                         )
-        confirmation = re.findall(r'\n\\s(.*)\n\x1b\[0m', confirmation.stdout)
-        return messagebox.showinfo(title='Player',
-                        message=confirmation[0],
+        confirmation = re.findall(r'\n (.*)\n\x1b\[0m', set_player.stdout)
+        if len(confirmation) >= 1:
+            return messagebox.showinfo(title='Player',
+                            message=confirmation[0],
+                            parent=root)
+        else:
+            error = re.findall(r'\[0m: (\S.*?\.)', set_player.stderr)
+            return messagebox.showerror(title='Error',
+                        message=error[0],
                         parent=root)
 
 def custom_quality():
