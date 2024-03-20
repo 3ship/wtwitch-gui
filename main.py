@@ -313,7 +313,8 @@ def check_config():
         player = config['player']
         quality = config['quality']
         colors = config['colors']
-    return player, quality, colors
+        print_offline_subs = config['printOfflineSubscriptions']
+    return player, quality, colors, print_offline_subs
 
 def menu_bar():
     '''The entire menu bar of the root window.
@@ -380,25 +381,33 @@ def window_size():
         window_height = str(variable_height)
     return f"280x{window_height}"
 
-def toggle_color():
+def toggle_settings():
     """Checks if wtwitch color output is on. This is needed to capture
     wtwitch output with regex independently of the user's system language.
     """
-    if user_settings[2] == 'true':
+    if user_settings[2] == 'true' and user_settings[3] == 'true':
         return
     else:
-        wtwitch_l = subprocess.run(['wtwitch', 'l'],
-                        capture_output=True,
-                        text=True
-                        )
-        if wtwitch_l.stderr:
-            messagebox.showerror("Error", wtwitch_l.stderr)
+        if user_settings[2] == 'false':
+            wtwitch_l = subprocess.run(['wtwitch', 'l'],
+                            capture_output=True,
+                            text=True
+                            )
+            if wtwitch_l.stderr:
+                messagebox.showerror("Error", wtwitch_l.stderr)
+        if user_settings[3] == 'false':
+            wtwitch_f = subprocess.run(['wtwitch', 'f'],
+                            capture_output=True,
+                            text=True
+                            )
+            if wtwitch_f.stderr:
+                messagebox.showerror("Error", wtwitch_f.stderr)
 
 
 # Get user settings:
 user_settings = check_config()
 # Make sure that colors in the terminal output are activated:
-toggle_color()
+toggle_settings()
 # Check the online/offline status once before window initialization:
 status = call_wtwitch()
 
