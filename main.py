@@ -34,7 +34,7 @@ def extract_streamer_status():
     online_streamers = []
     online_package = []
     offline_streamers = []
-    with open(subsciption_cache, 'r') as cache:
+    with open(wtwitch_subscription_cache(), 'r') as cache:
         cachefile = json.load(cache)
         for streamer in cachefile['data']:
             online_streamers.append(streamer['user_login'])
@@ -45,7 +45,7 @@ def extract_streamer_status():
             views = streamer['viewer_count']
             package = name,login,categ,title,views
             online_package.append(package)
-    with open(config_file, 'r') as config:
+    with open(wtwitch_config_file(), 'r') as config:
         configfile = json.load(config)
         subscriptions = configfile['subscriptions']
         for diction in subscriptions:
@@ -366,7 +366,7 @@ def custom_quality():
                         parent=root)
 
 def check_config():
-    with open(config_file, 'r') as config:
+    with open(wtwitch_config_file(), 'r') as config:
         config = json.load(config)
         player = config['player']
         quality = config['quality']
@@ -465,8 +465,6 @@ def toggle_settings():
 
 
 # Get user settings:
-config_file = wtwitch_config_file()
-subsciption_cache = wtwitch_subscription_cache()
 user_settings = check_config()
 # Make sure that colors in the terminal output are activated:
 toggle_settings()
@@ -493,7 +491,7 @@ close_icon = tk.PhotoImage(file=encoded_images.close_icon)
 app_icon = tk.PhotoImage(file=encoded_images.app_icon)
 root.wm_iconphoto(False, app_icon)
 
-# Remove temp files:
+# Remove icon temp files:
 os.remove(encoded_images.unfollow_icon)
 os.remove(encoded_images.vod_icon)
 os.remove(encoded_images.streaming_icon)
