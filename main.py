@@ -8,6 +8,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter import simpledialog
+import encoded_images
 
 def wtwitch_config_file():
     if 'APPDATA' in os.environ:
@@ -482,15 +483,24 @@ root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
 
 # Import icons:
-unfollow_icon = tk.PhotoImage(file='icons/unfollow_icon.png')
-vod_icon = tk.PhotoImage(file='icons/vod_icon.png')
-streaming_icon = tk.PhotoImage(file='icons/streaming_icon.png')
-offline_icon = tk.PhotoImage(file='icons/offline_icon.png')
-play_icon = tk.PhotoImage(file='icons/play_icon.png')
-close_icon = tk.PhotoImage(file='icons/close_icon.png')
+unfollow_icon = tk.PhotoImage(file=encoded_images.unfollow_icon)
+vod_icon = tk.PhotoImage(file=encoded_images.vod_icon)
+streaming_icon = tk.PhotoImage(file=encoded_images.streaming_icon)
+offline_icon = tk.PhotoImage(file=encoded_images.offline_icon)
+play_icon = tk.PhotoImage(file=encoded_images.play_icon)
+close_icon = tk.PhotoImage(file=encoded_images.close_icon)
 
-app_icon = tk.PhotoImage(file='icons/app_icon.png')
+app_icon = tk.PhotoImage(file=encoded_images.app_icon)
 root.wm_iconphoto(False, app_icon)
+
+# Remove temp files:
+os.remove(encoded_images.unfollow_icon)
+os.remove(encoded_images.vod_icon)
+os.remove(encoded_images.streaming_icon)
+os.remove(encoded_images.offline_icon)
+os.remove(encoded_images.play_icon)
+os.remove(encoded_images.close_icon)
+os.remove(encoded_images.app_icon)
 
 # Set variables for the main menu's radiobuttons. Only works as global var:
 selected_player = tk.StringVar()
