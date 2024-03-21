@@ -377,8 +377,8 @@ def check_config():
 def menu_bar():
     '''The entire menu bar of the root window.
     '''
-    font = ('Cantarell', '10')
-    font2 = ('Cantarell', '10', 'bold')
+    font = ('Cantarell', '11')
+    font2 = ('Cantarell', '11', 'bold')
     menubar = tk.Menu(root)
     root.config(menu=menubar)
     menubar.add_command(label='Refresh', font=font2,
