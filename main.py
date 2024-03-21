@@ -394,17 +394,23 @@ def menu_bar():
     quality_menu.add_radiobutton(label='High', font=font,
                 value='best', variable=selected_quality,
                 command=lambda:
-                [subprocess.run(['wtwitch', 'q', 'best'])]
+                [subprocess.run(['wtwitch', 'q', 'best'],
+                capture_output=True,
+                text=True)]
                 )
     quality_menu.add_radiobutton(label='Medium', font=font,
                 value='720p,720p60,480p,best', variable=selected_quality,
                 command=lambda:
-                [subprocess.run(['wtwitch', 'q', '720p,720p60,480p,best'])]
+                [subprocess.run(['wtwitch', 'q', '720p,720p60,480p,best'],
+                capture_output=True,
+                text=True)]
                 )
     quality_menu.add_radiobutton(label='Low', font=font,
                 value='480p,worst', variable=selected_quality,
                 command=lambda:
-                [subprocess.run(['wtwitch', 'q', '480p,worst'])]
+                [subprocess.run(['wtwitch', 'q', '480p,worst'],
+                capture_output=True,
+                text=True)]
                 )
     quality_menu.add_separator()
     quality_menu.add_radiobutton(label='Custom', font=font,
@@ -415,11 +421,15 @@ def menu_bar():
     options_menu.add_cascade(label='Player', font=font, menu=player_menu)
     player_menu.add_radiobutton(label='mpv', font=font,
                 value='mpv', variable=selected_player,
-                command=lambda: [subprocess.run(['wtwitch', 'p', 'mpv'])]
+                command=lambda: [subprocess.run(['wtwitch', 'p', 'mpv'],
+                capture_output=True,
+                text=True)]
                 )
     player_menu.add_radiobutton(label='VLC', font=font,
                 value='vlc', variable=selected_player,
-                command=lambda: [subprocess.run(['wtwitch', 'p', 'vlc'])]
+                command=lambda: [subprocess.run(['wtwitch', 'p', 'vlc'],
+                capture_output=True,
+                text=True)]
                 )
     player_menu.add_separator()
     player_menu.add_radiobutton(label='Custom', font=font,
@@ -502,9 +512,16 @@ os.remove(encoded_images.app_icon)
 
 # Set variables for the main menu's radiobuttons. Only works as global var:
 selected_player = tk.StringVar()
+if user_settings[0] in ['mpv', 'vlc']:
+    selected_player.set(user_settings[0])
+else:
+    selected_player.set('custom')
 selected_player.set(user_settings[0])
 selected_quality = tk.StringVar()
-selected_quality.set(user_settings[1])
+if user_settings[1] in ['best', '720p,720p60,480p,best', '480p,worst']:
+    selected_quality.set(user_settings[1])
+else:
+    selected_quality.set('custom')
 menu_bar()
 
 draw_main()
