@@ -70,7 +70,8 @@ def fetch_vods(streamer):
     with regex. Cap the title length at 50 characters.
     '''
     wtwitch_v = subprocess.run(['wtwitch', 'v', streamer],
-                        capture_output=True,
+                        stderr=subprocess.PIPE,
+                        stdout=subprocess.PIPE,
                         text=True
                         )
     timestamps = re.findall(r'\[96m\[(\S* \d.*:\d.*):\d.*\]', wtwitch_v.stdout)
@@ -148,17 +149,17 @@ def streamer_buttons_online(parent):
     global count_rows
     for package in online_streamers:
         watch_button = tk.Button(parent, image=streaming_icon,
-                    relief='flat', height=27,
-                    command=lambda s=package[1]:
-                    [subprocess.run(['wtwitch', 'w', s])]
-                    )
+                        relief='flat', height=28,
+                        command=lambda s=package[1]:
+                        [subprocess.run(['wtwitch', 'w', s])]
+                        )
         watch_button.grid(column=0, row=count_rows)
         info_button = tk.Button(parent,
                         text=package[0],
                         anchor='w',
-                        font=('Cantarell', '11', 'bold'),
+                        font=('Cantarell', '12', 'bold'),
                         relief='flat',
-                        width=15,
+                        width=14,
                         disabledforeground='#464646',
                         command= lambda s=package[0], c=package[2],
                                         t=package[3], v=package[4]:
@@ -168,7 +169,7 @@ def streamer_buttons_online(parent):
         unfollow_b = tk.Button(parent,
                         image=unfollow_icon,
                         relief='flat',
-                        height=27, width=20,
+                        height=28, width=20,
                         command=lambda s=package[1]:
                         [unfollow_dialog(s)]
                         )
@@ -176,7 +177,7 @@ def streamer_buttons_online(parent):
         vod_b = tk.Button(parent,
                         image=vod_icon,
                         relief='flat',
-                        height=27, width=30,
+                        height=28, width=30,
                         command=lambda s=package[0]:
                         vod_panel(s)
                         )
@@ -192,16 +193,16 @@ def streamer_buttons_offline(parent):
         info_button = tk.Button(parent,
                         text=streamer,
                         anchor='w',
-                        font=('Cantarell', '11', 'bold'),
+                        font=('Cantarell', '12', 'bold'),
                         state='disabled', relief='flat',
-                        width=15,
+                        width=14,
                         disabledforeground='#464646'
                         )
         info_button.grid(column=1, row=count_rows)
         unfollow_b = tk.Button(parent,
                         image=unfollow_icon,
                         relief='flat',
-                        height=27, width=20,
+                        height=28, width=20,
                         command=lambda s=streamer:
                         [unfollow_dialog(s)]
                         )
@@ -209,7 +210,7 @@ def streamer_buttons_offline(parent):
         vod_b = tk.Button(parent,
                         image=vod_icon,
                         relief='flat',
-                        height=27, width=30,
+                        height=28, width=30,
                         command=lambda s=streamer:
                         vod_panel(s)
                         )
@@ -442,14 +443,14 @@ def window_size():
     """
     min_height = 360
     max_height = 550
-    variable_height = len(streamer_status[0])*27+len(streamer_status[1])*27+100
+    variable_height = len(streamer_status[0])*28+len(streamer_status[1])*28+100
     if variable_height > max_height:
         window_height = str(max_height)
     elif variable_height < min_height:
         window_height = str(min_height)
     else:
         window_height = str(variable_height)
-    return f"280x{window_height}"
+    return f"285x{window_height}"
 
 def toggle_settings():
     """Checks if wtwitch color output is on. This is needed to capture
