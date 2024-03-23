@@ -38,12 +38,12 @@ def extract_streamer_status():
         cachefile = json.load(cache)
         for streamer in cachefile['data']:
             online_streamers.append(streamer['user_login'])
-            name = streamer['user_name']
             login = streamer['user_login']
+            name = streamer['user_name']
             categ = streamer['game_name']
             title = streamer['title']
             views = streamer['viewer_count']
-            package = name,login,categ,title,views
+            package = login,name,categ,title,views
             online_package.append(package)
     with open(wtwitch_config_file(), 'r') as config:
         configfile = json.load(config)
@@ -150,18 +150,18 @@ def streamer_buttons_online(parent):
     for package in online_streamers:
         watch_button = tk.Button(parent, image=streaming_icon,
                         relief='flat', height=28,
-                        command=lambda s=package[1]:
+                        command=lambda s=package[0]:
                         [subprocess.run(['wtwitch', 'w', s])]
                         )
         watch_button.grid(column=0, row=count_rows)
         info_button = tk.Button(parent,
-                        text=package[0],
+                        text=package[1],
                         anchor='w',
                         font=('Cantarell', '12', 'bold'),
                         relief='flat',
                         width=14,
                         disabledforeground='#464646',
-                        command= lambda s=package[0], c=package[2],
+                        command= lambda s=package[1], c=package[2],
                                         t=package[3], v=package[4]:
                         info_dialog(s, c, t, v)
                         )
@@ -178,7 +178,7 @@ def streamer_buttons_online(parent):
                         image=vod_icon,
                         relief='flat',
                         height=28, width=30,
-                        command=lambda s=package[0]:
+                        command=lambda s=package[1]:
                         vod_panel(s)
                         )
         vod_b.grid(column=3, row=count_rows)
