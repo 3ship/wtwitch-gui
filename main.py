@@ -152,40 +152,38 @@ def streamer_buttons_online(parent):
     online_streamers = streamer_status[0]
     global count_rows
     for package in online_streamers:
-        watch_button = tk.Button(parent, image=streaming_icon,
-                        relief='flat', height=28,
+        watch_button = tk.Button(parent,
+                        image=streaming_icon,
+                        relief='flat',
                         command=lambda s=package[0]:
                         [subprocess.run(['wtwitch', 'w', s])]
                         )
-        watch_button.grid(column=0, row=count_rows)
+        watch_button.grid(column=0, row=count_rows, sticky='ns')
         info_button = tk.Button(parent,
                         text=package[1],
                         anchor='w',
                         font=('Cantarell', '12', 'bold'),
                         relief='flat',
-                        width=14,
                         disabledforeground='#464646',
                         command= lambda s=package[1], c=package[2],
                                         t=package[3], v=package[4]:
                         info_dialog(s, c, t, v)
                         )
-        info_button.grid(column=1, row=count_rows)
+        info_button.grid(column=1, row=count_rows, sticky='nesw')
         unfollow_b = tk.Button(parent,
                         image=unfollow_icon,
                         relief='flat',
-                        height=28, width=20,
                         command=lambda s=package[1]:
                         [unfollow_dialog(s)]
                         )
-        unfollow_b.grid(column=2, row=count_rows)
+        unfollow_b.grid(column=2, row=count_rows, sticky='ns')
         vod_b = tk.Button(parent,
                         image=vod_icon,
                         relief='flat',
-                        height=28, width=30,
                         command=lambda s=package[1]:
                         vod_panel(s)
                         )
-        vod_b.grid(column=3, row=count_rows)
+        vod_b.grid(column=3, row=count_rows, sticky='ns')
         count_rows += 1
 
 def streamer_buttons_offline(parent):
@@ -193,32 +191,30 @@ def streamer_buttons_offline(parent):
     global count_rows
     for streamer in offline_streamers:
         watch_button = tk.Label(parent, image=offline_icon)
-        watch_button.grid(column=0, row=count_rows)
+        watch_button.grid(column=0, row=count_rows, sticky='ns')
         info_button = tk.Button(parent,
                         text=streamer,
                         anchor='w',
                         font=('Cantarell', '12', 'bold'),
                         state='disabled', relief='flat',
-                        width=14,
+                        compound='left',
                         disabledforeground='#464646'
                         )
-        info_button.grid(column=1, row=count_rows)
+        info_button.grid(column=1, row=count_rows, sticky='nesw')
         unfollow_b = tk.Button(parent,
                         image=unfollow_icon,
                         relief='flat',
-                        height=28, width=20,
                         command=lambda s=streamer:
                         [unfollow_dialog(s)]
                         )
-        unfollow_b.grid(column=2, row=count_rows)
+        unfollow_b.grid(column=2, row=count_rows, sticky='ns')
         vod_b = tk.Button(parent,
                         image=vod_icon,
                         relief='flat',
-                        height=28, width=30,
                         command=lambda s=streamer:
                         vod_panel(s)
                         )
-        vod_b.grid(column=3, row=count_rows)
+        vod_b.grid(column=3, row=count_rows, sticky='ns')
         count_rows += 1
 
 def info_dialog(streamer, category, title, viewers):
@@ -502,58 +498,6 @@ def menu_bar():
             command=lambda: follow_dialog())
     menubar.add_command(label='Settings', font=font,
             command=lambda: settings_dialog())
-"""
-    # Options drop-down menu:
-    options_menu = tk.Menu(menubar, tearoff=False)
-    menubar.add_cascade(label='Options', menu=options_menu, font=font)
-    # Sub-menu for quality options:
-    quality_menu = tk.Menu(options_menu, tearoff=False)
-    options_menu.add_cascade(label='Quality', menu=quality_menu, font=font)
-    quality_menu.add_radiobutton(label='High', font=font,
-                value='best', variable=selected_quality,
-                command=lambda:
-                [subprocess.run(['wtwitch', 'q', 'best'],
-                capture_output=True,
-                text=True)]
-                )
-    quality_menu.add_radiobutton(label='Medium', font=font,
-                value='720p,720p60,480p,best', variable=selected_quality,
-                command=lambda:
-                [subprocess.run(['wtwitch', 'q', '720p,720p60,480p,best'],
-                capture_output=True,
-                text=True)]
-                )
-    quality_menu.add_radiobutton(label='Low', font=font,
-                value='480p,worst', variable=selected_quality,
-                command=lambda:
-                [subprocess.run(['wtwitch', 'q', '480p,worst'],
-                capture_output=True,
-                text=True)]
-                )
-    quality_menu.add_separator()
-    quality_menu.add_radiobutton(label='Custom', font=font,
-                value='custom', variable=selected_quality,
-                command=lambda: custom_quality())
-    # Sub-menu for player options:
-    player_menu = tk.Menu(options_menu, tearoff=False)
-    options_menu.add_cascade(label='Player', font=font, menu=player_menu)
-    player_menu.add_radiobutton(label='mpv', font=font,
-                value='mpv', variable=selected_player,
-                command=lambda: [subprocess.run(['wtwitch', 'p', 'mpv'],
-                capture_output=True,
-                text=True)]
-                )
-    player_menu.add_radiobutton(label='VLC', font=font,
-                value='vlc', variable=selected_player,
-                command=lambda: [subprocess.run(['wtwitch', 'p', 'vlc'],
-                capture_output=True,
-                text=True)]
-                )
-    player_menu.add_separator()
-    player_menu.add_radiobutton(label='Custom', font=font,
-                value='custom', variable=selected_player,
-                command=lambda: custom_player())
-"""
 
 def window_size():
     """Sets the default window length, depending on the number of streamers in
