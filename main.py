@@ -316,9 +316,11 @@ def draw_main():
 def custom_player():
     '''Opens a dialog to set a custom media player.
     '''
+    global user_settings
     new_player = simpledialog.askstring(title='Player',
                         prompt='Enter your media player:',
-                        parent=root)
+                        parent=settings,
+                        initialvalue=user_settings[0])
     if new_player is None or len(new_player) == 0:
         return
     else:
@@ -328,18 +330,20 @@ def custom_player():
                         )
         confirmation = re.findall(r'\n (.*)\n\x1b\[0m', set_player.stdout)
         if len(confirmation) >= 1:
+            user_settings = check_config()
             return messagebox.showinfo(title='Player',
                             message=confirmation[0],
-                            parent=root)
+                            parent=settings)
         else:
             error = re.findall(r'\[0m: (\S.*?\.)', set_player.stderr)
             return messagebox.showerror(title='Error',
                         message=error[0],
-                        parent=root)
+                        parent=settings)
 
 def custom_quality():
     '''Opens a dialog to set a custom stream quality.
     '''
+    global user_settings
     new_quality = simpledialog.askstring(title='Quality',
                         prompt= '\n Options: 1080p60, 720p60, 720p, 480p, \n'
                                 ' 360p, 160p, best, worst, and audio_only \n'
@@ -347,7 +351,7 @@ def custom_quality():
                                 ' Specify fallbacks separated by a comma: \n'
                                 ' E.g. "720p,480p,worst" \n',
                         initialvalue=user_settings[1],
-                        parent=root)
+                        parent=settings)
     if new_quality is None or len(new_quality) == 0:
         return
     else:
@@ -357,14 +361,15 @@ def custom_quality():
                         )
         confirmation = re.findall(r'\n\s(.*)\n\x1b\[0m', set_quality.stdout)
         if len(confirmation) >= 1:
+            user_settings = check_config()
             return messagebox.showinfo(title='Quality',
                         message=confirmation[0],
-                        parent=root)
+                        parent=settings)
         else:
             error = re.findall(r'\[0m: (\S.*?\.)', set_quality.stderr)
             return messagebox.showerror(title='Error',
                         message=error[0],
-                        parent=root)
+                        parent=settings)
 
 def check_config():
     with open(wtwitch_config_file(), 'r') as config:
@@ -375,8 +380,97 @@ def check_config():
         print_offline_subs = config['printOfflineSubscriptions']
     return player, quality, colors, print_offline_subs
 
+def settings_dialog():
+    '''Opens a toplevel window with four settings options.
+    '''
+    global user_settings
+    user_settings = check_config()
+    global selected_player
+    selected_player = tk.StringVar()
+    if user_settings[0] in ['mpv', 'vlc']:
+        selected_player.set(user_settings[0])
+    else:
+        selected_player.set('custom')
+    global selected_quality
+    selected_quality = tk.StringVar()
+    if user_settings[1] in ['best', '720p,720p60,480p,best', '480p,worst']:
+        selected_quality.set(user_settings[1])
+    else:
+        selected_quality.set('custom')
+    font = ('Cantarell', '11')
+    global settings
+    settings = tk.Toplevel(root)
+    settings.title('Settings')
+    settings.geometry('')
+    top_f = tk.Frame(settings)
+    top_f.pack()
+    qual_f = tk.Frame(top_f, relief='ridge', border='1')
+    qual_f.pack(side='left', anchor='nw', padx=5, pady=5)
+    qual_l = tk.Label(qual_f, text='Stream quality:', font=font)
+    qual_l.pack(padx=10, pady=5)
+    high_qual = tk.Radiobutton(qual_f, text='High', font=font,
+                value='best', variable=selected_quality,
+                command=lambda u = user_settings:
+                [subprocess.run(['wtwitch', 'q', 'best'],
+                capture_output=True,
+                text=True), check_config()]
+                )
+    high_qual.pack(anchor='w')
+    mid_qual = tk.Radiobutton(qual_f, text='Medium', font=font,
+                value='720p,720p60,480p,best', variable=selected_quality,
+                command=lambda:
+                [subprocess.run(['wtwitch', 'q', '720p,720p60,480p,best'],
+                capture_output=True,
+                text=True)]
+                )
+    mid_qual.pack(anchor='w')
+    low_qual = tk.Radiobutton(qual_f, text='Low', font=font,
+                value='480p,worst', variable=selected_quality,
+                command=lambda:
+                [subprocess.run(['wtwitch', 'q', '480p,worst'],
+                capture_output=True,
+                text=True)]
+                )
+    low_qual.pack(anchor='w')
+    custom_qual = tk.Radiobutton(qual_f, text='Custom', font=font,
+                value='custom', variable=selected_quality,
+                command=lambda: custom_quality())
+    custom_qual.pack(anchor='w')
+    play_f = tk.Frame(top_f, relief='ridge', border='1')
+    play_f.pack(side='right', anchor='ne', padx=5, pady=5)
+    play_l = tk.Label(play_f, text='Choose player:', font=font)
+    play_l.pack(padx=10, pady=5)
+    pick_mpv = tk.Radiobutton(play_f, text='mpv', font=font,
+                value='mpv', variable=selected_player,
+                command=lambda: [subprocess.run(['wtwitch', 'p', 'mpv'],
+                capture_output=True,
+                text=True)]
+                )
+    pick_mpv.pack(anchor='w')
+    pick_vlc = tk.Radiobutton(play_f, text='VLC', font=font,
+                value='vlc', variable=selected_player,
+                command=lambda: [subprocess.run(['wtwitch', 'p', 'vlc'],
+                capture_output=True,
+                text=True)]
+                )
+    pick_vlc.pack(anchor='w')
+    pick_custom = tk.Radiobutton(play_f, text='Custom', font=font,
+                value='custom', variable=selected_player,
+                command=lambda: custom_player())
+    pick_custom.pack(anchor='w')
+    bottom_f = tk.Frame(settings)
+    bottom_f.pack()
+    scale_f = tk.Frame(bottom_f, relief='ridge', border='1')
+    scale_f.pack(side='left', anchor='nw', padx=5, pady=5)
+    scale_l = tk.Label(scale_f, text='Window scale:', font=font)
+    scale_l.pack(padx=10, pady=5)
+    color_f = tk.Frame(bottom_f, relief='ridge', border='1')
+    color_f.pack(side='right', anchor='ne', padx=5, pady=5)
+    color_l = tk.Label(color_f, text='Window color:', font=font)
+    color_l.pack(padx=10, pady=5)
+
 def menu_bar():
-    '''The entire menu bar of the root window.
+    '''The menu bar of the root window.
     '''
     font = ('Cantarell', '11')
     font2 = ('Cantarell', '11', 'bold')
@@ -386,6 +480,9 @@ def menu_bar():
             command=lambda: refresh_main())
     menubar.add_command(label='Follow streamer', font=font,
             command=lambda: follow_dialog())
+    menubar.add_command(label='Settings', font=font,
+            command=lambda: settings_dialog())
+"""
     # Options drop-down menu:
     options_menu = tk.Menu(menubar, tearoff=False)
     menubar.add_cascade(label='Options', menu=options_menu, font=font)
@@ -436,6 +533,7 @@ def menu_bar():
     player_menu.add_radiobutton(label='Custom', font=font,
                 value='custom', variable=selected_player,
                 command=lambda: custom_player())
+"""
 
 def window_size():
     """Sets the default window length, depending on the number of streamers in
@@ -453,9 +551,10 @@ def window_size():
     return f"285x{window_height}"
 
 def toggle_settings():
-    """Checks if wtwitch color output is on. This is needed to capture
-    wtwitch output with regex independently of the user's system language.
+    """Checks if wtwitch prints offline streamers and color output. Latter is
+    needed to filter wtwitch output with regex.
     """
+    user_settings = check_config()
     if user_settings[2] == 'true' and user_settings[3] == 'true':
         return
     else:
@@ -475,8 +574,6 @@ def toggle_settings():
                 messagebox.showerror("Error", wtwitch_f.stderr)
 
 
-# Get user settings:
-user_settings = check_config()
 # Make sure that colors in the terminal output are activated:
 toggle_settings()
 # Check the online/offline status once before window initialization:
@@ -511,19 +608,6 @@ os.remove(encoded_images.play_icon)
 os.remove(encoded_images.close_icon)
 os.remove(encoded_images.app_icon)
 
-# Set variables for the main menu's radiobuttons. Only works as global var:
-selected_player = tk.StringVar()
-if user_settings[0] in ['mpv', 'vlc']:
-    selected_player.set(user_settings[0])
-else:
-    selected_player.set('custom')
-selected_player.set(user_settings[0])
-selected_quality = tk.StringVar()
-if user_settings[1] in ['best', '720p,720p60,480p,best', '480p,worst']:
-    selected_quality.set(user_settings[1])
-else:
-    selected_quality.set('custom')
 menu_bar()
-
 draw_main()
 root.mainloop()
