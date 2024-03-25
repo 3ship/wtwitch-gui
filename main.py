@@ -96,28 +96,32 @@ def vod_panel(streamer):
                         )
         return
     # frame-canvas-frame to attach a scrollbar:
-    vw_frame = tk.Frame(root)
+    close_button = tk.Button(
+                        root,
+                        image=close_icon,
+                        relief='flat',
+                        command=lambda: [vw_frame.forget(), vw_frame.destroy()]
+                        )
+    vw_frame = ttk.Labelframe(root, labelwidget=close_button)
     vw_frame.grid(column='0', row='1', sticky='nsew')
     vw_frame.columnconfigure(0, weight=1)
     vw_frame.rowconfigure(0, weight=1)
-    vw_canvas = tk.Canvas(vw_frame)
-    vw_scrollbar = ttk.Scrollbar(vw_frame,orient="vertical",
+    met_frame = ttk.Frame(vw_frame)
+    met_frame.grid(column='0', row='1', sticky='nsew')
+    met_frame.columnconfigure(0, weight=1)
+    met_frame.rowconfigure(0, weight=1)
+    vw_canvas = tk.Canvas(met_frame)
+    vw_scrollbar = ttk.Scrollbar(met_frame,orient="vertical",
                         command=vw_canvas.yview
                         )
     vw_canvas.configure(yscrollcommand=vw_scrollbar.set)
-    vod_frame = ttk.Frame(vw_frame, padding='10', relief='sunken')
+    vod_frame = ttk.Labelframe(met_frame,
+                        text=f"{streamer}'s VODs",
+                        )
     vod_frame.bind("<Configure>", lambda e:
                         vw_canvas.configure(
                         scrollregion=vw_canvas.bbox("all"))
                         )
-    # Show streamer name and close button before the VODs
-    vods_label = tk.Label(vod_frame, text=f"{streamer}'s VODs:",
-                        font=('Cantarell', '9', 'bold'))
-    vods_label.grid(column=1, row=0)
-    close_button = tk.Button(vod_frame, image=close_icon, relief='flat',
-                        command=lambda: [vw_frame.forget(), vw_frame.destroy()]
-                        )
-    close_button.grid(column=2, row=0, sticky='e')
     # Draw the VOD grid:
     vod_number = 1
     for timestamp, title, length in zip(vods[0], vods[1], vods[2]):
@@ -128,15 +132,15 @@ def vod_panel(streamer):
                         command=lambda s=streamer, v=vod_number:
                         [subprocess.run(['wtwitch', 'v', s, str(v)])]
                         )
-        watch_button.grid(column=0, row=vod_number, sticky='ew')
+        watch_button.grid(column=0, row=vod_number, sticky='nesw')
         timestamp_button = tk.Button(vod_frame, text=f"{timestamp} {length}",
                         command=lambda ts=timestamp, t=title, p=root:
                         messagebox.showinfo("VOD", ts, detail=t, parent=p),
-                        font=('', '8'),
+                        font=('', '11'),
                         relief='flat',
-                        width=25, anchor='w'
+                        anchor='w'
                         )
-        timestamp_button.grid(column=1, row=vod_number, sticky='w')
+        timestamp_button.grid(column=1, row=vod_number, sticky='nesw')
         vod_number += 1
     # Finish the scrollbar
     vw_canvas.create_window((0, 0), window=vod_frame, anchor="nw")
@@ -317,6 +321,7 @@ def custom_player():
     '''Opens a dialog to set a custom media player.
     '''
     global user_settings
+    user_settings = check_config()
     new_player = simpledialog.askstring(title='Player',
                         prompt='Enter your media player:',
                         parent=settings,
@@ -344,6 +349,7 @@ def custom_quality():
     '''Opens a dialog to set a custom stream quality.
     '''
     global user_settings
+    user_settings = check_config()
     new_quality = simpledialog.askstring(title='Quality',
                         prompt= '\n Options: 1080p60, 720p60, 720p, 480p, \n'
                                 ' 360p, 160p, best, worst, and audio_only \n'
