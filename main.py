@@ -475,6 +475,19 @@ def settings_dialog():
     color_f.pack(side='right', anchor='ne', padx=5, pady=5)
     color_l = tk.Label(color_f, text='Window color:', font=font)
     color_l.pack(padx=10, pady=5)
+    global selected_theme
+    style = ttk.Style()
+    selected_theme = tk.StringVar()
+    theme_frame = ttk.LabelFrame(bottom_f, text='Themes')
+    theme_frame.pack()
+    for theme_name in ttk.Style.theme_names(style):
+        rb = ttk.Radiobutton(
+            theme_frame,
+            text=theme_name,
+            value=theme_name,
+            variable=selected_theme,
+            command=lambda t=theme_name: style.theme_use(t))
+        rb.pack(expand=True, fill='both')
 
 def menu_bar():
     '''The menu bar of the root window.
