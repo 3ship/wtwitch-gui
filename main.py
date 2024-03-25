@@ -405,9 +405,10 @@ def settings_dialog():
         selected_quality.set('custom')
     font = ('Cantarell', '11')
     global settings
-    settings = tk.Toplevel(root)
+    settings = tk.Toplevel(master=root)
     settings.title('Settings')
-    settings.geometry('')
+    settings.transient(root)
+    settings.grab_set()
     top_f = tk.Frame(settings)
     top_f.pack()
     qual_f = tk.Frame(top_f, relief='ridge', border='1')
@@ -419,7 +420,7 @@ def settings_dialog():
                 command=lambda u = user_settings:
                 [subprocess.run(['wtwitch', 'q', 'best'],
                 capture_output=True,
-                text=True), check_config()]
+                text=True)]
                 )
     high_qual.pack(anchor='w')
     mid_qual = tk.Radiobutton(qual_f, text='Medium', font=font,
