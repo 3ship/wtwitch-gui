@@ -136,7 +136,7 @@ def vod_panel(streamer):
         timestamp_button = tk.Button(vod_frame, text=f"{timestamp} {length}",
                         command=lambda ts=timestamp, t=title, p=root:
                         messagebox.showinfo("VOD", ts, detail=t, parent=p),
-                        font=('', '11'),
+                        font=('', '10'),
                         relief='flat',
                         anchor='w'
                         )
