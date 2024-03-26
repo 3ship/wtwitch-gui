@@ -287,12 +287,15 @@ def draw_main():
     # frame-canvas-frame to attach a scrollbar:
     meta_frame = ttk.Frame(root)
     meta_frame.grid(column='0', row='0', sticky='nsew')
-    meta_canvas = tk.Canvas(meta_frame)
+    meta_canvas = tk.Canvas(meta_frame, highlightthickness='0')
     scrollbar = ttk.Scrollbar(meta_frame,
                         orient="vertical", command=meta_canvas.yview)
     meta_canvas.configure(yscrollcommand=scrollbar.set)
     global main_frame
     main_frame = ttk.Frame(meta_canvas)
+    main_frame.grid(column=0, row=0, sticky='nesw')
+    main_frame.columnconfigure(0, weight=1)
+    main_frame.rowconfigure(0, weight=1)
     main_frame.bind("<Configure>", lambda e:
                         meta_canvas.configure(
                         scrollregion=meta_canvas.bbox("all"))
