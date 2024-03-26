@@ -148,9 +148,10 @@ def vod_panel(streamer):
     vw_scrollbar.grid(row=0, column=1, sticky="ns")
     vw_canvas.bind_all("<MouseWheel>", mouse_scroll)
 
-def streamer_buttons_online(parent):
+def streamer_buttons(parent):
     online_streamers = streamer_status[0]
-    global count_rows
+    offline_streamers = streamer_status[1]
+    count_rows = 0
     for package in online_streamers:
         watch_button = tk.Button(parent,
                         image=streaming_icon,
@@ -185,10 +186,6 @@ def streamer_buttons_online(parent):
                         )
         vod_b.grid(column=3, row=count_rows, sticky='ns')
         count_rows += 1
-
-def streamer_buttons_offline(parent):
-    offline_streamers = streamer_status[1]
-    global count_rows
     for streamer in offline_streamers:
         watch_button = tk.Label(parent, image=offline_icon)
         watch_button.grid(column=0, row=count_rows, sticky='ns')
@@ -301,10 +298,7 @@ def draw_main():
                         scrollregion=meta_canvas.bbox("all"))
                         )
     # Draw main content:
-    global count_rows
-    count_rows = 0
-    streamer_buttons_online(main_frame)
-    streamer_buttons_offline(main_frame)
+    streamer_buttons(main_frame)
     # Finish scrollbar:
     meta_frame.columnconfigure(0, weight=1)
     meta_frame.rowconfigure(0, weight=1)
