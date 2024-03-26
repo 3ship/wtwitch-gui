@@ -396,91 +396,83 @@ def settings_dialog():
         selected_quality.set(user_settings[1])
     else:
         selected_quality.set('custom')
-    font = ('Cantarell', '11')
     global settings
     settings = tk.Toplevel(master=root)
     settings.title('Settings')
     settings.transient(root)
     settings.grab_set()
-    top_f = tk.Frame(settings)
+    settings.configure(padx=10, pady=10)
+    top_f = ttk.Frame(settings)
     top_f.pack()
-    qual_f = tk.Frame(top_f, relief='ridge', border='1')
+    qual_f = ttk.Labelframe(top_f, text='Stream quality')
     qual_f.pack(side='left', anchor='nw', padx=5, pady=5)
-    qual_l = tk.Label(qual_f, text='Stream quality:', font=font)
-    qual_l.pack(padx=10, pady=5)
-    high_qual = tk.Radiobutton(qual_f, text='High', font=font,
+    high_qual = ttk.Radiobutton(qual_f, text='High',
                 value='best', variable=selected_quality,
                 command=lambda u = user_settings:
                 [subprocess.run(['wtwitch', 'q', 'best'],
                 capture_output=True,
                 text=True)]
                 )
-    high_qual.pack(anchor='w')
-    mid_qual = tk.Radiobutton(qual_f, text='Medium', font=font,
+    high_qual.pack(expand=True, fill='both')
+    mid_qual = ttk.Radiobutton(qual_f, text='Medium',
                 value='720p,720p60,480p,best', variable=selected_quality,
                 command=lambda:
                 [subprocess.run(['wtwitch', 'q', '720p,720p60,480p,best'],
                 capture_output=True,
                 text=True)]
                 )
-    mid_qual.pack(anchor='w')
-    low_qual = tk.Radiobutton(qual_f, text='Low', font=font,
+    mid_qual.pack(expand=True, fill='both')
+    low_qual = ttk.Radiobutton(qual_f, text='Low',
                 value='480p,worst', variable=selected_quality,
                 command=lambda:
                 [subprocess.run(['wtwitch', 'q', '480p,worst'],
                 capture_output=True,
                 text=True)]
                 )
-    low_qual.pack(anchor='w')
-    custom_qual = tk.Radiobutton(qual_f, text='Custom', font=font,
+    low_qual.pack(expand=True, fill='both')
+    custom_qual = ttk.Radiobutton(qual_f, text='Custom',
                 value='custom', variable=selected_quality,
                 command=lambda: custom_quality())
-    custom_qual.pack(anchor='w')
-    play_f = tk.Frame(top_f, relief='ridge', border='1')
+    custom_qual.pack(expand=True, fill='both')
+    play_f = ttk.Labelframe(top_f, text='Choose player')
     play_f.pack(side='right', anchor='ne', padx=5, pady=5)
-    play_l = tk.Label(play_f, text='Choose player:', font=font)
-    play_l.pack(padx=10, pady=5)
-    pick_mpv = tk.Radiobutton(play_f, text='mpv', font=font,
+    pick_mpv = ttk.Radiobutton(play_f, text='mpv',
                 value='mpv', variable=selected_player,
                 command=lambda: [subprocess.run(['wtwitch', 'p', 'mpv'],
                 capture_output=True,
                 text=True)]
                 )
-    pick_mpv.pack(anchor='w')
-    pick_vlc = tk.Radiobutton(play_f, text='VLC', font=font,
+    pick_mpv.pack(expand=True, fill='both')
+    pick_vlc = ttk.Radiobutton(play_f, text='VLC',
                 value='vlc', variable=selected_player,
                 command=lambda: [subprocess.run(['wtwitch', 'p', 'vlc'],
                 capture_output=True,
                 text=True)]
                 )
-    pick_vlc.pack(anchor='w')
-    pick_custom = tk.Radiobutton(play_f, text='Custom', font=font,
+    pick_vlc.pack(expand=True, fill='both')
+    pick_custom = ttk.Radiobutton(play_f, text='Custom',
                 value='custom', variable=selected_player,
                 command=lambda: custom_player())
-    pick_custom.pack(anchor='w')
-    bottom_f = tk.Frame(settings)
+    pick_custom.pack(expand=True, fill='both')
+    bottom_f = ttk.Frame(settings)
     bottom_f.pack()
-    scale_f = tk.Frame(bottom_f, relief='ridge', border='1')
-    scale_f.pack(side='left', anchor='nw', padx=5, pady=5)
-    scale_l = tk.Label(scale_f, text='Window scale:', font=font)
-    scale_l.pack(padx=10, pady=5)
-    color_f = tk.Frame(bottom_f, relief='ridge', border='1')
-    color_f.pack(side='right', anchor='ne', padx=5, pady=5)
-    color_l = tk.Label(color_f, text='Window color:', font=font)
-    color_l.pack(padx=10, pady=5)
     global selected_theme
     style = ttk.Style()
     selected_theme = tk.StringVar()
-    theme_frame = ttk.LabelFrame(bottom_f, text='Themes')
-    theme_frame.pack()
+    theme_f = ttk.LabelFrame(bottom_f, text='Themes')
+    theme_f.pack(anchor='nw', side='left', padx=5, pady=5)
     for theme_name in ttk.Style.theme_names(style):
-        rb = ttk.Radiobutton(
-            theme_frame,
-            text=theme_name,
-            value=theme_name,
-            variable=selected_theme,
-            command=lambda t=theme_name: style.theme_use(t))
-        rb.pack(expand=True, fill='both')
+        pick_theme = ttk.Radiobutton(theme_f,
+                text=theme_name,
+                value=theme_name,
+                variable=selected_theme,
+                command=lambda t=theme_name: style.theme_use(t)
+                )
+        pick_theme.pack(expand=True, fill='both')
+    scale_f = ttk.Labelframe(bottom_f, text='Window scale')
+    scale_f.pack(side='left', anchor='nw', padx=5, pady=5)
+    color_f = ttk.Labelframe(bottom_f, text='Window color:')
+    color_f.pack(side='right', anchor='ne', padx=5, pady=5)
 
 def menu_bar():
     '''The menu bar of the root window.
