@@ -401,8 +401,9 @@ def settings_dialog():
     settings.title('Settings')
     settings.transient(root)
     settings.grab_set()
-    settings.configure(padx=10, pady=10)
-    top_f = ttk.Frame(settings)
+    meta_frame = ttk.Frame(settings)
+    meta_frame.pack(expand=True, fill='both', ipadx=10, ipady=10)
+    top_f = ttk.Frame(meta_frame)
     top_f.pack()
     qual_f = ttk.Labelframe(top_f, text='Stream quality')
     qual_f.pack(side='left', anchor='nw', padx=5, pady=5)
@@ -454,7 +455,7 @@ def settings_dialog():
                 value='custom', variable=selected_player,
                 command=lambda: custom_player())
     pick_custom.pack(expand=True, fill='both')
-    bottom_f = ttk.Frame(settings)
+    bottom_f = ttk.Frame(meta_frame)
     bottom_f.pack()
     global selected_theme
     style = ttk.Style()
