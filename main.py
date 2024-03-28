@@ -552,7 +552,7 @@ play_icon = tk.PhotoImage(file=encoded_images.play_icon)
 close_icon = tk.PhotoImage(file=encoded_images.close_icon)
 
 app_icon = tk.PhotoImage(file=encoded_images.app_icon)
-root.wm_iconphoto(False, app_icon)
+root.iconphoto(False, app_icon)
 
 # Remove icon temp files:
 os.remove(encoded_images.unfollow_icon)
