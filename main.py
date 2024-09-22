@@ -194,7 +194,9 @@ def streamer_buttons(parent):
                         text=streamer,
                         anchor='w',
                         font=('Cantarell', '12', 'bold'),
-                        state='disabled', relief='flat',
+                        state='disabled',
+                        relief='flat',
+                        width=15,
                         compound='left',
                         disabledforeground='#464646'
                         )
