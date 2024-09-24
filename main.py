@@ -259,6 +259,21 @@ def follow_dialog():
                         )
         refresh_main_quiet()
 
+def play_dialog():
+    '''Opens a text dialog to play a custom stream
+    '''
+    streamer = simpledialog.askstring(title='Play a custom Twitch Stream',
+                        prompt='Enter streamer name: ',
+                        parent=root
+                        )
+    if streamer is None or len(streamer) <= 2:
+        return
+    else:
+        update = subprocess.run(['wtwitch', 'w', streamer],
+                        capture_output=True,
+                        text=True
+                        )
+
 def refresh_main_quiet():
     '''Refresh the main panel without running wtwitch c to avoid unnecessary
     Twitch API calls.
@@ -485,8 +500,10 @@ def menu_bar():
     root.config(menu=menubar)
     menubar.add_command(label='Refresh', font=bold_font,
             command=lambda: refresh_main())
-    menubar.add_command(label='Follow streamer', font=normal_font,
+    menubar.add_command(label='Follow', font=normal_font,
             command=lambda: follow_dialog())
+    menubar.add_command(label='Play', font=normal_font,
+            command=lambda: play_dialog())
     menubar.add_command(label='Settings', font=normal_font,
             command=lambda: settings_dialog())
 
