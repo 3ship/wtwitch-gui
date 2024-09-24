@@ -163,7 +163,7 @@ def streamer_buttons(parent):
         info_button = tk.Button(parent,
                         text=package[1],
                         anchor='w',
-                        font=('Cantarell', '12', 'bold'),
+                        font=big_font,
                         relief='flat',
                         width=15,
                         disabledforeground='#464646',
@@ -193,7 +193,7 @@ def streamer_buttons(parent):
         info_button = tk.Button(parent,
                         text=streamer,
                         anchor='w',
-                        font=('Cantarell', '12', 'bold'),
+                        font=bigbold_font,
                         state='disabled',
                         relief='flat',
                         width=15,
@@ -481,15 +481,13 @@ def settings_dialog():
 def menu_bar():
     '''The menu bar of the root window.
     '''
-    font = ('Cantarell', '11')
-    font2 = ('Cantarell', '11', 'bold')
     menubar = tk.Menu(root)
     root.config(menu=menubar)
-    menubar.add_command(label='Refresh', font=font2,
+    menubar.add_command(label='Refresh', font=bold_font,
             command=lambda: refresh_main())
-    menubar.add_command(label='Follow streamer', font=font,
+    menubar.add_command(label='Follow streamer', font=normal_font,
             command=lambda: follow_dialog())
-    menubar.add_command(label='Settings', font=font,
+    menubar.add_command(label='Settings', font=normal_font,
             command=lambda: settings_dialog())
 
 def window_size():
@@ -544,6 +542,12 @@ root.geometry(window_size())
 root.resizable(False, True)
 root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
+
+# Fonts:
+normal_font = ('Cantarell', '11')
+bold_font = ('Cantarell', '11', 'bold')
+big_font = ('Cantarell', '12', 'bold')
+bigbold_font = ('Cantarell', '12', 'bold')
 
 # Import icons:
 unfollow_icon = tk.PhotoImage(file=encoded_images.unfollow_icon)
