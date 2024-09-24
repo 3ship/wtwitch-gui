@@ -165,7 +165,7 @@ def streamer_buttons(parent):
                         anchor='w',
                         font=big_font,
                         relief='flat',
-                        width=15,
+                        width=14,
                         disabledforeground='#464646',
                         command= lambda s=package[1], c=package[2],
                                         t=package[3], v=package[4]:
@@ -196,7 +196,7 @@ def streamer_buttons(parent):
                         font=bigbold_font,
                         state='disabled',
                         relief='flat',
-                        width=15,
+                        width=14,
                         compound='left',
                         disabledforeground='#464646'
                         )
@@ -561,10 +561,10 @@ root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
 
 # Fonts:
-normal_font = ('Cantarell', '11')
-bold_font = ('Cantarell', '11', 'bold')
-big_font = ('Cantarell', '12', 'bold')
-bigbold_font = ('Cantarell', '12', 'bold')
+normal_font = ('Cantarell', '12')
+bold_font = ('Cantarell', '12', 'bold')
+big_font = ('Cantarell', '13', 'bold')
+bigbold_font = ('Cantarell', '13', 'bold')
 
 # Import icons:
 unfollow_icon = tk.PhotoImage(file=encoded_images.unfollow_icon)
