@@ -8,7 +8,6 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter import simpledialog
-import encoded_images
 
 def wtwitch_config_file():
     if 'APPDATA' in os.environ:
@@ -567,24 +566,15 @@ big_font = ('Cantarell', '13', 'bold')
 bigbold_font = ('Cantarell', '13', 'bold')
 
 # Import icons:
-unfollow_icon = tk.PhotoImage(file=encoded_images.unfollow_icon)
-vod_icon = tk.PhotoImage(file=encoded_images.vod_icon)
-streaming_icon = tk.PhotoImage(file=encoded_images.streaming_icon)
-offline_icon = tk.PhotoImage(file=encoded_images.offline_icon)
-play_icon = tk.PhotoImage(file=encoded_images.play_icon)
-close_icon = tk.PhotoImage(file=encoded_images.close_icon)
+unfollow_icon = tk.PhotoImage(file="icons/unfollow_icon.png")
+vod_icon = tk.PhotoImage(file="icons/vod_icon.png")
+streaming_icon = tk.PhotoImage(file="icons/streaming_icon.png")
+offline_icon = tk.PhotoImage(file="icons/offline_icon.png")
+play_icon = tk.PhotoImage(file="icons/play_icon.png")
+close_icon = tk.PhotoImage(file="icons/close_icon.png")
 
-app_icon = tk.PhotoImage(file=encoded_images.app_icon)
+app_icon = tk.PhotoImage(file="icons/app_icon.png")
 root.iconphoto(False, app_icon)
-
-# Remove icon temp files:
-os.remove(encoded_images.unfollow_icon)
-os.remove(encoded_images.vod_icon)
-os.remove(encoded_images.streaming_icon)
-os.remove(encoded_images.offline_icon)
-os.remove(encoded_images.play_icon)
-os.remove(encoded_images.close_icon)
-os.remove(encoded_images.app_icon)
 
 menu_bar()
 draw_main()
