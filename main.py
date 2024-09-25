@@ -93,10 +93,9 @@ def streamer_buttons(parent):
                         font=big_font,
                         relief='flat',
                         width=14,
-                        disabledforeground='#464646',
                         command= lambda s=package[1], c=package[2],
                                         t=package[3], v=package[4]:
-                        info_dialog(s, c, t, v)
+                                online_info(s, c, t, v)
                         )
         info_button.grid(column=1, row=count_rows, sticky='nesw')
         unfollow_b = tk.Button(parent,
@@ -115,17 +114,24 @@ def streamer_buttons(parent):
         vod_b.grid(column=3, row=count_rows, sticky='ns')
         count_rows += 1
     for streamer in offline_streamers:
-        watch_button = tk.Label(parent, image=offline_icon)
+        watch_button = tk.Button(parent,
+                        image=offline_icon,
+                        relief='flat',
+                        command=lambda s=streamer:
+                        [subprocess.run(['wtwitch', 'w', s])]
+                        )
         watch_button.grid(column=0, row=count_rows, sticky='ns')
         info_button = tk.Button(parent,
                         text=streamer,
                         anchor='w',
                         font=bigbold_font,
-                        state='disabled',
+                        fg='#474747',
                         relief='flat',
                         width=14,
                         compound='left',
-                        disabledforeground='#464646'
+                        disabledforeground='#464646',
+                        command= lambda s=streamer:
+                                offline_info(s)
                         )
         info_button.grid(column=1, row=count_rows, sticky='nesw')
         unfollow_b = tk.Button(parent,
@@ -144,12 +150,17 @@ def streamer_buttons(parent):
         vod_b.grid(column=3, row=count_rows, sticky='ns')
         count_rows += 1
 
-def info_dialog(streamer, category, title, viewers):
+def online_info(streamer, category, title, viewers):
     '''Info dialog, including stream title and stream category
     '''
     info = messagebox.showinfo(title=f"{streamer} is streaming",
                         message=category,
                         detail=f"{title}\n({viewers} viewers)",
+                        parent=root,
+                        )
+
+def offline_info(streamer):
+    info = messagebox.showinfo(title=f"{streamer} is offline",
                         parent=root,
                         )
 
