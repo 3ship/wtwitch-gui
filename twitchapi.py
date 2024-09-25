@@ -14,10 +14,32 @@ def check_config():
 
 def adjust_config(setting, new_value):
     with open(wtwitch_config_file(), 'r') as config:
-        settings = json.load(config)
-    settings[setting] = new_value
-    with open(wtwitch_config_file(), 'w') as config:
-        json.dump(settings, config)
+        config = json.load(config)
+    config[setting] = new_value
+    with open(wtwitch_config_file(), 'w') as nconfig:
+        json.dump(config, nconfig)
+
+def follow_streamer(s):
+    new_entry = {'streamer': s}
+    with open(wtwitch_config_file(), 'r') as config:
+        config = json.load(config)
+    if new_entry not in config['subscriptions']:
+        config['subscriptions'].append(new_entry)
+    with open(wtwitch_config_file(), 'w') as nconfig:
+        json.dump(config, nconfig)
+
+def unfollow_streamer(s):
+    with open(wtwitch_config_file(), 'r') as config:
+        config = json.load(config)
+    new_subscriptions = []
+    for i in config['subscriptions']:
+        if i['streamer'] == s:
+            continue
+        else:
+            new_subscriptions.append(i)
+    config['subscriptions'] = new_subscriptions
+    with open(wtwitch_config_file(), 'w') as nconfig:
+        json.dump(config, nconfig)
 
 def wtwitch_config_file():
     if 'APPDATA' in os.environ:

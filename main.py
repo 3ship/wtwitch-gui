@@ -164,26 +164,20 @@ def unfollow_dialog(streamer):
                         parent=root
                         )
     if answer:
-        update = subprocess.run(['wtwitch', 'u', streamer],
-                        capture_output=True,
-                        text=True
-                        )
+        twitchapi.unfollow_streamer(streamer)
         refresh_main_quiet()
 
 def follow_dialog():
     '''Opens a text dialog and adds the entered string to the follow list.
     '''
-    streamer = simpledialog.askstring(title='Follow',
+    answer = simpledialog.askstring(title='Follow',
                         prompt='Enter streamer name: ',
                         parent=root
                         )
-    if streamer is None or len(streamer) <= 2:
+    if answer is None or len(answer) == 0:
         return
     else:
-        update = subprocess.run(['wtwitch', 's', streamer],
-                        capture_output=True,
-                        text=True
-                        )
+        twitchapi.follow_streamer(answer)
         refresh_main_quiet()
 
 def play_dialog():
@@ -193,7 +187,7 @@ def play_dialog():
                         prompt='Enter streamer name: ',
                         parent=root
                         )
-    if streamer is None or len(streamer) <= 2:
+    if streamer is None or len(streamer) == 0:
         return
     else:
         update = subprocess.run(['wtwitch', 'w', streamer],
