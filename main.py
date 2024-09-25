@@ -3,91 +3,19 @@
 import subprocess
 import re
 import os
-import json
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter import simpledialog
 import encoded_images
-
-def wtwitch_config_file():
-    if 'APPDATA' in os.environ:
-        confighome = os.environ['APPDATA']
-    elif 'XDG_CONFIG_HOME' in os.environ:
-        confighome = os.environ['XDG_CONFIG_HOME']
-    else:
-        confighome = os.path.join(os.environ['HOME'], '.config')
-    configfile = os.path.join(confighome, 'wtwitch/config.json')
-    return configfile
-
-def wtwitch_subscription_cache():
-    if 'LOCALAPPDATA' in os.environ:
-        cachehome = os.environ['LOCALAPPDATA']
-    elif 'XDG_CONFIG_HOME' in os.environ:
-        cachehome = os.environ['XDG_CACHE_HOME']
-    else:
-        cachehome = os.path.join(os.environ['HOME'], '.cache')
-    cachepath = os.path.join(cachehome, 'wtwitch/subscription-cache.json')
-    return cachepath
-
-def extract_streamer_status():
-    online_streamers = []
-    online_package = []
-    offline_streamers = []
-    with open(wtwitch_subscription_cache(), 'r') as cache:
-        cachefile = json.load(cache)
-        for streamer in cachefile['data']:
-            online_streamers.append(streamer['user_login'])
-            login = streamer['user_login']
-            name = streamer['user_name']
-            categ = streamer['game_name']
-            title = streamer['title']
-            views = streamer['viewer_count']
-            package = login,name,categ,title,views
-            online_package.append(package)
-    with open(wtwitch_config_file(), 'r') as config:
-        configfile = json.load(config)
-        subscriptions = configfile['subscriptions']
-        for diction in subscriptions:
-            streamer = diction['streamer']
-            if streamer not in online_streamers:
-                offline_streamers.append(streamer)
-    online_streamers.sort()
-    online_package.sort()
-    offline_streamers.sort()
-    return online_package, offline_streamers
-
-def check_status():
-    '''Call wtwitch c again when pressing the refresh button
-    '''
-    wtwitch_c = subprocess.run(['wtwitch', 'c'],
-                        capture_output=True,
-                        text=True
-                        )
-
-def fetch_vods(streamer):
-    '''Run wtwitch v and extract all timestamps/titles of the streamer's VODs
-    with regex. Cap the title length at 50 characters.
-    '''
-    wtwitch_v = subprocess.run(['wtwitch', 'v', streamer],
-                        stderr=subprocess.PIPE,
-                        stdout=subprocess.PIPE,
-                        text=True
-                        )
-    timestamps = re.findall(r'\[96m\[(\S* \d.*:\d.*):\d.*\]', wtwitch_v.stdout)
-    titles = re.findall(r'\]\x1b\[0m\s*(\S.*)\s\x1b\[93m', wtwitch_v.stdout)
-    length = re.findall(r'\x1b\[93m(\S*)\x1b\[0m', wtwitch_v.stdout)
-    #for i in range(len(titles)):
-    #    if len(titles[i]) > 50:
-    #        titles[i] = titles[i][:50] + "..."
-    return timestamps, titles, length
+import twitchapi
 
 def vod_panel(streamer):
     '''Draw 2 columns for the watch buttons and timestamps/stream length of
     the last 20 VODs.
     '''
     # Retrieve the streamer's VODs:
-    vods = fetch_vods(streamer)
+    vods = twitchapi.fetch_vods(streamer)
     # Account for streamer having zero VODs:
     if len(vods[0]) == 0:
         no_vods = messagebox.showinfo(title=f"No VODs",
@@ -279,8 +207,8 @@ def refresh_main_quiet():
     Twitch API calls.
     '''
     global streamer_status
-    streamer_status = extract_streamer_status()
-    extract_streamer_status()
+    streamer_status = twitchapi.extract_streamer_status()
+    twitchapi.extract_streamer_status()
     main_frame.pack_forget()
     main_frame.destroy()
     draw_main()
@@ -288,9 +216,9 @@ def refresh_main_quiet():
 def refresh_main():
     '''Runs wtwitch c and then rebuilds the main panel.
     '''
-    check_status()
+    twitchapi.check_status()
     global streamer_status
-    streamer_status = extract_streamer_status()
+    streamer_status = twitchapi.extract_streamer_status()
     main_frame.pack_forget()
     main_frame.destroy()
     draw_main()
@@ -332,7 +260,7 @@ def custom_player():
     '''Opens a dialog to set a custom media player.
     '''
     global user_settings
-    user_settings = check_config()
+    user_settings = twitchapi.check_config()
     new_player = simpledialog.askstring(title='Player',
                         prompt='Enter your media player:',
                         parent=settings,
@@ -360,7 +288,7 @@ def custom_quality():
     '''Opens a dialog to set a custom stream quality.
     '''
     global user_settings
-    user_settings = check_config()
+    user_settings = twitchapi.check_config()
     new_quality = simpledialog.askstring(title='Quality',
                         prompt= '\n Options: 1080p60, 720p60, 720p, 480p, \n'
                                 ' 360p, 160p, best, worst, and audio_only \n'
@@ -401,7 +329,7 @@ def settings_dialog():
     '''Opens a toplevel window with four settings options.
     '''
     global user_settings
-    user_settings = check_config()
+    user_settings = twitchapi.check_config()
     global selected_player
     selected_player = tk.StringVar()
     if user_settings[0] in ['mpv', 'vlc']:
@@ -509,7 +437,7 @@ def menu_bar():
 
 def window_size():
     """Sets the default window length, depending on the number of streamers in
-    the follow list. Fixed between 360 and 550 px. Width fixed at 280 px.
+    the follow list. Fixed between 360 and 550 px. Width fixed at 285 px.
     """
     min_height = 360
     max_height = 550
@@ -526,7 +454,7 @@ def toggle_settings():
     """Checks if wtwitch prints offline streamers and color output. Latter is
     needed to filter wtwitch output with regex.
     """
-    user_settings = check_config()
+    user_settings = twitchapi.check_config()
     if user_settings[2] == 'true' and user_settings[3] == 'true':
         return
     else:
@@ -549,8 +477,8 @@ def toggle_settings():
 # Make sure that colors in the terminal output are activated:
 toggle_settings()
 # Check the online/offline status once before window initialization:
-check_status()
-streamer_status = extract_streamer_status()
+twitchapi.check_status()
+streamer_status = twitchapi.extract_streamer_status()
 
 # Create the main window
 root = tk.Tk()
