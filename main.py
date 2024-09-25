@@ -398,14 +398,10 @@ def toggle_settings():
     """Checks if wtwitch prints offline streamers and color output. Latter is
     needed to filter wtwitch output with regex.
     """
-    if twitchapi.check_config()[2] == 'true' and twitchapi.check_config()[3] == 'true':
-        return
-    else:
-        if twitchapi.check_config()[2] == 'false':
-            twitchapi.adjust_config('colors', 'true')
-        if twitchapi.check_config()[3] == 'false':
-            twitchapi.adjust_config('printOfflineSubscriptions', 'true')
-
+    if twitchapi.check_config()[2] == 'false':
+        twitchapi.adjust_config('colors', 'true')
+    if twitchapi.check_config()[3] == 'false':
+        twitchapi.adjust_config('printOfflineSubscriptions', 'true')
 
 # Make sure that colors in the terminal output are activated:
 toggle_settings()
