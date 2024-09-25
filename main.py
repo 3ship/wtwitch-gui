@@ -268,21 +268,7 @@ def custom_player():
     if new_player is None or len(new_player) == 0:
         return
     else:
-        set_player = subprocess.run(['wtwitch', 'p', new_player],
-                        text=True,
-                        capture_output=True
-                        )
-        confirmation = re.findall(r'\n (.*)\n\x1b\[0m', set_player.stdout)
-        if len(confirmation) >= 1:
-            user_settings = check_config()
-            return messagebox.showinfo(title='Player',
-                            message=confirmation[0],
-                            parent=settings)
-        else:
-            error = re.findall(r'\[0m: (\S.*?\.)', set_player.stderr)
-            return messagebox.showerror(title='Error',
-                        message=error[0],
-                        parent=settings)
+        twitchapi.adjust_config('player', new_player)
 
 def custom_quality():
     '''Opens a dialog to set a custom stream quality.
@@ -300,30 +286,8 @@ def custom_quality():
     if new_quality is None or len(new_quality) == 0:
         return
     else:
-        set_quality = subprocess.run(['wtwitch', 'q', new_quality],
-                        text=True,
-                        capture_output=True
-                        )
-        confirmation = re.findall(r'\n\s(.*)\n\x1b\[0m', set_quality.stdout)
-        if len(confirmation) >= 1:
-            user_settings = check_config()
-            return messagebox.showinfo(title='Quality',
-                        message=confirmation[0],
-                        parent=settings)
-        else:
-            error = re.findall(r'\[0m: (\S.*?\.)', set_quality.stderr)
-            return messagebox.showerror(title='Error',
-                        message=error[0],
-                        parent=settings)
+        twitchapi.adjust_config('quality', new_quality)
 
-def check_config():
-    with open(wtwitch_config_file(), 'r') as config:
-        config = json.load(config)
-        player = config['player']
-        quality = config['quality']
-        colors = config['colors']
-        print_offline_subs = config['printOfflineSubscriptions']
-    return player, quality, colors, print_offline_subs
 
 def settings_dialog():
     '''Opens a toplevel window with four settings options.
