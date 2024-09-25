@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import subprocess
-import re
 import os
 import tkinter as tk
 from tkinter import ttk
@@ -259,12 +258,10 @@ def draw_main():
 def custom_player():
     '''Opens a dialog to set a custom media player.
     '''
-    global user_settings
-    user_settings = twitchapi.check_config()
     new_player = simpledialog.askstring(title='Player',
                         prompt='Enter your media player:',
-                        parent=settings,
-                        initialvalue=user_settings[0])
+                        parent=settings_window,
+                        initialvalue=twitchapi.check_config()[0])
     if new_player is None or len(new_player) == 0:
         return
     else:
@@ -273,16 +270,14 @@ def custom_player():
 def custom_quality():
     '''Opens a dialog to set a custom stream quality.
     '''
-    global user_settings
-    user_settings = twitchapi.check_config()
     new_quality = simpledialog.askstring(title='Quality',
                         prompt= '\n Options: 1080p60, 720p60, 720p, 480p, \n'
                                 ' 360p, 160p, best, worst, and audio_only \n'
                                 '\n'
                                 ' Specify fallbacks separated by a comma: \n'
                                 ' E.g. "720p,480p,worst" \n',
-                        initialvalue=user_settings[1],
-                        parent=settings)
+                        initialvalue=twitchapi.check_config()[1],
+                        parent=settings_window)
     if new_quality is None or len(new_quality) == 0:
         return
     else:
@@ -292,26 +287,24 @@ def custom_quality():
 def settings_dialog():
     '''Opens a toplevel window with four settings options.
     '''
-    global user_settings
-    user_settings = twitchapi.check_config()
     global selected_player
     selected_player = tk.StringVar()
-    if user_settings[0] in ['mpv', 'vlc']:
-        selected_player.set(user_settings[0])
+    if twitchapi.check_config()[0] in ['mpv', 'vlc']:
+        selected_player.set(twitchapi.check_config()[0])
     else:
         selected_player.set('custom')
     global selected_quality
     selected_quality = tk.StringVar()
-    if user_settings[1] in ['best', '720p,720p60,480p,best', '480p,worst']:
-        selected_quality.set(user_settings[1])
+    if twitchapi.check_config()[1] in ['best', '720p,720p60,480p,best', '480p,worst']:
+        selected_quality.set(twitchapi.check_config()[1])
     else:
         selected_quality.set('custom')
-    global settings
-    settings = tk.Toplevel(master=root)
-    settings.title('Settings')
-    settings.transient(root)
-    settings.grab_set()
-    meta_frame = ttk.Frame(settings)
+    global settings_window
+    settings_window = tk.Toplevel(master=root)
+    settings_window.title('Settings')
+    settings_window.transient(root)
+    settings_window.grab_set()
+    meta_frame = ttk.Frame(settings_window)
     meta_frame.pack(expand=True, fill='both', ipadx=10, ipady=10)
     top_f = ttk.Frame(meta_frame)
     top_f.pack()
@@ -319,26 +312,17 @@ def settings_dialog():
     qual_f.pack(side='left', anchor='nw', padx=5, pady=5)
     high_qual = ttk.Radiobutton(qual_f, text='High',
                 value='best', variable=selected_quality,
-                command=lambda u = user_settings:
-                [subprocess.run(['wtwitch', 'q', 'best'],
-                capture_output=True,
-                text=True)]
+                command=lambda: twitchapi.adjust_config('quality', 'best')
                 )
     high_qual.pack(expand=True, fill='both')
     mid_qual = ttk.Radiobutton(qual_f, text='Medium',
                 value='720p,720p60,480p,best', variable=selected_quality,
-                command=lambda:
-                [subprocess.run(['wtwitch', 'q', '720p,720p60,480p,best'],
-                capture_output=True,
-                text=True)]
+                command=lambda: twitchapi.adjust_config('quality', '720p,720p60,480p,best')
                 )
     mid_qual.pack(expand=True, fill='both')
     low_qual = ttk.Radiobutton(qual_f, text='Low',
                 value='480p,worst', variable=selected_quality,
-                command=lambda:
-                [subprocess.run(['wtwitch', 'q', '480p,worst'],
-                capture_output=True,
-                text=True)]
+                command=lambda: twitchapi.adjust_config('quality', '480p, worst')
                 )
     low_qual.pack(expand=True, fill='both')
     custom_qual = ttk.Radiobutton(qual_f, text='Custom',
@@ -349,16 +333,12 @@ def settings_dialog():
     play_f.pack(side='right', anchor='ne', padx=5, pady=5)
     pick_mpv = ttk.Radiobutton(play_f, text='mpv',
                 value='mpv', variable=selected_player,
-                command=lambda: [subprocess.run(['wtwitch', 'p', 'mpv'],
-                capture_output=True,
-                text=True)]
+                command=lambda: twitchapi.adjust_config('player', 'mpv')
                 )
     pick_mpv.pack(expand=True, fill='both')
     pick_vlc = ttk.Radiobutton(play_f, text='VLC',
                 value='vlc', variable=selected_player,
-                command=lambda: [subprocess.run(['wtwitch', 'p', 'vlc'],
-                capture_output=True,
-                text=True)]
+                command=lambda: twitchapi.adjust_config('player', 'vlc')
                 )
     pick_vlc.pack(expand=True, fill='both')
     pick_custom = ttk.Radiobutton(play_f, text='Custom',
@@ -418,24 +398,13 @@ def toggle_settings():
     """Checks if wtwitch prints offline streamers and color output. Latter is
     needed to filter wtwitch output with regex.
     """
-    user_settings = twitchapi.check_config()
-    if user_settings[2] == 'true' and user_settings[3] == 'true':
+    if twitchapi.check_config()[2] == 'true' and twitchapi.check_config()[3] == 'true':
         return
     else:
-        if user_settings[2] == 'false':
-            wtwitch_l = subprocess.run(['wtwitch', 'l'],
-                            capture_output=True,
-                            text=True
-                            )
-            if wtwitch_l.stderr:
-                messagebox.showerror("Error", wtwitch_l.stderr)
-        if user_settings[3] == 'false':
-            wtwitch_f = subprocess.run(['wtwitch', 'f'],
-                            capture_output=True,
-                            text=True
-                            )
-            if wtwitch_f.stderr:
-                messagebox.showerror("Error", wtwitch_f.stderr)
+        if twitchapi.check_config()[2] == 'false':
+            twitchapi.adjust_config('colors', 'true')
+        if twitchapi.check_config()[3] == 'false':
+            twitchapi.adjust_config('printOfflineSubscriptions', 'true')
 
 
 # Make sure that colors in the terminal output are activated:
