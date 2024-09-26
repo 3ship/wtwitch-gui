@@ -115,15 +115,24 @@ def fetch_vods(streamer):
     '''Run wtwitch v and extract all timestamps/titles of the streamer's VODs
     with regex. Cap the title length at 50 characters.
     '''
-    wtwitch_v = subprocess.run(['wtwitch', 'v', streamer],
-                        stderr=subprocess.PIPE,
-                        stdout=subprocess.PIPE,
+    wtwitch_v = subprocess.check_output(['wtwitch', 'v', streamer],
                         text=True
                         )
-    timestamps = re.findall(r'\[96m\[(\S* \d.*:\d.*):\d.*\]', wtwitch_v.stdout)
-    titles = re.findall(r'\]\x1b\[0m\s*(\S.*)\s\x1b\[93m', wtwitch_v.stdout)
-    length = re.findall(r'\x1b\[93m(\S*)\x1b\[0m', wtwitch_v.stdout)
-    #for i in range(len(titles)):
-    #    if len(titles[i]) > 50:
-    #        titles[i] = titles[i][:50] + "..."
+    wtwitch_v = fr'{wtwitch_v}'
+    with open('vods.txt', 'w') as vods:
+        vods.write(wtwitch_v)
+    timestamps = []
+    titles = []
+    length = []
+    timestamp_pattern = re.compile(r'\b\d{2}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}\b')
+    titles_pattern = re.compile(r'(?<=\x1b\[0m\s)(.*?)(?=\s\x1b\[93m)')
+    length_pattern = re.compile(r'\(\d+h\d+m\d+s\)')
+    with open('vods.txt', 'r') as vods:
+        for line in vods:
+            for match in timestamp_pattern.finditer(line):
+                timestamps.append(match.group())
+            for match in titles_pattern.finditer(line):
+                titles.append(match.group())
+            for match in length_pattern.finditer(line):
+                length.append(match.group())
     return timestamps, titles, length

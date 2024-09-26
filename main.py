@@ -195,8 +195,8 @@ def follow_dialog():
 def play_dialog():
     '''Opens a text dialog to play a custom stream
     '''
-    streamer = simpledialog.askstring(title='Play a custom Twitch Stream',
-                        prompt='Enter streamer name: ',
+    streamer = simpledialog.askstring(title='Play a custom stream',
+                        prompt='Play a stream without adding it to your list',
                         parent=root
                         )
     if streamer is None or len(streamer) == 0:
@@ -416,7 +416,7 @@ twitchapi.check_status()
 streamer_status = twitchapi.extract_streamer_status()
 
 # Create the main window
-root = tk.Tk()
+root = tk.Tk(className='GUI for wtwitch')
 root.title("GUI for wtwitch")
 root.geometry(window_size())
 root.resizable(False, True)
