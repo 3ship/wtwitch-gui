@@ -176,7 +176,7 @@ def unfollow_dialog(streamer):
                         )
     if answer:
         twitchapi.unfollow_streamer(streamer)
-        refresh_main_quiet()
+        refresh_main()
 
 def follow_dialog():
     '''Opens a text dialog and adds the entered string to the follow list.
@@ -189,7 +189,7 @@ def follow_dialog():
         return
     else:
         twitchapi.follow_streamer(answer)
-        refresh_main_quiet()
+        refresh_main()
 
 def play_dialog():
     '''Opens a text dialog to play a custom stream
