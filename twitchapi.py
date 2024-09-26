@@ -4,6 +4,7 @@ import os
 import re
 import json
 import subprocess
+from datetime import datetime
 
 def check_config():
     with open(wtwitch_config_file(), 'r') as config:
@@ -61,13 +62,13 @@ def wtwitch_subscription_cache():
     else:
         cachehome = os.path.join(os.environ['HOME'], '.cache')
     cachepath = os.path.join(cachehome, 'wtwitch/subscription-cache.json')
-    return cachepath
+    return cachepath, cachehome
 
 def extract_streamer_status():
     online_streamers = []
     online_package = []
     offline_streamers = []
-    with open(wtwitch_subscription_cache(), 'r') as cache:
+    with open(wtwitch_subscription_cache()[0], 'r') as cache:
         cachefile = json.load(cache)
         for streamer in cachefile['data']:
             online_streamers.append(streamer['user_login'])
@@ -89,6 +90,18 @@ def extract_streamer_status():
     online_package.sort()
     offline_streamers.sort()
     return online_package, offline_streamers
+
+def last_seen(s):
+    lastseen_dir = f'{wtwitch_subscription_cache()[1]}/wtwitch/lastSeen/{s}'
+    try:
+        with open(lastseen_dir) as lastseen:
+            for line in lastseen:
+                ts = int(line)
+                ts = datetime.utcfromtimestamp(ts)
+                ts = ts.strftime('%Y-%m-%d - %H:%M')
+                return ts
+    except:
+        return 'unknown'
 
 def check_status():
     '''Call wtwitch c again when pressing the refresh button

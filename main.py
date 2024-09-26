@@ -161,6 +161,7 @@ def online_info(streamer, category, title, viewers):
 
 def offline_info(streamer):
     info = messagebox.showinfo(title=f"{streamer} is offline",
+                        message=f'Last seen: {twitchapi.last_seen(streamer)}',
                         parent=root,
                         )
 
