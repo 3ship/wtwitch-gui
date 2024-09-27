@@ -60,7 +60,7 @@ def vod_panel(streamer):
                         [subprocess.run(['wtwitch', 'v', s, str(v)])]
                         )
         watch_button.grid(column=0, row=vod_number, sticky='nesw')
-        timestamp_button = tk.Button(vod_frame, text=f"{timestamp} {length}",
+        timestamp_button = tk.Button(vod_frame, text=f"{timestamp} ({length})",
                         command=lambda ts=timestamp, t=title, p=root:
                         messagebox.showinfo("VOD", ts, detail=t, parent=p),
                         font=('', '10'),
