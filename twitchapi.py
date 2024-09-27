@@ -4,6 +4,7 @@ import os
 import re
 import json
 import subprocess
+import time
 from datetime import datetime
 
 def check_config():
@@ -115,14 +116,24 @@ def fetch_vods(streamer):
     '''Run wtwitch v and extract all timestamps/titles of the streamer's VODs
     with regex. Cap the title length at 50 characters.
     '''
+    # Make sure vods directory exists:
     if not os.path.isdir('vods'):
         os.makedirs('vods')
-    wtwitch_v = subprocess.check_output(['wtwitch', 'v', streamer],
-                        text=True
-                        )
-    wtwitch_v = fr'{wtwitch_v}'
-    with open(f'vods/{streamer}.txt', 'w') as vods:
-        vods.write(wtwitch_v)
+    # Make sure the streamer's vods file exist and set it's age:
+    if not os.path.isfile(f'vods/{streamer}.txt'):
+        open(f'vods/{streamer}.txt', 'a').close()
+        cache_age = 10000
+    else:
+        cache_age = time.time() - os.path.getmtime(f'vods/{streamer}.txt')
+    # Only update the vods file, if it's new or older than 1 hour:
+    if cache_age > 3600:
+        wtwitch_v = subprocess.check_output(['wtwitch', 'v', streamer],
+                            text=True
+                            )
+        wtwitch_v = fr'{wtwitch_v}'
+        with open(f'vods/{streamer}.txt', 'w') as vods:
+            vods.write(wtwitch_v)
+    # Retrieve relevant data from vods file and return it:
     timestamps = []
     titles = []
     length = []
