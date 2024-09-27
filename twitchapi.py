@@ -121,11 +121,12 @@ def fetch_vods(streamer):
     if not os.path.isdir(f'{sys.path[0]}/vods'):
         os.makedirs(f'{sys.path[0]}/vods')
     # Make sure the streamer's vods file exist and set it's age:
-    if not os.path.isfile(f'{sys.path[0]}/vods/{streamer}.txt'):
-        open(f'{sys.path[0]}/vods/{streamer}.txt', 'a').close()
+    vods_file = f'{sys.path[0]}/vods/{streamer}.txt'
+    if not os.path.isfile(vods_file):
+        open(vods_file, 'a').close()
         cache_age = 10000
     else:
-        cache_modified = os.path.getmtime(f'{sys.path[0]}/vods/{streamer}.txt')
+        cache_modified = os.path.getmtime(vods_file)
         cache_age = time.time() - cache_modified
     # Only update the vods file, if it's new or older than 1 hour:
     if cache_age > 3600:
@@ -133,7 +134,7 @@ def fetch_vods(streamer):
                             text=True
                             )
         wtwitch_v = fr'{wtwitch_v}'
-        with open(f'{sys.path[0]}/vods/{streamer}.txt', 'w') as vods:
+        with open(vods_file, 'w') as vods:
             vods.write(wtwitch_v)
     # Retrieve relevant data from vods file and return it:
     timestamps = []
@@ -142,7 +143,7 @@ def fetch_vods(streamer):
     timestamp_pattern = re.compile(r'\d{2}\S\d{2}.* \d{2}:\d{2}')
     titles_pattern = re.compile(r'(?<=\x1b\[0m\s)(.*?)(?=\s\x1b\[93m)')
     length_pattern = re.compile(r'\d+h\d+m')
-    with open(f'{sys.path[0]}/vods/{streamer}.txt', 'r') as vods:
+    with open(vods_file, 'r') as vods:
         for line in vods:
             for match in timestamp_pattern.finditer(line):
                 timestamps.append(match.group())
