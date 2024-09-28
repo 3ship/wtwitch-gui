@@ -2,6 +2,7 @@
 
 import subprocess
 import os
+import logging
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
@@ -165,9 +166,9 @@ def offline_info(streamer):
                         parent=root,
                         )
 
-def error_dialog():
+def error_dialog(e):
     messagebox.showerror(title='Error',
-                        message='Can\'t refresh Twitch data',
+                        message=f'{e}\n\n Check your internet connection!',
                         )
 
 def unfollow_dialog(streamer):
@@ -219,8 +220,8 @@ def refresh_main_quiet():
     global streamer_status
     try:
         streamer_status = twitchapi.extract_streamer_status()
-    except:
-        error_dialog()
+    except Exception as e:
+        error_dialog(e)
     twitchapi.extract_streamer_status()
     main_frame.pack_forget()
     main_frame.destroy()
@@ -233,8 +234,8 @@ def refresh_main():
     global streamer_status
     try:
         streamer_status = twitchapi.extract_streamer_status()
-    except:
-        error_dialog()
+    except Exception as e:
+        error_dialog(e)
     main_frame.pack_forget()
     main_frame.destroy()
     draw_main()
@@ -426,8 +427,8 @@ toggle_settings()
 twitchapi.check_status()
 try:
     streamer_status = twitchapi.extract_streamer_status()
-except:
-    error_dialog()
+except Exception as e:
+    error_dialog(e)
 
 # Create the main window
 root = tk.Tk(className='GUI for wtwitch')

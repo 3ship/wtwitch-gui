@@ -6,6 +6,7 @@ import json
 import subprocess
 import time
 import sys
+import logging
 from datetime import datetime
 
 def check_config():
@@ -108,10 +109,13 @@ def last_seen(s):
 def check_status():
     '''Call wtwitch c again when pressing the refresh button
     '''
-    wtwitch_c = subprocess.run(['wtwitch', 'c'],
+    try:
+        subprocess.run(['wtwitch', 'c'],
                         capture_output=True,
                         text=True
                         )
+    except Exception as e:
+        error_dialog(e)
 
 def fetch_vods(streamer):
     '''Run wtwitch v and extract all timestamps/titles of the streamer's VODs
