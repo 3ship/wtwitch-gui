@@ -165,6 +165,11 @@ def offline_info(streamer):
                         parent=root,
                         )
 
+def error_dialog():
+    messagebox.showerror(title='Error',
+                        message='Can\'t refresh Twitch data',
+                        )
+
 def unfollow_dialog(streamer):
     '''Asks for confirmation, if the unfollow button is pressed. Rebuild the
     main panel, if confirmed.
@@ -212,7 +217,10 @@ def refresh_main_quiet():
     Twitch API calls.
     '''
     global streamer_status
-    streamer_status = twitchapi.extract_streamer_status()
+    try:
+        streamer_status = twitchapi.extract_streamer_status()
+    except:
+        error_dialog()
     twitchapi.extract_streamer_status()
     main_frame.pack_forget()
     main_frame.destroy()
@@ -223,7 +231,10 @@ def refresh_main():
     '''
     twitchapi.check_status()
     global streamer_status
-    streamer_status = twitchapi.extract_streamer_status()
+    try:
+        streamer_status = twitchapi.extract_streamer_status()
+    except:
+        error_dialog()
     main_frame.pack_forget()
     main_frame.destroy()
     draw_main()
@@ -413,7 +424,10 @@ def toggle_settings():
 toggle_settings()
 # Check the online/offline status once before window initialization:
 twitchapi.check_status()
-streamer_status = twitchapi.extract_streamer_status()
+try:
+    streamer_status = twitchapi.extract_streamer_status()
+except:
+    error_dialog()
 
 # Create the main window
 root = tk.Tk(className='GUI for wtwitch')
