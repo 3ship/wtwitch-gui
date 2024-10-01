@@ -89,7 +89,6 @@ def extract_streamer_status():
             streamer = diction['streamer']
             if streamer not in online_streamers:
                 offline_streamers.append(streamer)
-    online_streamers.sort()
     online_package.sort()
     offline_streamers.sort()
     return online_package, offline_streamers
@@ -98,11 +97,10 @@ def last_seen(s):
     lastseen_dir = f'{wtwitch_subscription_cache()[1]}/wtwitch/lastSeen/{s}'
     try:
         with open(lastseen_dir) as lastseen:
-            for line in lastseen:
-                ts = int(line)
-                ts = datetime.utcfromtimestamp(ts)
-                ts = ts.strftime('%Y-%m-%d - %H:%M')
-                return ts
+            ts = int(lastseen.read())
+            ts = datetime.utcfromtimestamp(ts)
+            ts = ts.strftime('%Y-%m-%d - %H:%M')
+            return ts
     except:
         return 'unknown'
 
