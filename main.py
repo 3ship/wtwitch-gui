@@ -60,7 +60,7 @@ def vod_panel(streamer):
         timestamp_button = tk.Button(vod_frame, text=f"{timestamp} ({length})",
                         command=lambda ts=timestamp, t=title, p=root:
                         messagebox.showinfo("VOD", ts, detail=t, parent=p),
-                        font=('', '10'),
+                        font=small_font,
                         relief='flat',
                         anchor='w'
                         )
@@ -242,7 +242,8 @@ def draw_main():
     '''
     # frame-canvas-frame to attach a scrollbar:
     meta_frame = ttk.Frame(root)
-    meta_frame.grid(column='0', row='0', sticky='nsew')
+    meta_frame.grid(column=0, row=0, sticky='nsew')
+    global meta_canvas
     meta_canvas = tk.Canvas(meta_frame, highlightthickness='0')
     scrollbar = ttk.Scrollbar(meta_frame,
                         orient="vertical", command=meta_canvas.yview)
@@ -432,10 +433,11 @@ root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
 
 # Fonts:
-normal_font = ('Cantarell', '12')
-bold_font = ('Cantarell', '12', 'bold')
-big_font = ('Cantarell', '13', 'bold')
-bigbold_font = ('Cantarell', '13', 'bold')
+small_font = ('Cantarell', 10)
+normal_font = ('Cantarell', 12)
+bold_font = ('Cantarell', 12, 'bold')
+big_font = ('Cantarell', 13, 'bold')
+bigbold_font = ('Cantarell', 13, 'bold')
 
 # Import icons:
 icon_files = twitchapi.icon_paths()

@@ -108,13 +108,10 @@ def last_seen(s):
 def check_status():
     '''Call wtwitch c again when pressing the refresh button
     '''
-    try:
-        subprocess.run(['wtwitch', 'c'],
-                        capture_output=True,
-                        text=True
-                        )
-    except Exception as e:
-        error_dialog(e)
+    subprocess.run(['wtwitch', 'c'],
+                    capture_output=True,
+                    text=True
+                    )
 
 def fetch_vods(streamer):
     '''Run wtwitch v and extract all timestamps/titles of the streamer's VODs
