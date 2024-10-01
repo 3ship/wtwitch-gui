@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
 import os
+import sys
 import re
 import json
 import subprocess
 import time
-import sys
+import base64
 from datetime import datetime
 import encoded_images
 
