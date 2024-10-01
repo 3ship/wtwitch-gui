@@ -1,13 +1,9 @@
 #!/usr/bin/env python
 
-import subprocess
-import os
-import logging
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter import simpledialog
-import encoded_images
 import twitchapi
 
 def vod_panel(streamer):
@@ -445,24 +441,16 @@ big_font = ('Cantarell', '13', 'bold')
 bigbold_font = ('Cantarell', '13', 'bold')
 
 # Import icons:
-unfollow_icon = tk.PhotoImage(file=encoded_images.unfollow_icon)
-vod_icon = tk.PhotoImage(file=encoded_images.vod_icon)
-streaming_icon = tk.PhotoImage(file=encoded_images.streaming_icon)
-offline_icon = tk.PhotoImage(file=encoded_images.offline_icon)
-play_icon = tk.PhotoImage(file=encoded_images.play_icon)
-close_icon = tk.PhotoImage(file=encoded_images.close_icon)
+icon_files = twitchapi.icon_paths()
+unfollow_icon = tk.PhotoImage(file=icon_files['unfollow_icon'])
+vod_icon = tk.PhotoImage(file=icon_files['vod_icon'])
+streaming_icon = tk.PhotoImage(file=icon_files['streaming_icon'])
+offline_icon = tk.PhotoImage(file=icon_files['offline_icon'])
+play_icon = tk.PhotoImage(file=icon_files['play_icon'])
+close_icon = tk.PhotoImage(file=icon_files['close_icon'])
 
-app_icon = tk.PhotoImage(file=encoded_images.app_icon)
+app_icon = tk.PhotoImage(file=icon_files['app_icon'])
 root.iconphoto(False, app_icon)
-
-# Remove icon temp files:
-os.remove(encoded_images.unfollow_icon)
-os.remove(encoded_images.vod_icon)
-os.remove(encoded_images.streaming_icon)
-os.remove(encoded_images.offline_icon)
-os.remove(encoded_images.play_icon)
-os.remove(encoded_images.close_icon)
-os.remove(encoded_images.app_icon)
 
 menu_bar()
 draw_main()

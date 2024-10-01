@@ -6,8 +6,8 @@ import json
 import subprocess
 import time
 import sys
-import logging
 from datetime import datetime
+import encoded_images
 
 def check_config():
     with open(wtwitch_config_file(), 'r') as config:
@@ -156,3 +156,23 @@ def fetch_vods(streamer):
             for match in length_pattern.finditer(line):
                 length.append(match.group())
     return timestamps, titles, length
+
+def start_vod(s, v):
+    subprocess.run(['wtwitch', 'v', s, str(v)])
+
+def start_stream(s):
+    subprocess.run(['wtwitch', 'w', s])
+
+def icon_paths():
+    if not os.path.isdir(f'{sys.path[0]}/icons'):
+        os.makedirs(f'{sys.path[0]}/icons')
+    icon_dir_path = f'{sys.path[0]}/icons'
+
+    icon_file_paths = {}
+    for name in encoded_images.images:
+        if not os.path.isfile(f'{icon_dir_path}/{name}.png'):
+            with open(f'{icon_dir_path}/{name}.png', "wb") as icon_file:
+                icon_data = base64.b64decode(encoded_images.images[name])
+                icon_file.write(icon_data)
+        icon_file_paths[name] = f'{icon_dir_path}/{name}.png'
+    return icon_file_paths
