@@ -87,7 +87,7 @@ def streamer_buttons(parent):
         info_button = tk.Button(parent,
                         text=package[1],
                         anchor='w',
-                        font=big_font,
+                        font=cantarell_13_bold,
                         relief='flat',
                         width=14,
                         command= lambda s=package[1], c=package[2],
@@ -121,7 +121,7 @@ def streamer_buttons(parent):
         info_button = tk.Button(parent,
                         text=streamer,
                         anchor='w',
-                        font=bigbold_font,
+                        font=cantarell_13_bold,
                         fg='#474747',
                         relief='flat',
                         width=14,
@@ -382,13 +382,13 @@ def menu_bar():
     '''
     menubar = tk.Menu(root)
     root.config(menu=menubar)
-    menubar.add_command(label='Refresh', font=bold_font,
+    menubar.add_command(label='Refresh', font=cantarell_12_bold,
             command=lambda: refresh_main())
-    menubar.add_command(label='Follow', font=normal_font,
+    menubar.add_command(label='Follow', font=cantarell_12,
             command=lambda: follow_dialog())
-    menubar.add_command(label='Play', font=normal_font,
+    menubar.add_command(label='Play', font=cantarell_12,
             command=lambda: play_dialog())
-    menubar.add_command(label='Settings', font=normal_font,
+    menubar.add_command(label='Settings', font=cantarell_12,
             command=lambda: settings_dialog())
 
 def window_size():
@@ -433,11 +433,10 @@ root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
 
 # Fonts:
-small_font = ('Cantarell', 10)
-normal_font = ('Cantarell', 12)
-bold_font = ('Cantarell', 12, 'bold')
-big_font = ('Cantarell', 13, 'bold')
-bigbold_font = ('Cantarell', 13, 'bold')
+small_font = ('', 10)
+cantarell_12 = ('Cantarell', 12)
+cantarell_12_bold = ('Cantarell', 12, 'bold')
+cantarell_13_bold = ('Cantarell', 13, 'bold')
 
 # Import icons:
 icon_files = twitchapi.icon_paths()
