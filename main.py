@@ -54,7 +54,7 @@ def vod_panel(streamer):
                         relief='flat',
                         height='24', width='24',
                         command=lambda s=streamer, v=vod_number:
-                        [subprocess.run(['wtwitch', 'v', s, str(v)])]
+                        [twitchapi.start_vod(s, v)]
                         )
         watch_button.grid(column=0, row=vod_number, sticky='nesw')
         timestamp_button = tk.Button(vod_frame, text=f"{timestamp} ({length})",
@@ -81,7 +81,7 @@ def streamer_buttons(parent):
                         image=streaming_icon,
                         relief='flat',
                         command=lambda s=package[0]:
-                        [subprocess.run(['wtwitch', 'w', s])]
+                        [twitchapi.start_stream(s)]
                         )
         watch_button.grid(column=0, row=count_rows, sticky='ns')
         info_button = tk.Button(parent,
@@ -115,7 +115,7 @@ def streamer_buttons(parent):
                         image=offline_icon,
                         relief='flat',
                         command=lambda s=streamer:
-                        [subprocess.run(['wtwitch', 'w', s])]
+                        [twitchapi.start_stream(s)]
                         )
         watch_button.grid(column=0, row=count_rows, sticky='ns')
         info_button = tk.Button(parent,
@@ -204,10 +204,7 @@ def play_dialog():
     if streamer is None or len(streamer) == 0:
         return
     else:
-        update = subprocess.run(['wtwitch', 'w', streamer],
-                        capture_output=True,
-                        text=True
-                        )
+        update = twitchapi.start_stream(streamer)
 
 def refresh_main_quiet():
     '''Refresh the main panel without running wtwitch c to avoid unnecessary
