@@ -27,11 +27,11 @@ def vod_panel(streamer):
                         command=lambda: [vw_frame.forget(), vw_frame.destroy()]
                         )
     vw_frame = ttk.Labelframe(root, labelwidget=close_button)
-    vw_frame.grid(column='0', row='1', sticky='nsew')
+    vw_frame.grid(column=0, row=1, sticky='nsew')
     vw_frame.columnconfigure(0, weight=1)
     vw_frame.rowconfigure(0, weight=1)
     met_frame = ttk.Frame(vw_frame)
-    met_frame.grid(column='0', row='1', sticky='nsew')
+    met_frame.grid(column=0, row=1, sticky='nsew')
     met_frame.columnconfigure(0, weight=1)
     met_frame.rowconfigure(0, weight=1)
     vw_canvas = tk.Canvas(met_frame)
@@ -98,14 +98,14 @@ def streamer_buttons(parent):
         unfollow_b = tk.Button(parent,
                         image=unfollow_icon,
                         relief='flat',
-                        command=lambda s=package[1]:
+                        command=lambda s=package[0]:
                         [unfollow_dialog(s)]
                         )
         unfollow_b.grid(column=2, row=count_rows, sticky='ns')
         vod_b = tk.Button(parent,
                         image=vod_icon,
                         relief='flat',
-                        command=lambda s=package[1]:
+                        command=lambda s=package[0]:
                         vod_panel(s)
                         )
         vod_b.grid(column=3, row=count_rows, sticky='ns')
