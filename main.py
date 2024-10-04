@@ -83,7 +83,7 @@ def streamer_buttons(parent):
                         command=lambda s=package[0]:
                         [twitchapi.start_stream(s)]
                         )
-        watch_button.grid(column=0, row=count_rows, sticky='ns')
+        watch_button.grid(column=0, row=count_rows, sticky='nsew')
         info_button = tk.Button(parent,
                         text=package[1],
                         anchor='w',
@@ -94,21 +94,21 @@ def streamer_buttons(parent):
                                         t=package[3], v=package[4]:
                                 online_info(s, c, t, v)
                         )
-        info_button.grid(column=1, row=count_rows, sticky='nesw')
+        info_button.grid(column=1, row=count_rows, sticky='nsew')
         unfollow_b = tk.Button(parent,
                         image=unfollow_icon,
                         relief='flat',
                         command=lambda s=package[0]:
                         [unfollow_dialog(s)]
                         )
-        unfollow_b.grid(column=2, row=count_rows, sticky='ns')
+        unfollow_b.grid(column=2, row=count_rows, sticky='nsew')
         vod_b = tk.Button(parent,
                         image=vod_icon,
                         relief='flat',
                         command=lambda s=package[0]:
                         vod_panel(s)
                         )
-        vod_b.grid(column=3, row=count_rows, sticky='ns')
+        vod_b.grid(column=3, row=count_rows, sticky='nsew')
         count_rows += 1
     for streamer in offline_streamers:
         watch_button = tk.Button(parent,
@@ -117,7 +117,7 @@ def streamer_buttons(parent):
                         command=lambda s=streamer:
                         [twitchapi.start_stream(s)]
                         )
-        watch_button.grid(column=0, row=count_rows, sticky='ns')
+        watch_button.grid(column=0, row=count_rows, sticky='nsew')
         info_button = tk.Button(parent,
                         text=streamer,
                         anchor='w',
@@ -126,25 +126,24 @@ def streamer_buttons(parent):
                         relief='flat',
                         width=14,
                         compound='left',
-                        disabledforeground='#464646',
                         command= lambda s=streamer:
                                 offline_info(s)
                         )
-        info_button.grid(column=1, row=count_rows, sticky='nesw')
+        info_button.grid(column=1, row=count_rows, sticky='nsew')
         unfollow_b = tk.Button(parent,
                         image=unfollow_icon,
                         relief='flat',
                         command=lambda s=streamer:
                         [unfollow_dialog(s)]
                         )
-        unfollow_b.grid(column=2, row=count_rows, sticky='ns')
+        unfollow_b.grid(column=2, row=count_rows, sticky='nsew')
         vod_b = tk.Button(parent,
                         image=vod_icon,
                         relief='flat',
                         command=lambda s=streamer:
                         vod_panel(s)
                         )
-        vod_b.grid(column=3, row=count_rows, sticky='ns')
+        vod_b.grid(column=3, row=count_rows, sticky='nsew')
         count_rows += 1
 
 def online_info(streamer, category, title, viewers):
@@ -242,30 +241,31 @@ def draw_main():
     '''
     # frame-canvas-frame to attach a scrollbar:
     meta_frame = ttk.Frame(root)
-    meta_frame.grid(column=0, row=0, sticky='nsew')
+    meta_frame.grid(row=0, column=0, sticky='nsew')
+    meta_frame.columnconfigure(0, weight=1)
+    meta_frame.rowconfigure(0, weight=1)
     global meta_canvas
     meta_canvas = tk.Canvas(meta_frame, highlightthickness='0')
+    meta_canvas.grid(row=0, column=0, sticky="nsew", pady=5, padx=5)
+    meta_canvas.columnconfigure(0, weight=1)
+    meta_canvas.rowconfigure(0, weight=1)
     scrollbar = ttk.Scrollbar(meta_frame,
                         orient="vertical", command=meta_canvas.yview)
+    scrollbar.grid(row=0, column=1, sticky="ns")
     meta_canvas.configure(yscrollcommand=scrollbar.set)
     global main_frame
     main_frame = ttk.Frame(meta_canvas)
-    main_frame.grid(column=0, row=0, sticky='nesw')
-    main_frame.columnconfigure(0, weight=1)
+    main_frame.grid(row=0, column=0, sticky='nsew')
+    main_frame.columnconfigure(1, weight=1)
     main_frame.rowconfigure(0, weight=1)
     main_frame.bind("<Configure>", lambda e:
                         meta_canvas.configure(
                         scrollregion=meta_canvas.bbox("all"))
                         )
+    meta_canvas.create_window((0, 0), window=main_frame, anchor="nw")
+    meta_canvas.bind_all("<MouseWheel>", mouse_scroll)
     # Draw main content:
     streamer_buttons(main_frame)
-    # Finish scrollbar:
-    meta_frame.columnconfigure(0, weight=1)
-    meta_frame.rowconfigure(0, weight=1)
-    meta_canvas.create_window((0, 0), window=main_frame, anchor="nw")
-    meta_canvas.grid(row=0, column=0, sticky="nsew", pady=5, padx=5)
-    scrollbar.grid(row=0, column=1, sticky="ns")
-    meta_canvas.bind_all("<MouseWheel>", mouse_scroll)
 
 def custom_player():
     '''Opens a dialog to set a custom media player.
