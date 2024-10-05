@@ -77,6 +77,7 @@ def streamer_buttons(parent):
     offline_streamers = streamer_status[1]
     count_rows = 0
     for package in online_streamers:
+        show_info_status[count_rows] = False
         watch_button = tk.Button(parent,
                         image=streaming_icon,
                         relief='flat',
@@ -89,12 +90,16 @@ def streamer_buttons(parent):
                         anchor='w',
                         font=cantarell_13_bold,
                         relief='flat',
-                        width=14,
-                        command= lambda s=package[1], c=package[2],
-                                        t=package[3], v=package[4]:
-                                online_info(s, c, t, v)
+                        width=16,
+                        command=lambda c=count_rows, s=package[1],
+                                    cat=package[2], t=package[3],
+                                    v=package[4]:
+                                    online_info(c, s, cat, t, v)
+
                         )
         info_button.grid(column=1, row=count_rows, sticky='nsew')
+        if initiate_info_setting == True:
+            online_info(count_rows, package[1], package[2], package[3], package[4])
         unfollow_b = tk.Button(parent,
                         image=unfollow_icon,
                         relief='flat',
@@ -109,8 +114,9 @@ def streamer_buttons(parent):
                         vod_panel(s)
                         )
         vod_b.grid(column=3, row=count_rows, sticky='nsew')
-        count_rows += 1
+        count_rows += 2
     for streamer in offline_streamers:
+        show_info_status[count_rows] = False
         watch_button = tk.Button(parent,
                         image=offline_icon,
                         relief='flat',
@@ -124,12 +130,14 @@ def streamer_buttons(parent):
                         font=cantarell_13_bold,
                         fg='#474747',
                         relief='flat',
-                        width=14,
+                        width=16,
                         compound='left',
-                        command= lambda s=streamer:
-                                offline_info(s)
+                        command= lambda s=streamer, c=count_rows:
+                                offline_info(c, s)
                         )
         info_button.grid(column=1, row=count_rows, sticky='nsew')
+        if initiate_info_setting == True:
+            offline_info(count_rows, streamer)
         unfollow_b = tk.Button(parent,
                         image=unfollow_icon,
                         relief='flat',
@@ -144,22 +152,35 @@ def streamer_buttons(parent):
                         vod_panel(s)
                         )
         vod_b.grid(column=3, row=count_rows, sticky='nsew')
-        count_rows += 1
+        count_rows += 2
 
-def online_info(streamer, category, title, viewers):
-    '''Info dialog, including stream title and stream category
-    '''
-    info = messagebox.showinfo(title=f"{streamer} is streaming",
-                        message=category,
-                        detail=f"{title}\n({viewers} viewers)",
-                        parent=root,
-                        )
+def online_info(c, streamer, category, title, viewercount):
+    if not show_info_status[c]:
+        info_content[c] = tk.Label(main_frame,
+                                    text=f'Title: {title}\n'
+                                            f'Category: {category}\n'
+                                            f'Viewer count: {viewercount}',
+                                            justify='left',
+                                            wraplength='260')
+        info_content[c].grid(row=c+1, column=0, columnspan=4, sticky='w')
+        show_info_status[c] = True
+    else:
+        info_content[c].grid_remove()
+        show_info_status[c] = False
 
-def offline_info(streamer):
-    info = messagebox.showinfo(title=f"{streamer} is offline",
-                        message=f'Last seen: {twitchapi.last_seen(streamer)}',
-                        parent=root,
-                        )
+def offline_info(c, streamer):
+    if not show_info_status[c]:
+        info_content[c] = tk.Label(main_frame,
+                                    text=f'Last seen: {twitchapi.last_seen(streamer)}',
+                                            justify='left',
+                                            wraplength='260',
+                                            fg='#474747'
+                                            )
+        info_content[c].grid(row=c+1, column=1, columnspan=4, sticky='w')
+        show_info_status[c] = True
+    else:
+        info_content[c].grid_remove()
+        show_info_status[c] = False
 
 def error_dialog(e):
     messagebox.showerror(title='Error',
@@ -215,7 +236,7 @@ def refresh_main_quiet():
     except Exception as e:
         error_dialog(e)
     twitchapi.extract_streamer_status()
-    main_frame.pack_forget()
+    main_frame.grid_forget()
     main_frame.destroy()
     draw_main()
 
@@ -228,7 +249,7 @@ def refresh_main():
         streamer_status = twitchapi.extract_streamer_status()
     except Exception as e:
         error_dialog(e)
-    main_frame.pack_forget()
+    main_frame.grid_forget()
     main_frame.destroy()
     draw_main()
 
@@ -295,6 +316,9 @@ def custom_quality():
     else:
         twitchapi.adjust_config('quality', new_quality)
 
+def change_info_setting(value):
+    global initiate_info_setting
+    initiate_info_setting = value
 
 def settings_dialog():
     '''Opens a toplevel window with four settings options.
@@ -359,11 +383,27 @@ def settings_dialog():
     pick_custom.pack(expand=True, fill='both')
     bottom_f = ttk.Frame(meta_frame)
     bottom_f.pack()
+    global show_info_setting
+    show_info_setting = tk.BooleanVar()
+    if initiate_info_setting == True:
+        show_info_setting.set(True)
+    else:
+        show_info_setting.set(False)
+    info_f = ttk.LabelFrame(bottom_f, text='Show info')
+    no_info = ttk.Radiobutton(info_f, text='No',
+                value=False, variable=show_info_setting,
+                command=lambda: [change_info_setting(False), refresh_main_quiet()])
+    no_info.pack(expand=True, fill='both')
+    yes_info = ttk.Radiobutton(info_f, text='Yes',
+                value=True, variable=show_info_setting,
+                command=lambda: [change_info_setting(True), refresh_main_quiet()])
+    yes_info.pack(expand=True, fill='both')
+    info_f.pack(anchor='nw', side='left', padx=5, pady=5)
     global selected_theme
     style = ttk.Style()
     selected_theme = tk.StringVar()
     theme_f = ttk.LabelFrame(bottom_f, text='Themes')
-    theme_f.pack(anchor='nw', side='left', padx=5, pady=5)
+    theme_f.pack(anchor='nw', side='right', padx=5, pady=5)
     for theme_name in ttk.Style.theme_names(style):
         pick_theme = ttk.Radiobutton(theme_f,
                 text=theme_name,
@@ -372,10 +412,6 @@ def settings_dialog():
                 command=lambda t=theme_name: style.theme_use(t)
                 )
         pick_theme.pack(expand=True, fill='both')
-    scale_f = ttk.Labelframe(bottom_f, text='Window scale')
-    scale_f.pack(side='left', anchor='nw', padx=5, pady=5)
-    color_f = ttk.Labelframe(bottom_f, text='Window color:')
-    color_f.pack(side='right', anchor='ne', padx=5, pady=5)
 
 def menu_bar():
     '''The menu bar of the root window.
@@ -404,7 +440,7 @@ def window_size():
         window_height = str(min_height)
     else:
         window_height = str(variable_height)
-    return f"285x{window_height}"
+    return f"305x{window_height}"
 
 def toggle_settings():
     """Checks if wtwitch prints offline streamers and color output. Latter is
@@ -449,6 +485,13 @@ close_icon = tk.PhotoImage(file=icon_files['close_icon'])
 
 app_icon = tk.PhotoImage(file=icon_files['app_icon'])
 root.iconphoto(False, app_icon)
+
+# Variables to collect stream info
+# and settings value to show info for all streamers:
+show_info_status = {}
+info_content = {}
+initiate_info_setting = tk.BooleanVar()
+initiate_info_setting = False
 
 menu_bar()
 draw_main()
