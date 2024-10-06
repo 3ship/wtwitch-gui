@@ -341,6 +341,7 @@ def change_info_setting(value):
     twitchapi.change_settings_file('show_info', value)
     global initiate_info_setting
     initiate_info_setting = twitchapi.get_show_info_setting()
+    refresh_main_quiet()
 
 def settings_dialog():
     '''Opens a toplevel window with four settings options.
@@ -410,17 +411,17 @@ def settings_dialog():
     expand_info_setting.set(initiate_info_setting)
     info_f = ttk.LabelFrame(bottom_f, text='Expand info')
     info_f.pack(anchor='nw', side='left', padx=5, pady=5)
-    no_info = ttk.Radiobutton(info_f, text='No',
+    no_info = ttk.Radiobutton(info_f, text='None',
                 value='no', variable=expand_info_setting,
-                command=lambda: [change_info_setting('no'), refresh_main_quiet()])
+                command=lambda: [change_info_setting('no')])
     no_info.pack(expand=True, fill='both')
-    yes_info = ttk.Radiobutton(info_f, text='Yes',
+    yes_info = ttk.Radiobutton(info_f, text='All',
                 value='yes', variable=expand_info_setting,
-                command=lambda: [change_info_setting('yes'), refresh_main_quiet()])
+                command=lambda: [change_info_setting('yes')])
     yes_info.pack(expand=True, fill='both')
     on_info = ttk.Radiobutton(info_f, text='Only online',
                 value='online', variable=expand_info_setting,
-                command=lambda: [change_info_setting('online'), refresh_main_quiet()])
+                command=lambda: [change_info_setting('online')])
     on_info.pack(expand=True, fill='both')
     global selected_theme
     style = ttk.Style()
@@ -436,6 +437,17 @@ def settings_dialog():
                 )
         pick_theme.pack(expand=True, fill='both')
 
+def info_quick_toggle():
+    global initiate_info_setting
+    if initiate_info_setting == 'no':
+        twitchapi.change_settings_file('show_info', 'online')
+    elif initiate_info_setting == 'online':
+        twitchapi.change_settings_file('show_info', 'yes')
+    elif initiate_info_setting == 'yes':
+        twitchapi.change_settings_file('show_info', 'no')
+    initiate_info_setting = twitchapi.get_show_info_setting()
+    refresh_main_quiet()
+
 def menu_bar():
     '''The menu bar of the root window.
     '''
@@ -449,6 +461,8 @@ def menu_bar():
             command=lambda: play_dialog())
     menubar.add_command(label='Settings', font=cantarell_12,
             command=lambda: settings_dialog())
+    menubar.add_command(image=info_icon, font=cantarell_12,
+            command=lambda: info_quick_toggle())
 
 def window_size():
     """Sets the default window length, depending on the number of streamers in
@@ -507,6 +521,7 @@ streaming_icon = tk.PhotoImage(file=icon_files['streaming_icon'])
 offline_icon = tk.PhotoImage(file=icon_files['offline_icon'])
 play_icon = tk.PhotoImage(file=icon_files['play_icon'])
 close_icon = tk.PhotoImage(file=icon_files['close_icon'])
+info_icon = tk.PhotoImage(file=icon_files['info_icon'])
 
 app_icon = tk.PhotoImage(file=icon_files['app_icon'])
 root.iconphoto(False, app_icon)
