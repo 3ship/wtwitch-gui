@@ -72,13 +72,13 @@ def vod_panel(streamer):
     vw_scrollbar.grid(row=0, column=1, sticky="ns")
     vw_canvas.bind_all("<MouseWheel>", mouse_scroll)
 
-def streamer_buttons(parent):
+def streamer_buttons():
     online_streamers = streamer_status[0]
     offline_streamers = streamer_status[1]
     count_rows = 0
     for package in online_streamers:
         show_info_status[count_rows] = False
-        watch_button = tk.Button(parent,
+        watch_button = tk.Button(main_frame,
                         image=streaming_icon,
                         relief='flat',
                         command=lambda s=package[0]:
@@ -86,7 +86,7 @@ def streamer_buttons(parent):
                         )
         watch_button.grid(column=0, row=count_rows, sticky='nsew')
         if initiate_info_setting == 'yes' or initiate_info_setting == 'online':
-            info_button = tk.Button(parent,
+            info_button = tk.Button(main_frame,
                             text=package[1],
                             anchor='w',
                             font=cantarell_13_bold,
@@ -100,7 +100,7 @@ def streamer_buttons(parent):
                         package[3], package[4]
                         )
         else:
-            info_button = tk.Button(parent,
+            info_button = tk.Button(main_frame,
                             text=package[1],
                             anchor='w',
                             font=cantarell_13_bold,
@@ -112,14 +112,14 @@ def streamer_buttons(parent):
                                         online_info(c, s, cat, t, v)
                             )
             info_button.grid(column=1, row=count_rows, sticky='nsew')
-        unfollow_b = tk.Button(parent,
+        unfollow_b = tk.Button(main_frame,
                         image=unfollow_icon,
                         relief='flat',
                         command=lambda s=package[0]:
                         [unfollow_dialog(s)]
                         )
         unfollow_b.grid(column=2, row=count_rows, sticky='nsew')
-        vod_b = tk.Button(parent,
+        vod_b = tk.Button(main_frame,
                         image=vod_icon,
                         relief='flat',
                         command=lambda s=package[0]:
@@ -129,13 +129,13 @@ def streamer_buttons(parent):
         count_rows += 2
     for streamer in offline_streamers:
         show_info_status[count_rows] = False
-        watch_button = tk.Label(parent,
+        watch_button = tk.Label(main_frame,
                         image=offline_icon,
                         relief='flat'
                         )
         watch_button.grid(column=0, row=count_rows, sticky='nsew')
         if initiate_info_setting == 'yes':
-            info_button = tk.Button(parent,
+            info_button = tk.Button(main_frame,
                             text=streamer,
                             anchor='w',
                             font=cantarell_13_bold,
@@ -147,7 +147,7 @@ def streamer_buttons(parent):
             info_button.grid(column=1, row=count_rows, sticky='nsew')
             offline_info(count_rows, streamer)
         else:
-            info_button = tk.Button(parent,
+            info_button = tk.Button(main_frame,
                             text=streamer,
                             anchor='w',
                             font=cantarell_13_bold,
@@ -159,14 +159,14 @@ def streamer_buttons(parent):
                                     offline_info(c, s)
                             )
             info_button.grid(column=1, row=count_rows, sticky='nsew')
-        unfollow_b = tk.Button(parent,
+        unfollow_b = tk.Button(main_frame,
                         image=unfollow_icon,
                         relief='flat',
                         command=lambda s=streamer:
                         [unfollow_dialog(s)]
                         )
         unfollow_b.grid(column=2, row=count_rows, sticky='nsew')
-        vod_b = tk.Button(parent,
+        vod_b = tk.Button(main_frame,
                         image=vod_icon,
                         relief='flat',
                         command=lambda s=streamer:
@@ -257,9 +257,9 @@ def refresh_main_quiet():
     except Exception as e:
         error_dialog(e)
     twitchapi.extract_streamer_status()
-    main_frame.grid_forget()
-    main_frame.destroy()
-    draw_main()
+    for widget in main_frame.winfo_children():
+        widget.destroy()
+    streamer_buttons()
 
 def refresh_main():
     '''Runs wtwitch c and then rebuilds the main panel.
@@ -270,9 +270,9 @@ def refresh_main():
         streamer_status = twitchapi.extract_streamer_status()
     except Exception as e:
         error_dialog(e)
-    main_frame.grid_forget()
-    main_frame.destroy()
-    draw_main()
+    for widget in main_frame.winfo_children():
+        widget.destroy()
+    streamer_buttons()
 
 def mouse_scroll(event):
     meta_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
@@ -307,7 +307,7 @@ def draw_main():
     meta_canvas.create_window((0, 0), window=main_frame, anchor="nw")
     meta_canvas.bind_all("<MouseWheel>", mouse_scroll)
     # Draw main content:
-    streamer_buttons(main_frame)
+    streamer_buttons()
 
 def custom_player():
     '''Opens a dialog to set a custom media player.
