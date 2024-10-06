@@ -338,8 +338,9 @@ def custom_quality():
         twitchapi.adjust_config('quality', new_quality)
 
 def change_info_setting(value):
+    twitchapi.change_settings_file('show_info', value)
     global initiate_info_setting
-    initiate_info_setting = value
+    initiate_info_setting = twitchapi.get_show_info_setting()
 
 def settings_dialog():
     '''Opens a toplevel window with four settings options.
@@ -481,6 +482,8 @@ try:
     streamer_status = twitchapi.extract_streamer_status()
 except Exception as e:
     error_dialog(e)
+# Create a gwt-specific settings file:
+twitchapi.create_settings_file()
 
 # Create the main window
 root = tk.Tk(className='GUI for wtwitch')
@@ -513,7 +516,7 @@ root.iconphoto(False, app_icon)
 show_info_status = {}
 info_content = {}
 initiate_info_setting = tk.StringVar()
-initiate_info_setting = 'no'
+initiate_info_setting = twitchapi.get_show_info_setting()
 
 menu_bar()
 draw_main()
