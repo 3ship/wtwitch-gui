@@ -440,10 +440,8 @@ def settings_dialog():
 def info_quick_toggle():
     global initiate_info_setting
     if initiate_info_setting == 'no':
-        twitchapi.change_settings_file('show_info', 'online')
-    elif initiate_info_setting == 'online':
         twitchapi.change_settings_file('show_info', 'yes')
-    elif initiate_info_setting == 'yes':
+    else:
         twitchapi.change_settings_file('show_info', 'no')
     initiate_info_setting = twitchapi.get_show_info_setting()
     refresh_main_quiet()
