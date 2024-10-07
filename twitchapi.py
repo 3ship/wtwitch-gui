@@ -174,9 +174,9 @@ def icon_paths():
     return icon_file_paths
 
 def create_settings_file():
+    default_settings = '{"show_info": "no", "show_info_preset": "online"}'
     if not os.path.isfile(f'{sys.path[0]}/settings.json'):
         with open(f'{sys.path[0]}/settings.json', 'w') as settings:
-            default_settings = "{\"show_info\": \"no\"}"
             settings.write(default_settings)
 
 def change_settings_file(setting, new_value):
@@ -186,7 +186,7 @@ def change_settings_file(setting, new_value):
     with open(f'{sys.path[0]}/settings.json', 'w') as nsettings:
         json.dump(settings, nsettings)
 
-def get_show_info_setting():
+def get_setting(k):
     with open(f'{sys.path[0]}/settings.json', 'r') as settings:
         settings = json.load(settings)
-    return settings["show_info"]
+    return settings[k]

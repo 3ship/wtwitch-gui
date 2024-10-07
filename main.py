@@ -462,20 +462,26 @@ def menu_bar():
     menubar.add_command(image=info_icon, font=cantarell_12,
             command=lambda: info_quick_toggle())
 
-def window_size():
+def save_window_size(event):
+    twitchapi.change_settings_file('window_size', root.wm_geometry())
+
+def initiate_window_dimensions():
     """Sets the default window length, depending on the number of streamers in
-    the follow list. Fixed between 360 and 650 px. Width fixed at 285 px.
+    the follow list. Fixed between 360 and 650 px.
     """
-    min_height = 360
-    max_height = 650
-    variable_height = len(streamer_status[0])*28+len(streamer_status[1])*28+100
-    if variable_height > max_height:
-        window_height = str(max_height)
-    elif variable_height < min_height:
-        window_height = str(min_height)
-    else:
-        window_height = str(variable_height)
-    return f"305x{window_height}"
+    try:
+        return twitchapi.get_setting('window_size')
+    except:
+        min_height = 360
+        max_height = 650
+        variable_height = len(streamer_status[0])*28+len(streamer_status[1])*28+100
+        if variable_height > max_height:
+            window_height = str(max_height)
+        elif variable_height < min_height:
+            window_height = str(min_height)
+        else:
+            window_height = str(variable_height)
+        return f'330x{window_height}'
 
 def toggle_settings():
     """Checks if wtwitch prints offline streamers and color output. Latter is
@@ -500,8 +506,9 @@ twitchapi.create_settings_file()
 # Create the main window
 root = tk.Tk(className='GUI for wtwitch')
 root.title("GUI for wtwitch")
-root.geometry(window_size())
-root.resizable(False, True)
+root.geometry(initiate_window_dimensions())
+root.minsize(285, 360)
+root.bind("<Destroy>", save_window_size)
 root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
 
