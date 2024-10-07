@@ -84,8 +84,9 @@ def streamer_buttons():
                         command=lambda s=package[0]:
                         [twitchapi.start_stream(s)]
                         )
-        watch_button.grid(column=0, row=count_rows, rowspan=2, sticky='nsew', ipadx=4)
+        watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=4)
         if current_info_setting == 'all' or current_info_setting == 'online':
+            watch_button.grid_configure(rowspan=2)
             info_button = tk.Button(main_frame,
                             text=package[1],
                             anchor='w',
@@ -94,7 +95,6 @@ def streamer_buttons():
                             state='disabled',
                             disabledforeground='#000000'
                             )
-            info_button.grid(column=1, row=count_rows, sticky='nsew')
             online_info(count_rows, package[1], package[2],
                         package[3], package[4]
                         )
@@ -109,7 +109,7 @@ def streamer_buttons():
                                         v=package[4]:
                                         online_info(c, s, cat, t, v)
                             )
-            info_button.grid(column=1, row=count_rows, sticky='nsew')
+        info_button.grid(column=1, row=count_rows, sticky='nsew')
         unfollow_b = tk.Button(main_frame,
                         image=unfollow_icon,
                         relief='flat',
@@ -135,8 +135,9 @@ def streamer_buttons():
                         image=offline_icon,
                         relief='flat'
                         )
-        watch_button.grid(column=0, row=count_rows, rowspan=2, sticky='nsew', ipadx=4)
+        watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=4)
         if current_info_setting == 'all':
+            watch_button.grid_configure(rowspan=2)
             info_button = tk.Button(main_frame,
                             text=streamer,
                             anchor='w',
@@ -145,7 +146,6 @@ def streamer_buttons():
                             state='disabled',
                             disabledforeground='#474747'
                             )
-            info_button.grid(column=1, row=count_rows, sticky='nsew')
             offline_info(count_rows, streamer)
         else:
             info_button = tk.Button(main_frame,
@@ -158,7 +158,7 @@ def streamer_buttons():
                             command= lambda s=streamer, c=count_rows:
                                     offline_info(c, s)
                             )
-            info_button.grid(column=1, row=count_rows, sticky='nsew')
+        info_button.grid(column=1, row=count_rows, sticky='nsew')
         unfollow_b = tk.Button(main_frame,
                         image=unfollow_icon,
                         relief='flat',
