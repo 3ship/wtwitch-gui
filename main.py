@@ -452,6 +452,15 @@ def settings_dialog():
                 )
         pick_theme.pack(expand=True, fill='both')
 
+def set_quick_toggle_icon():
+    global current_info_setting
+    global current_quick_toggle_icon
+    if current_info_setting == 'no':
+        current_quick_toggle_icon = expand_icon
+    else:
+        current_quick_toggle_icon = collapse_icon
+    return current_quick_toggle_icon
+
 def info_quick_toggle():
     global current_info_setting
     if current_info_setting == 'no':
@@ -464,18 +473,25 @@ def info_quick_toggle():
 def menu_bar():
     '''The menu bar of the root window.
     '''
+    global current_quick_toggle_icon
+    current_quick_toggle_icon = set_quick_toggle_icon()
     menubar = tk.Menu(root)
     root.config(menu=menubar)
     menubar.add_command(label='Refresh', font=cantarell_12_bold,
-            command=lambda: refresh_main())
+                        command=lambda: refresh_main())
     menubar.add_command(label='Follow', font=cantarell_12,
-            command=lambda: follow_dialog())
+                        command=lambda: follow_dialog())
     menubar.add_command(label='Play', font=cantarell_12,
-            command=lambda: play_dialog())
+                        command=lambda: play_dialog())
     menubar.add_command(label='Settings', font=cantarell_12,
-            command=lambda: settings_dialog())
-    menubar.add_command(image=info_icon, font=cantarell_12,
-            command=lambda: info_quick_toggle())
+                        command=lambda: settings_dialog())
+    menubar.add_command(image=current_quick_toggle_icon, font=cantarell_12,
+                        command=lambda: [info_quick_toggle(),
+                                        set_quick_toggle_icon(),
+                                        menubar.entryconfigure(5,
+                                        image=current_quick_toggle_icon)
+                                        ]
+                                    )
 
 def save_window_size(event):
     twitchapi.change_settings_file('window_size', root.wm_geometry())
@@ -542,6 +558,9 @@ offline_icon = tk.PhotoImage(file=icon_files['offline_icon'])
 play_icon = tk.PhotoImage(file=icon_files['play_icon'])
 close_icon = tk.PhotoImage(file=icon_files['close_icon'])
 info_icon = tk.PhotoImage(file=icon_files['info_icon'])
+
+expand_icon = tk.PhotoImage(file=icon_files['expand_icon'])
+collapse_icon = tk.PhotoImage(file=icon_files['collapse_icon'])
 
 app_icon = tk.PhotoImage(file=icon_files['app_icon'])
 root.iconphoto(False, app_icon)
