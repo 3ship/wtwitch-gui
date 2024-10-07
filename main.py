@@ -84,8 +84,8 @@ def streamer_buttons():
                         command=lambda s=package[0]:
                         [twitchapi.start_stream(s)]
                         )
-        watch_button.grid(column=0, row=count_rows, sticky='nsew')
-        if initiate_info_setting == 'yes' or initiate_info_setting == 'online':
+        watch_button.grid(column=0, row=count_rows, rowspan=2, sticky='nsew', ipadx=4)
+        if current_info_setting == 'all' or current_info_setting == 'online':
             info_button = tk.Button(main_frame,
                             text=package[1],
                             anchor='w',
@@ -133,8 +133,8 @@ def streamer_buttons():
                         image=offline_icon,
                         relief='flat'
                         )
-        watch_button.grid(column=0, row=count_rows, sticky='nsew')
-        if initiate_info_setting == 'yes':
+        watch_button.grid(column=0, row=count_rows, rowspan=2, sticky='nsew', ipadx=4)
+        if current_info_setting == 'all':
             info_button = tk.Button(main_frame,
                             text=streamer,
                             anchor='w',
@@ -343,11 +343,17 @@ def custom_quality():
     else:
         twitchapi.adjust_config('quality', new_quality)
 
-def change_info_setting(value):
-    twitchapi.change_settings_file('show_info', value)
-    global initiate_info_setting
-    initiate_info_setting = twitchapi.get_show_info_setting()
-    refresh_main_quiet()
+def change_info_preset(value):
+    twitchapi.change_settings_file('show_info_preset', value)
+    global current_info_setting
+    global preset_info_setting
+    preset_info_setting = twitchapi.get_setting('show_info_preset')
+    if preset_info_setting == current_info_setting or current_info_setting == 'no':
+        return
+    else:
+        twitchapi.change_settings_file('show_info', value)
+        current_info_setting = preset_info_setting
+        refresh_main_quiet()
 
 def settings_dialog():
     '''Opens a toplevel window with four settings options.
@@ -414,21 +420,17 @@ def settings_dialog():
     bottom_f.pack()
     global expand_info_setting
     expand_info_setting = tk.StringVar()
-    expand_info_setting.set(initiate_info_setting)
+    expand_info_setting.set(preset_info_setting)
     info_f = ttk.LabelFrame(bottom_f, text='Expand info')
     info_f.pack(anchor='nw', side='left', padx=5, pady=5)
-    no_info = ttk.Radiobutton(info_f, text='None',
-                value='no', variable=expand_info_setting,
-                command=lambda: [change_info_setting('no')])
-    no_info.pack(expand=True, fill='both')
-    yes_info = ttk.Radiobutton(info_f, text='All',
-                value='yes', variable=expand_info_setting,
-                command=lambda: [change_info_setting('yes')])
-    yes_info.pack(expand=True, fill='both')
-    on_info = ttk.Radiobutton(info_f, text='Only online',
+    all_info = ttk.Radiobutton(info_f, text='All',
+                value='all', variable=expand_info_setting,
+                command=lambda: [change_info_preset('all')])
+    all_info.pack(expand=True, fill='both')
+    only_online_info = ttk.Radiobutton(info_f, text='Only online',
                 value='online', variable=expand_info_setting,
-                command=lambda: [change_info_setting('online')])
-    on_info.pack(expand=True, fill='both')
+                command=lambda: [change_info_preset('online')])
+    only_online_info.pack(expand=True, fill='both')
     global selected_theme
     style = ttk.Style()
     selected_theme = tk.StringVar()
@@ -444,12 +446,12 @@ def settings_dialog():
         pick_theme.pack(expand=True, fill='both')
 
 def info_quick_toggle():
-    global initiate_info_setting
-    if initiate_info_setting == 'no':
-        twitchapi.change_settings_file('show_info', 'yes')
+    global current_info_setting
+    if current_info_setting == 'no':
+        twitchapi.change_settings_file('show_info', preset_info_setting)
     else:
         twitchapi.change_settings_file('show_info', 'no')
-    initiate_info_setting = twitchapi.get_show_info_setting()
+    current_info_setting = twitchapi.get_setting('show_info')
     refresh_main_quiet()
 
 def menu_bar():
@@ -541,8 +543,9 @@ root.iconphoto(False, app_icon)
 # and settings value to show info for all streamers:
 show_info_status = {}
 info_content = {}
-initiate_info_setting = tk.StringVar()
-initiate_info_setting = twitchapi.get_show_info_setting()
+preset_info_setting = tk.StringVar()
+preset_info_setting = twitchapi.get_setting('show_info_preset')
+current_info_setting = twitchapi.get_setting('show_info')
 
 menu_bar()
 draw_main()
