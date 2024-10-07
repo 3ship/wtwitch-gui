@@ -239,9 +239,10 @@ def play_dialog():
     '''Opens a text dialog to play a custom stream
     '''
     streamer = simpledialog.askstring(title='Play a custom stream',
-                        prompt='Play a stream without adding it to your list',
-                        parent=root
-                        )
+                                    prompt='Play a stream without adding it\n'
+                                    'to your follow list',
+                                    parent=root
+                                    )
     if streamer is None or len(streamer) == 0:
         return
     else:
@@ -274,6 +275,9 @@ def refresh_main():
         widget.destroy()
     streamer_buttons()
 
+def resize_meta_canvas(e):
+    meta_canvas.itemconfig(meta_canvas_window, width=e.width)
+
 def mouse_scroll(event):
     meta_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
@@ -299,13 +303,15 @@ def draw_main():
     main_frame = ttk.Frame(meta_canvas)
     main_frame.grid(row=0, column=0, sticky='nsew')
     main_frame.columnconfigure(1, weight=1)
-    main_frame.rowconfigure(0, weight=1)
     main_frame.bind("<Configure>", lambda e:
                         meta_canvas.configure(
-                        scrollregion=meta_canvas.bbox("all"))
+                        scrollregion=meta_canvas.bbox("all")
                         )
-    meta_canvas.create_window((0, 0), window=main_frame, anchor="nw")
-    meta_canvas.bind_all("<MouseWheel>", mouse_scroll)
+                    )
+    global meta_canvas_window
+    meta_canvas_window = meta_canvas.create_window((0, 0), window=main_frame, anchor="nw")
+    meta_canvas.bind("<Configure>", resize_meta_canvas)
+    meta_canvas.bind("<MouseWheel>", mouse_scroll)
     # Draw main content:
     streamer_buttons()
 
