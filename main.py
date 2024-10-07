@@ -299,7 +299,7 @@ def draw_main():
     meta_frame.rowconfigure(0, weight=1)
     global meta_canvas
     meta_canvas = tk.Canvas(meta_frame, highlightthickness='0')
-    meta_canvas.grid(row=0, column=0, sticky="nsew", pady=5, padx=5)
+    meta_canvas.grid(row=0, column=0, sticky="nsew")
     meta_canvas.columnconfigure(0, weight=1)
     meta_canvas.rowconfigure(0, weight=1)
     scrollbar = ttk.Scrollbar(meta_frame,
