@@ -91,7 +91,6 @@ def streamer_buttons():
                             anchor='w',
                             font=cantarell_13_bold,
                             relief='flat',
-                            width=16,
                             state='disabled',
                             disabledforeground='#000000'
                             )
@@ -105,7 +104,6 @@ def streamer_buttons():
                             anchor='w',
                             font=cantarell_13_bold,
                             relief='flat',
-                            width=16,
                             command=lambda c=count_rows, s=package[1],
                                         cat=package[2], t=package[3],
                                         v=package[4]:
@@ -118,15 +116,19 @@ def streamer_buttons():
                         command=lambda s=package[0]:
                         [unfollow_dialog(s)]
                         )
-        unfollow_b.grid(column=2, row=count_rows, sticky='nsew')
+        unfollow_b.grid(column=2, row=count_rows, sticky='nsew', ipadx=4)
         vod_b = tk.Button(main_frame,
                         image=vod_icon,
                         relief='flat',
                         command=lambda s=package[0]:
                         vod_panel(s)
                         )
-        vod_b.grid(column=3, row=count_rows, sticky='nsew')
-        count_rows += 2
+        vod_b.grid(column=3, row=count_rows, sticky='nsew', ipadx=8)
+        ttk.Separator(main_frame).grid(row=count_rows+2,
+                                        columnspan=5,
+                                        sticky='ew'
+                                        )
+        count_rows += 3
     for streamer in offline_streamers:
         show_info_status[count_rows] = False
         watch_button = tk.Label(main_frame,
@@ -140,7 +142,6 @@ def streamer_buttons():
                             anchor='w',
                             font=cantarell_13_bold,
                             relief='flat',
-                            width=16,
                             state='disabled',
                             disabledforeground='#474747'
                             )
@@ -153,7 +154,6 @@ def streamer_buttons():
                             font=cantarell_13_bold,
                             fg='#474747',
                             relief='flat',
-                            width=16,
                             compound='left',
                             command= lambda s=streamer, c=count_rows:
                                     offline_info(c, s)
@@ -165,25 +165,31 @@ def streamer_buttons():
                         command=lambda s=streamer:
                         [unfollow_dialog(s)]
                         )
-        unfollow_b.grid(column=2, row=count_rows, sticky='nsew')
+        unfollow_b.grid(column=2, row=count_rows, sticky='nsew', ipadx=4)
         vod_b = tk.Button(main_frame,
                         image=vod_icon,
                         relief='flat',
                         command=lambda s=streamer:
                         vod_panel(s)
                         )
-        vod_b.grid(column=3, row=count_rows, sticky='nsew')
-        count_rows += 2
+        vod_b.grid(column=3, row=count_rows, sticky='nsew', ipadx=8)
+        if count_rows != (len(online_streamers)+len(offline_streamers))*3-3:
+            ttk.Separator(main_frame).grid(row=count_rows+2,
+                                            columnspan=5,
+                                            sticky='ew'
+                                            )
+        count_rows += 3
 
 def online_info(c, streamer, category, title, viewercount):
     if not show_info_status[c]:
         info_content[c] = tk.Label(main_frame,
                                     text=f'Title: {title}\n'
-                                            f'Category: {category}\n'
-                                            f'Viewer count: {viewercount}',
-                                            justify='left',
-                                            wraplength='260')
-        info_content[c].grid(row=c+1, column=0, columnspan=4, sticky='w')
+                                    f'Category: {category}\n'
+                                    f'Viewer count: {viewercount}',
+                                    justify='left',
+                                    anchor='w'
+                                    )
+        info_content[c].grid(row=c+1, column=1, columnspan=4, sticky='w')
         show_info_status[c] = True
     else:
         info_content[c].grid_remove()
@@ -192,11 +198,12 @@ def online_info(c, streamer, category, title, viewercount):
 def offline_info(c, streamer):
     if not show_info_status[c]:
         info_content[c] = tk.Label(main_frame,
-                                    text=f'Last seen: {twitchapi.last_seen(streamer)}',
-                                            justify='left',
-                                            wraplength='260',
-                                            fg='#474747'
-                                            )
+                                    text=f'Last seen: '
+                                    f'{twitchapi.last_seen(streamer)}',
+                                    justify='left',
+                                    anchor='w',
+                                    fg='#474747'
+                                    )
         info_content[c].grid(row=c+1, column=1, columnspan=4, sticky='w')
         show_info_status[c] = True
     else:
