@@ -189,7 +189,7 @@ def online_info(c, streamer, category, title, viewercount):
                                     justify='left',
                                     anchor='w'
                                     )
-        info_content[c].grid(row=c+1, column=1, columnspan=4, sticky='w')
+        info_content[c].grid(row=c+1, column=1, columnspan=4, sticky='w', padx=10)
         show_info_status[c] = True
     else:
         info_content[c].grid_remove()
@@ -483,7 +483,7 @@ def menu_bar():
                         command=lambda: follow_dialog())
     menubar.add_command(label='Play', font=cantarell_12,
                         command=lambda: play_dialog())
-    menubar.add_command(label='Settings', font=cantarell_12,
+    menubar.add_command(image=settings_icon, font=cantarell_12,
                         command=lambda: settings_dialog())
     menubar.add_command(image=current_quick_toggle_icon, font=cantarell_12,
                         command=lambda: [info_quick_toggle(),
@@ -557,7 +557,10 @@ streaming_icon = tk.PhotoImage(file=icon_files['streaming_icon'])
 offline_icon = tk.PhotoImage(file=icon_files['offline_icon'])
 play_icon = tk.PhotoImage(file=icon_files['play_icon'])
 close_icon = tk.PhotoImage(file=icon_files['close_icon'])
-info_icon = tk.PhotoImage(file=icon_files['info_icon'])
+update_icon = tk.PhotoImage(file=icon_files['update_icon'])
+follow_icon = tk.PhotoImage(file=icon_files['follow_icon'])
+play_custom_icon = tk.PhotoImage(file=icon_files['play_custom_icon'])
+settings_icon = tk.PhotoImage(file=icon_files['settings_icon'])
 
 expand_icon = tk.PhotoImage(file=icon_files['expand_icon'])
 collapse_icon = tk.PhotoImage(file=icon_files['collapse_icon'])
