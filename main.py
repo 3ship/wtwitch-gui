@@ -535,8 +535,8 @@ except Exception as e:
 twitchapi.create_settings_file()
 
 # Create the main window
-root = tk.Tk(className='GUI for wtwitch')
-root.title("GUI for wtwitch")
+root = tk.Tk(className='Wince')
+root.title("Wince")
 root.geometry(initiate_window_dimensions())
 root.minsize(285, 360)
 root.bind("<Destroy>", save_window_size)
