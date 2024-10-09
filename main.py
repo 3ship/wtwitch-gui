@@ -1,93 +1,17 @@
 #!/usr/bin/env python
 
-import subprocess
-import re
-import os
-import json
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter import simpledialog
-import encoded_images
-
-def wtwitch_config_file():
-    if 'APPDATA' in os.environ:
-        confighome = os.environ['APPDATA']
-    elif 'XDG_CONFIG_HOME' in os.environ:
-        confighome = os.environ['XDG_CONFIG_HOME']
-    else:
-        confighome = os.path.join(os.environ['HOME'], '.config')
-    configfile = os.path.join(confighome, 'wtwitch/config.json')
-    return configfile
-
-def wtwitch_subscription_cache():
-    if 'LOCALAPPDATA' in os.environ:
-        cachehome = os.environ['LOCALAPPDATA']
-    elif 'XDG_CONFIG_HOME' in os.environ:
-        cachehome = os.environ['XDG_CACHE_HOME']
-    else:
-        cachehome = os.path.join(os.environ['HOME'], '.cache')
-    cachepath = os.path.join(cachehome, 'wtwitch/subscription-cache.json')
-    return cachepath
-
-def extract_streamer_status():
-    online_streamers = []
-    online_package = []
-    offline_streamers = []
-    with open(wtwitch_subscription_cache(), 'r') as cache:
-        cachefile = json.load(cache)
-        for streamer in cachefile['data']:
-            online_streamers.append(streamer['user_login'])
-            login = streamer['user_login']
-            name = streamer['user_name']
-            categ = streamer['game_name']
-            title = streamer['title']
-            views = streamer['viewer_count']
-            package = login,name,categ,title,views
-            online_package.append(package)
-    with open(wtwitch_config_file(), 'r') as config:
-        configfile = json.load(config)
-        subscriptions = configfile['subscriptions']
-        for diction in subscriptions:
-            streamer = diction['streamer']
-            if streamer not in online_streamers:
-                offline_streamers.append(streamer)
-    online_streamers.sort()
-    online_package.sort()
-    offline_streamers.sort()
-    return online_package, offline_streamers
-
-def check_status():
-    '''Call wtwitch c again when pressing the refresh button
-    '''
-    wtwitch_c = subprocess.run(['wtwitch', 'c'],
-                        capture_output=True,
-                        text=True
-                        )
-
-def fetch_vods(streamer):
-    '''Run wtwitch v and extract all timestamps/titles of the streamer's VODs
-    with regex. Cap the title length at 50 characters.
-    '''
-    wtwitch_v = subprocess.run(['wtwitch', 'v', streamer],
-                        stderr=subprocess.PIPE,
-                        stdout=subprocess.PIPE,
-                        text=True
-                        )
-    timestamps = re.findall(r'\[96m\[(\S* \d.*:\d.*):\d.*\]', wtwitch_v.stdout)
-    titles = re.findall(r'\]\x1b\[0m\s*(\S.*)\s\x1b\[93m', wtwitch_v.stdout)
-    length = re.findall(r'\x1b\[93m(\S*)\x1b\[0m', wtwitch_v.stdout)
-    #for i in range(len(titles)):
-    #    if len(titles[i]) > 50:
-    #        titles[i] = titles[i][:50] + "..."
-    return timestamps, titles, length
+import twitchapi
 
 def vod_panel(streamer):
     '''Draw 2 columns for the watch buttons and timestamps/stream length of
     the last 20 VODs.
     '''
     # Retrieve the streamer's VODs:
-    vods = fetch_vods(streamer)
+    vods = twitchapi.fetch_vods(streamer)
     # Account for streamer having zero VODs:
     if len(vods[0]) == 0:
         no_vods = messagebox.showinfo(title=f"No VODs",
@@ -96,28 +20,32 @@ def vod_panel(streamer):
                         )
         return
     # frame-canvas-frame to attach a scrollbar:
-    vw_frame = tk.Frame(root)
-    vw_frame.grid(column='0', row='1', sticky='nsew')
+    close_button = tk.Button(
+                        root,
+                        image=close_icon,
+                        relief='flat',
+                        command=lambda: [vw_frame.forget(), vw_frame.destroy()]
+                        )
+    vw_frame = ttk.Labelframe(root, labelwidget=close_button)
+    vw_frame.grid(column=0, row=1, sticky='nsew')
     vw_frame.columnconfigure(0, weight=1)
     vw_frame.rowconfigure(0, weight=1)
-    vw_canvas = tk.Canvas(vw_frame)
-    vw_scrollbar = ttk.Scrollbar(vw_frame,orient="vertical",
+    met_frame = ttk.Frame(vw_frame)
+    met_frame.grid(column=0, row=1, sticky='nsew')
+    met_frame.columnconfigure(0, weight=1)
+    met_frame.rowconfigure(0, weight=1)
+    vw_canvas = tk.Canvas(met_frame)
+    vw_scrollbar = ttk.Scrollbar(met_frame,orient="vertical",
                         command=vw_canvas.yview
                         )
     vw_canvas.configure(yscrollcommand=vw_scrollbar.set)
-    vod_frame = ttk.Frame(vw_frame, padding='10', relief='sunken')
+    vod_frame = ttk.Labelframe(met_frame,
+                        text=f"{streamer}'s VODs",
+                        )
     vod_frame.bind("<Configure>", lambda e:
                         vw_canvas.configure(
                         scrollregion=vw_canvas.bbox("all"))
                         )
-    # Show streamer name and close button before the VODs
-    vods_label = tk.Label(vod_frame, text=f"{streamer}'s VODs:",
-                        font=('Cantarell', '9', 'bold'))
-    vods_label.grid(column=1, row=0)
-    close_button = tk.Button(vod_frame, image=close_icon, relief='flat',
-                        command=lambda: [vw_frame.forget(), vw_frame.destroy()]
-                        )
-    close_button.grid(column=2, row=0, sticky='e')
     # Draw the VOD grid:
     vod_number = 1
     for timestamp, title, length in zip(vods[0], vods[1], vods[2]):
@@ -126,17 +54,17 @@ def vod_panel(streamer):
                         relief='flat',
                         height='24', width='24',
                         command=lambda s=streamer, v=vod_number:
-                        [subprocess.run(['wtwitch', 'v', s, str(v)])]
+                        [twitchapi.start_vod(s, v)]
                         )
-        watch_button.grid(column=0, row=vod_number, sticky='ew')
-        timestamp_button = tk.Button(vod_frame, text=f"{timestamp} {length}",
+        watch_button.grid(column=0, row=vod_number, sticky='nesw')
+        timestamp_button = tk.Button(vod_frame, text=f"{timestamp} ({length})",
                         command=lambda ts=timestamp, t=title, p=root:
                         messagebox.showinfo("VOD", ts, detail=t, parent=p),
-                        font=('', '8'),
+                        font=small_font,
                         relief='flat',
-                        width=25, anchor='w'
+                        anchor='w'
                         )
-        timestamp_button.grid(column=1, row=vod_number, sticky='w')
+        timestamp_button.grid(column=1, row=vod_number, sticky='nesw')
         vod_number += 1
     # Finish the scrollbar
     vw_canvas.create_window((0, 0), window=vod_frame, anchor="nw")
@@ -144,86 +72,147 @@ def vod_panel(streamer):
     vw_scrollbar.grid(row=0, column=1, sticky="ns")
     vw_canvas.bind_all("<MouseWheel>", mouse_scroll)
 
-def streamer_buttons_online(parent):
+def streamer_buttons():
     online_streamers = streamer_status[0]
-    global count_rows
-    for package in online_streamers:
-        watch_button = tk.Button(parent, image=streaming_icon,
-                        relief='flat', height=28,
-                        command=lambda s=package[0]:
-                        [subprocess.run(['wtwitch', 'w', s])]
-                        )
-        watch_button.grid(column=0, row=count_rows)
-        info_button = tk.Button(parent,
-                        text=package[1],
-                        anchor='w',
-                        font=('Cantarell', '12', 'bold'),
-                        relief='flat',
-                        width=14,
-                        disabledforeground='#464646',
-                        command= lambda s=package[1], c=package[2],
-                                        t=package[3], v=package[4]:
-                        info_dialog(s, c, t, v)
-                        )
-        info_button.grid(column=1, row=count_rows)
-        unfollow_b = tk.Button(parent,
-                        image=unfollow_icon,
-                        relief='flat',
-                        height=28, width=20,
-                        command=lambda s=package[1]:
-                        [unfollow_dialog(s)]
-                        )
-        unfollow_b.grid(column=2, row=count_rows)
-        vod_b = tk.Button(parent,
-                        image=vod_icon,
-                        relief='flat',
-                        height=28, width=30,
-                        command=lambda s=package[1]:
-                        vod_panel(s)
-                        )
-        vod_b.grid(column=3, row=count_rows)
-        count_rows += 1
-
-def streamer_buttons_offline(parent):
     offline_streamers = streamer_status[1]
-    global count_rows
-    for streamer in offline_streamers:
-        watch_button = tk.Label(parent, image=offline_icon)
-        watch_button.grid(column=0, row=count_rows)
-        info_button = tk.Button(parent,
-                        text=streamer,
-                        anchor='w',
-                        font=('Cantarell', '12', 'bold'),
-                        state='disabled', relief='flat',
-                        width=14,
-                        disabledforeground='#464646'
+    count_rows = 0
+    for package in online_streamers:
+        show_info_status[count_rows] = False
+        watch_button = tk.Button(main_frame,
+                        image=streaming_icon,
+                        relief='flat',
+                        command=lambda s=package[0]:
+                        [twitchapi.start_stream(s)]
                         )
-        info_button.grid(column=1, row=count_rows)
-        unfollow_b = tk.Button(parent,
+        watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=4)
+        if current_info_setting == 'all' or current_info_setting == 'online':
+            watch_button.grid_configure(rowspan=2)
+            info_button = tk.Button(main_frame,
+                            text=package[1],
+                            anchor='w',
+                            font=cantarell_13_bold,
+                            relief='flat',
+                            state='disabled',
+                            disabledforeground='#000000'
+                            )
+            online_info(count_rows, package[1], package[2],
+                        package[3], package[4]
+                        )
+        else:
+            info_button = tk.Button(main_frame,
+                            text=package[1],
+                            anchor='w',
+                            font=cantarell_13_bold,
+                            relief='flat',
+                            command=lambda c=count_rows, s=package[1],
+                                        cat=package[2], t=package[3],
+                                        v=package[4]:
+                                        online_info(c, s, cat, t, v)
+                            )
+        info_button.grid(column=1, row=count_rows, sticky='nsew')
+        unfollow_b = tk.Button(main_frame,
                         image=unfollow_icon,
                         relief='flat',
-                        height=28, width=20,
+                        command=lambda s=package[0]:
+                        [unfollow_dialog(s)]
+                        )
+        unfollow_b.grid(column=2, row=count_rows, sticky='nsew', ipadx=4)
+        vod_b = tk.Button(main_frame,
+                        image=vod_icon,
+                        relief='flat',
+                        command=lambda s=package[0]:
+                        vod_panel(s)
+                        )
+        vod_b.grid(column=3, row=count_rows, sticky='nsew', ipadx=8)
+        ttk.Separator(main_frame).grid(row=count_rows+2,
+                                        columnspan=5,
+                                        sticky='ew'
+                                        )
+        count_rows += 3
+    for streamer in offline_streamers:
+        show_info_status[count_rows] = False
+        watch_button = tk.Label(main_frame,
+                        image=offline_icon,
+                        relief='flat'
+                        )
+        watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=4)
+        if current_info_setting == 'all':
+            watch_button.grid_configure(rowspan=2)
+            info_button = tk.Button(main_frame,
+                            text=streamer,
+                            anchor='w',
+                            font=cantarell_13_bold,
+                            relief='flat',
+                            state='disabled',
+                            disabledforeground='#474747'
+                            )
+            offline_info(count_rows, streamer)
+        else:
+            info_button = tk.Button(main_frame,
+                            text=streamer,
+                            anchor='w',
+                            font=cantarell_13_bold,
+                            fg='#474747',
+                            relief='flat',
+                            compound='left',
+                            command= lambda s=streamer, c=count_rows:
+                                    offline_info(c, s)
+                            )
+        info_button.grid(column=1, row=count_rows, sticky='nsew')
+        unfollow_b = tk.Button(main_frame,
+                        image=unfollow_icon,
+                        relief='flat',
                         command=lambda s=streamer:
                         [unfollow_dialog(s)]
                         )
-        unfollow_b.grid(column=2, row=count_rows)
-        vod_b = tk.Button(parent,
+        unfollow_b.grid(column=2, row=count_rows, sticky='nsew', ipadx=4)
+        vod_b = tk.Button(main_frame,
                         image=vod_icon,
                         relief='flat',
-                        height=28, width=30,
                         command=lambda s=streamer:
                         vod_panel(s)
                         )
-        vod_b.grid(column=3, row=count_rows)
-        count_rows += 1
+        vod_b.grid(column=3, row=count_rows, sticky='nsew', ipadx=8)
+        if count_rows != (len(online_streamers)+len(offline_streamers))*3-3:
+            ttk.Separator(main_frame).grid(row=count_rows+2,
+                                            columnspan=5,
+                                            sticky='ew'
+                                            )
+        count_rows += 3
 
-def info_dialog(streamer, category, title, viewers):
-    '''Info dialog, including stream title and stream category
-    '''
-    info = messagebox.showinfo(title=f"{streamer} is streaming",
-                        message=category,
-                        detail=f"{title}\n({viewers} viewers)",
-                        parent=root,
+def online_info(c, streamer, category, title, viewercount):
+    if not show_info_status[c]:
+        info_content[c] = tk.Label(main_frame,
+                                    text=f'Title: {title}\n'
+                                    f'Category: {category}\n'
+                                    f'Viewer count: {viewercount}',
+                                    justify='left',
+                                    anchor='w'
+                                    )
+        info_content[c].grid(row=c+1, column=1, columnspan=4, sticky='w', padx=10)
+        show_info_status[c] = True
+    else:
+        info_content[c].grid_remove()
+        show_info_status[c] = False
+
+def offline_info(c, streamer):
+    if not show_info_status[c]:
+        info_content[c] = tk.Label(main_frame,
+                                    text=f'Last seen: '
+                                    f'{twitchapi.last_seen(streamer)}',
+                                    justify='left',
+                                    anchor='w',
+                                    fg='#474747'
+                                    )
+        info_content[c].grid(row=c+1, column=1, columnspan=4, sticky='w')
+        show_info_status[c] = True
+    else:
+        info_content[c].grid_remove()
+        show_info_status[c] = False
+
+def error_dialog(e):
+    messagebox.showerror(title='Error',
+                        message=f'{e}\n\n Check your internet connection!',
                         )
 
 def unfollow_dialog(streamer):
@@ -237,48 +226,64 @@ def unfollow_dialog(streamer):
                         parent=root
                         )
     if answer:
-        update = subprocess.run(['wtwitch', 'u', streamer],
-                        capture_output=True,
-                        text=True
-                        )
-        refresh_main_quiet()
+        twitchapi.unfollow_streamer(streamer)
+        refresh_main()
 
 def follow_dialog():
     '''Opens a text dialog and adds the entered string to the follow list.
     '''
-    streamer = simpledialog.askstring(title='Follow',
+    answer = simpledialog.askstring(title='Follow',
                         prompt='Enter streamer name: ',
                         parent=root
                         )
-    if streamer is None or len(streamer) <= 2:
+    if answer is None or len(answer) == 0:
         return
     else:
-        update = subprocess.run(['wtwitch', 's', streamer],
-                        capture_output=True,
-                        text=True
-                        )
-        refresh_main_quiet()
+        twitchapi.follow_streamer(answer)
+        refresh_main()
+
+def play_dialog():
+    '''Opens a text dialog to play a custom stream
+    '''
+    streamer = simpledialog.askstring(title='Play a custom stream',
+                                    prompt='Play a stream without adding it\n'
+                                    'to your follow list',
+                                    parent=root
+                                    )
+    if streamer is None or len(streamer) == 0:
+        return
+    else:
+        update = twitchapi.start_stream(streamer)
 
 def refresh_main_quiet():
     '''Refresh the main panel without running wtwitch c to avoid unnecessary
     Twitch API calls.
     '''
     global streamer_status
-    streamer_status = extract_streamer_status()
-    extract_streamer_status()
-    main_frame.pack_forget()
-    main_frame.destroy()
-    draw_main()
+    try:
+        streamer_status = twitchapi.extract_streamer_status()
+    except Exception as e:
+        error_dialog(e)
+    twitchapi.extract_streamer_status()
+    for widget in main_frame.winfo_children():
+        widget.destroy()
+    streamer_buttons()
 
 def refresh_main():
     '''Runs wtwitch c and then rebuilds the main panel.
     '''
-    check_status()
+    twitchapi.check_status()
     global streamer_status
-    streamer_status = extract_streamer_status()
-    main_frame.pack_forget()
-    main_frame.destroy()
-    draw_main()
+    try:
+        streamer_status = twitchapi.extract_streamer_status()
+    except Exception as e:
+        error_dialog(e)
+    for widget in main_frame.winfo_children():
+        widget.destroy()
+    streamer_buttons()
+
+def resize_meta_canvas(e):
+    meta_canvas.itemconfig(meta_canvas_window, width=e.width)
 
 def mouse_scroll(event):
     meta_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
@@ -289,53 +294,45 @@ def draw_main():
     '''
     # frame-canvas-frame to attach a scrollbar:
     meta_frame = ttk.Frame(root)
-    meta_frame.grid(column='0', row='0', sticky='nsew')
-    meta_canvas = tk.Canvas(meta_frame)
+    meta_frame.grid(row=0, column=0, sticky='nsew')
+    meta_frame.columnconfigure(0, weight=1)
+    meta_frame.rowconfigure(0, weight=1)
+    global meta_canvas
+    meta_canvas = tk.Canvas(meta_frame, highlightthickness='0')
+    meta_canvas.grid(row=0, column=0, sticky="nsew")
+    meta_canvas.columnconfigure(0, weight=1)
+    meta_canvas.rowconfigure(0, weight=1)
     scrollbar = ttk.Scrollbar(meta_frame,
                         orient="vertical", command=meta_canvas.yview)
+    scrollbar.grid(row=0, column=1, sticky="ns")
     meta_canvas.configure(yscrollcommand=scrollbar.set)
     global main_frame
     main_frame = ttk.Frame(meta_canvas)
+    main_frame.grid(row=0, column=0, sticky='nsew')
+    main_frame.columnconfigure(1, weight=1)
     main_frame.bind("<Configure>", lambda e:
                         meta_canvas.configure(
-                        scrollregion=meta_canvas.bbox("all"))
+                        scrollregion=meta_canvas.bbox("all")
                         )
+                    )
+    global meta_canvas_window
+    meta_canvas_window = meta_canvas.create_window((0, 0), window=main_frame, anchor="nw")
+    meta_canvas.bind("<Configure>", resize_meta_canvas)
+    meta_canvas.bind("<MouseWheel>", mouse_scroll)
     # Draw main content:
-    global count_rows
-    count_rows = 0
-    streamer_buttons_online(main_frame)
-    streamer_buttons_offline(main_frame)
-    # Finish scrollbar:
-    meta_frame.columnconfigure(0, weight=1)
-    meta_frame.rowconfigure(0, weight=1)
-    meta_canvas.create_window((0, 0), window=main_frame, anchor="nw")
-    meta_canvas.grid(row=0, column=0, sticky="nsew", pady=5, padx=5)
-    scrollbar.grid(row=0, column=1, sticky="ns")
-    meta_canvas.bind_all("<MouseWheel>", mouse_scroll)
+    streamer_buttons()
 
 def custom_player():
     '''Opens a dialog to set a custom media player.
     '''
     new_player = simpledialog.askstring(title='Player',
                         prompt='Enter your media player:',
-                        parent=root)
+                        parent=settings_window,
+                        initialvalue=twitchapi.check_config()[0])
     if new_player is None or len(new_player) == 0:
         return
     else:
-        set_player = subprocess.run(['wtwitch', 'p', new_player],
-                        text=True,
-                        capture_output=True
-                        )
-        confirmation = re.findall(r'\n (.*)\n\x1b\[0m', set_player.stdout)
-        if len(confirmation) >= 1:
-            return messagebox.showinfo(title='Player',
-                            message=confirmation[0],
-                            parent=root)
-        else:
-            error = re.findall(r'\[0m: (\S.*?\.)', set_player.stderr)
-            return messagebox.showerror(title='Error',
-                        message=error[0],
-                        parent=root)
+        twitchapi.adjust_config('player', new_player)
 
 def custom_quality():
     '''Opens a dialog to set a custom stream quality.
@@ -346,184 +343,236 @@ def custom_quality():
                                 '\n'
                                 ' Specify fallbacks separated by a comma: \n'
                                 ' E.g. "720p,480p,worst" \n',
-                        initialvalue=user_settings[1],
-                        parent=root)
+                        initialvalue=twitchapi.check_config()[1],
+                        parent=settings_window)
     if new_quality is None or len(new_quality) == 0:
         return
     else:
-        set_quality = subprocess.run(['wtwitch', 'q', new_quality],
-                        text=True,
-                        capture_output=True
-                        )
-        confirmation = re.findall(r'\n\s(.*)\n\x1b\[0m', set_quality.stdout)
-        if len(confirmation) >= 1:
-            return messagebox.showinfo(title='Quality',
-                        message=confirmation[0],
-                        parent=root)
-        else:
-            error = re.findall(r'\[0m: (\S.*?\.)', set_quality.stderr)
-            return messagebox.showerror(title='Error',
-                        message=error[0],
-                        parent=root)
+        twitchapi.adjust_config('quality', new_quality)
 
-def check_config():
-    with open(wtwitch_config_file(), 'r') as config:
-        config = json.load(config)
-        player = config['player']
-        quality = config['quality']
-        colors = config['colors']
-        print_offline_subs = config['printOfflineSubscriptions']
-    return player, quality, colors, print_offline_subs
-
-def menu_bar():
-    '''The entire menu bar of the root window.
-    '''
-    font = ('Cantarell', '11')
-    font2 = ('Cantarell', '11', 'bold')
-    menubar = tk.Menu(root)
-    root.config(menu=menubar)
-    menubar.add_command(label='Refresh', font=font2,
-            command=lambda: refresh_main())
-    menubar.add_command(label='Follow streamer', font=font,
-            command=lambda: follow_dialog())
-    # Options drop-down menu:
-    options_menu = tk.Menu(menubar, tearoff=False)
-    menubar.add_cascade(label='Options', menu=options_menu, font=font)
-    # Sub-menu for quality options:
-    quality_menu = tk.Menu(options_menu, tearoff=False)
-    options_menu.add_cascade(label='Quality', menu=quality_menu, font=font)
-    quality_menu.add_radiobutton(label='High', font=font,
-                value='best', variable=selected_quality,
-                command=lambda:
-                [subprocess.run(['wtwitch', 'q', 'best'],
-                capture_output=True,
-                text=True)]
-                )
-    quality_menu.add_radiobutton(label='Medium', font=font,
-                value='720p,720p60,480p,best', variable=selected_quality,
-                command=lambda:
-                [subprocess.run(['wtwitch', 'q', '720p,720p60,480p,best'],
-                capture_output=True,
-                text=True)]
-                )
-    quality_menu.add_radiobutton(label='Low', font=font,
-                value='480p,worst', variable=selected_quality,
-                command=lambda:
-                [subprocess.run(['wtwitch', 'q', '480p,worst'],
-                capture_output=True,
-                text=True)]
-                )
-    quality_menu.add_separator()
-    quality_menu.add_radiobutton(label='Custom', font=font,
-                value='custom', variable=selected_quality,
-                command=lambda: custom_quality())
-    # Sub-menu for player options:
-    player_menu = tk.Menu(options_menu, tearoff=False)
-    options_menu.add_cascade(label='Player', font=font, menu=player_menu)
-    player_menu.add_radiobutton(label='mpv', font=font,
-                value='mpv', variable=selected_player,
-                command=lambda: [subprocess.run(['wtwitch', 'p', 'mpv'],
-                capture_output=True,
-                text=True)]
-                )
-    player_menu.add_radiobutton(label='VLC', font=font,
-                value='vlc', variable=selected_player,
-                command=lambda: [subprocess.run(['wtwitch', 'p', 'vlc'],
-                capture_output=True,
-                text=True)]
-                )
-    player_menu.add_separator()
-    player_menu.add_radiobutton(label='Custom', font=font,
-                value='custom', variable=selected_player,
-                command=lambda: custom_player())
-
-def window_size():
-    """Sets the default window length, depending on the number of streamers in
-    the follow list. Fixed between 360 and 550 px. Width fixed at 280 px.
-    """
-    min_height = 360
-    max_height = 550
-    variable_height = len(streamer_status[0])*28+len(streamer_status[1])*28+100
-    if variable_height > max_height:
-        window_height = str(max_height)
-    elif variable_height < min_height:
-        window_height = str(min_height)
-    else:
-        window_height = str(variable_height)
-    return f"285x{window_height}"
-
-def toggle_settings():
-    """Checks if wtwitch color output is on. This is needed to capture
-    wtwitch output with regex independently of the user's system language.
-    """
-    if user_settings[2] == 'true' and user_settings[3] == 'true':
+def change_info_preset(value):
+    twitchapi.change_settings_file('show_info_preset', value)
+    global current_info_setting
+    global preset_info_setting
+    preset_info_setting = twitchapi.get_setting('show_info_preset')
+    if preset_info_setting == current_info_setting or current_info_setting == 'no':
         return
     else:
-        if user_settings[2] == 'false':
-            wtwitch_l = subprocess.run(['wtwitch', 'l'],
-                            capture_output=True,
-                            text=True
-                            )
-            if wtwitch_l.stderr:
-                messagebox.showerror("Error", wtwitch_l.stderr)
-        if user_settings[3] == 'false':
-            wtwitch_f = subprocess.run(['wtwitch', 'f'],
-                            capture_output=True,
-                            text=True
-                            )
-            if wtwitch_f.stderr:
-                messagebox.showerror("Error", wtwitch_f.stderr)
+        twitchapi.change_settings_file('show_info', value)
+        current_info_setting = preset_info_setting
+        refresh_main_quiet()
 
+def settings_dialog():
+    '''Opens a toplevel window with four settings options.
+    '''
+    global selected_player
+    selected_player = tk.StringVar()
+    if twitchapi.check_config()[0] in ['mpv', 'vlc']:
+        selected_player.set(twitchapi.check_config()[0])
+    else:
+        selected_player.set('custom')
+    global selected_quality
+    selected_quality = tk.StringVar()
+    if twitchapi.check_config()[1] in ['best', '720p,720p60,480p,best', '480p,worst']:
+        selected_quality.set(twitchapi.check_config()[1])
+    else:
+        selected_quality.set('custom')
+    global settings_window
+    settings_window = tk.Toplevel(master=root)
+    settings_window.title('Settings')
+    settings_window.transient(root)
+    settings_window.grab_set()
+    meta_frame = ttk.Frame(settings_window)
+    meta_frame.pack(expand=True, fill='both', ipadx=10, ipady=10)
+    top_f = ttk.Frame(meta_frame)
+    top_f.pack()
+    qual_f = ttk.Labelframe(top_f, text='Stream quality')
+    qual_f.pack(side='left', anchor='nw', padx=5, pady=5)
+    high_qual = ttk.Radiobutton(qual_f, text='High',
+                value='best', variable=selected_quality,
+                command=lambda: twitchapi.adjust_config('quality', 'best')
+                )
+    high_qual.pack(expand=True, fill='both')
+    mid_qual = ttk.Radiobutton(qual_f, text='Medium',
+                value='720p,720p60,480p,best', variable=selected_quality,
+                command=lambda: twitchapi.adjust_config('quality', '720p,720p60,480p,best')
+                )
+    mid_qual.pack(expand=True, fill='both')
+    low_qual = ttk.Radiobutton(qual_f, text='Low',
+                value='480p,worst', variable=selected_quality,
+                command=lambda: twitchapi.adjust_config('quality', '480p, worst')
+                )
+    low_qual.pack(expand=True, fill='both')
+    custom_qual = ttk.Radiobutton(qual_f, text='Custom',
+                value='custom', variable=selected_quality,
+                command=lambda: custom_quality())
+    custom_qual.pack(expand=True, fill='both')
+    play_f = ttk.Labelframe(top_f, text='Choose player')
+    play_f.pack(side='right', anchor='ne', padx=5, pady=5)
+    pick_mpv = ttk.Radiobutton(play_f, text='mpv',
+                value='mpv', variable=selected_player,
+                command=lambda: twitchapi.adjust_config('player', 'mpv')
+                )
+    pick_mpv.pack(expand=True, fill='both')
+    pick_vlc = ttk.Radiobutton(play_f, text='VLC',
+                value='vlc', variable=selected_player,
+                command=lambda: twitchapi.adjust_config('player', 'vlc')
+                )
+    pick_vlc.pack(expand=True, fill='both')
+    pick_custom = ttk.Radiobutton(play_f, text='Custom',
+                value='custom', variable=selected_player,
+                command=lambda: custom_player())
+    pick_custom.pack(expand=True, fill='both')
+    bottom_f = ttk.Frame(meta_frame)
+    bottom_f.pack()
+    global expand_info_setting
+    expand_info_setting = tk.StringVar()
+    expand_info_setting.set(preset_info_setting)
+    info_f = ttk.LabelFrame(bottom_f, text='Expand info')
+    info_f.pack(anchor='nw', side='left', padx=5, pady=5)
+    all_info = ttk.Radiobutton(info_f, text='All',
+                value='all', variable=expand_info_setting,
+                command=lambda: [change_info_preset('all')])
+    all_info.pack(expand=True, fill='both')
+    only_online_info = ttk.Radiobutton(info_f, text='Only online',
+                value='online', variable=expand_info_setting,
+                command=lambda: [change_info_preset('online')])
+    only_online_info.pack(expand=True, fill='both')
+    global selected_theme
+    style = ttk.Style()
+    selected_theme = tk.StringVar()
+    theme_f = ttk.LabelFrame(bottom_f, text='Themes')
+    theme_f.pack(anchor='nw', side='right', padx=5, pady=5)
+    for theme_name in ttk.Style.theme_names(style):
+        pick_theme = ttk.Radiobutton(theme_f,
+                text=theme_name,
+                value=theme_name,
+                variable=selected_theme,
+                command=lambda t=theme_name: style.theme_use(t)
+                )
+        pick_theme.pack(expand=True, fill='both')
 
-# Get user settings:
-user_settings = check_config()
+def set_quick_toggle_icon():
+    global current_info_setting
+    global current_quick_toggle_icon
+    if current_info_setting == 'no':
+        current_quick_toggle_icon = expand_icon
+    else:
+        current_quick_toggle_icon = collapse_icon
+    return current_quick_toggle_icon
+
+def info_quick_toggle():
+    global current_info_setting
+    if current_info_setting == 'no':
+        twitchapi.change_settings_file('show_info', preset_info_setting)
+    else:
+        twitchapi.change_settings_file('show_info', 'no')
+    current_info_setting = twitchapi.get_setting('show_info')
+    refresh_main_quiet()
+
+def menu_bar():
+    '''The menu bar of the root window.
+    '''
+    global current_quick_toggle_icon
+    current_quick_toggle_icon = set_quick_toggle_icon()
+    menubar = tk.Menu(root)
+    root.config(menu=menubar)
+    menubar.add_command(label='Refresh', font=cantarell_12_bold,
+                        command=lambda: refresh_main())
+    menubar.add_command(label='Follow', font=cantarell_12,
+                        command=lambda: follow_dialog())
+    menubar.add_command(label='Play', font=cantarell_12,
+                        command=lambda: play_dialog())
+    menubar.add_command(image=settings_icon, font=cantarell_12,
+                        command=lambda: settings_dialog())
+    menubar.add_command(image=current_quick_toggle_icon, font=cantarell_12,
+                        command=lambda: [info_quick_toggle(),
+                                        set_quick_toggle_icon(),
+                                        menubar.entryconfigure(5,
+                                        image=current_quick_toggle_icon)
+                                        ]
+                                    )
+
+def save_window_size(event):
+    twitchapi.change_settings_file('window_size', root.wm_geometry())
+
+def initiate_window_dimensions():
+    """Sets the default window length, depending on the number of streamers in
+    the follow list. Fixed between 360 and 650 px.
+    """
+    try:
+        return twitchapi.get_setting('window_size')
+    except:
+        min_height = 360
+        max_height = 650
+        variable_height = len(streamer_status[0])*28+len(streamer_status[1])*28+100
+        if variable_height > max_height:
+            window_height = str(max_height)
+        elif variable_height < min_height:
+            window_height = str(min_height)
+        else:
+            window_height = str(variable_height)
+        return f'330x{window_height}'
+
+def toggle_settings():
+    """Checks if wtwitch prints offline streamers and color output. Latter is
+    needed to filter wtwitch output with regex.
+    """
+    if twitchapi.check_config()[2] == 'false':
+        twitchapi.adjust_config('colors', 'true')
+    if twitchapi.check_config()[3] == 'false':
+        twitchapi.adjust_config('printOfflineSubscriptions', 'true')
+
 # Make sure that colors in the terminal output are activated:
 toggle_settings()
 # Check the online/offline status once before window initialization:
-check_status()
-streamer_status = extract_streamer_status()
+twitchapi.check_status()
+try:
+    streamer_status = twitchapi.extract_streamer_status()
+except Exception as e:
+    error_dialog(e)
+# Create a gwt-specific settings file:
+twitchapi.create_settings_file()
 
 # Create the main window
-root = tk.Tk()
+root = tk.Tk(className='GUI for wtwitch')
 root.title("GUI for wtwitch")
-root.geometry(window_size())
-root.resizable(False, True)
+root.geometry(initiate_window_dimensions())
+root.minsize(285, 360)
+root.bind("<Destroy>", save_window_size)
 root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
 
+# Fonts:
+small_font = ('', 10)
+cantarell_12 = ('Cantarell', 12)
+cantarell_12_bold = ('Cantarell', 12, 'bold')
+cantarell_13_bold = ('Cantarell', 13, 'bold')
+
 # Import icons:
-unfollow_icon = tk.PhotoImage(file=encoded_images.unfollow_icon)
-vod_icon = tk.PhotoImage(file=encoded_images.vod_icon)
-streaming_icon = tk.PhotoImage(file=encoded_images.streaming_icon)
-offline_icon = tk.PhotoImage(file=encoded_images.offline_icon)
-play_icon = tk.PhotoImage(file=encoded_images.play_icon)
-close_icon = tk.PhotoImage(file=encoded_images.close_icon)
+icon_files = twitchapi.icon_paths()
+unfollow_icon = tk.PhotoImage(file=icon_files['unfollow_icon'])
+vod_icon = tk.PhotoImage(file=icon_files['vod_icon'])
+streaming_icon = tk.PhotoImage(file=icon_files['streaming_icon'])
+offline_icon = tk.PhotoImage(file=icon_files['offline_icon'])
+play_icon = tk.PhotoImage(file=icon_files['play_icon'])
+close_icon = tk.PhotoImage(file=icon_files['close_icon'])
+settings_icon = tk.PhotoImage(file=icon_files['settings_icon'])
 
-app_icon = tk.PhotoImage(file=encoded_images.app_icon)
-root.wm_iconphoto(False, app_icon)
+expand_icon = tk.PhotoImage(file=icon_files['expand_icon'])
+collapse_icon = tk.PhotoImage(file=icon_files['collapse_icon'])
 
-# Remove icon temp files:
-os.remove(encoded_images.unfollow_icon)
-os.remove(encoded_images.vod_icon)
-os.remove(encoded_images.streaming_icon)
-os.remove(encoded_images.offline_icon)
-os.remove(encoded_images.play_icon)
-os.remove(encoded_images.close_icon)
-os.remove(encoded_images.app_icon)
+app_icon = tk.PhotoImage(file=icon_files['app_icon'])
+root.iconphoto(False, app_icon)
 
-# Set variables for the main menu's radiobuttons. Only works as global var:
-selected_player = tk.StringVar()
-if user_settings[0] in ['mpv', 'vlc']:
-    selected_player.set(user_settings[0])
-else:
-    selected_player.set('custom')
-selected_player.set(user_settings[0])
-selected_quality = tk.StringVar()
-if user_settings[1] in ['best', '720p,720p60,480p,best', '480p,worst']:
-    selected_quality.set(user_settings[1])
-else:
-    selected_quality.set('custom')
+# Variables to collect stream info
+# and settings value to show info for all streamers:
+show_info_status = {}
+info_content = {}
+preset_info_setting = tk.StringVar()
+preset_info_setting = twitchapi.get_setting('show_info_preset')
+current_info_setting = twitchapi.get_setting('show_info')
+
 menu_bar()
-
 draw_main()
 root.mainloop()

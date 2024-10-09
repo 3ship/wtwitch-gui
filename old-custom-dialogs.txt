@@ -1,0 +1,59 @@
+def custom_player():
+    '''Opens a dialog to set a custom media player.
+    '''
+    global user_settings
+    user_settings = twitchapi.check_config()
+    new_player = simpledialog.askstring(title='Player',
+                        prompt='Enter your media player:',
+                        parent=settings,
+                        initialvalue=user_settings[0])
+    if new_player is None or len(new_player) == 0:
+        return
+    else:
+        set_player = subprocess.run(['wtwitch', 'p', new_player],
+                        text=True,
+                        capture_output=True
+                        )
+        confirmation = re.findall(r'\n (.*)\n\x1b\[0m', set_player.stdout)
+        if len(confirmation) >= 1:
+            user_settings = twitchapi.check_config()
+            return messagebox.showinfo(title='Player',
+                            message=confirmation[0],
+                            parent=settings)
+        else:
+            error = re.findall(r'\[0m: (\S.*?\.)', set_player.stderr)
+            return messagebox.showerror(title='Error',
+                        message=error[0],
+                        parent=settings)
+
+def custom_quality():
+    '''Opens a dialog to set a custom stream quality.
+    '''
+    global user_settings
+    user_settings = twitchapi.check_config()
+    new_quality = simpledialog.askstring(title='Quality',
+                        prompt= '\n Options: 1080p60, 720p60, 720p, 480p, \n'
+                                ' 360p, 160p, best, worst, and audio_only \n'
+                                '\n'
+                                ' Specify fallbacks separated by a comma: \n'
+                                ' E.g. "720p,480p,worst" \n',
+                        initialvalue=user_settings[1],
+                        parent=settings)
+    if new_quality is None or len(new_quality) == 0:
+        return
+    else:
+        set_quality = subprocess.run(['wtwitch', 'q', new_quality],
+                        text=True,
+                        capture_output=True
+                        )
+        confirmation = re.findall(r'\n\s(.*)\n\x1b\[0m', set_quality.stdout)
+        if len(confirmation) >= 1:
+            user_settings = twitchapi.check_config()
+            return messagebox.showinfo(title='Quality',
+                        message=confirmation[0],
+                        parent=settings)
+        else:
+            error = re.findall(r'\[0m: (\S.*?\.)', set_quality.stderr)
+            return messagebox.showerror(title='Error',
+                        message=error[0],
+                        parent=settings)
