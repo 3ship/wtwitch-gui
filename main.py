@@ -78,48 +78,42 @@ def streamer_buttons():
     count_rows = 0
     for package in online_streamers:
         show_info_status[count_rows] = False
-        watch_button = tk.Button(main_frame,
+        watch_button = default_button(main_frame,
                         image=streaming_icon,
-                        relief='flat',
                         command=lambda s=package[0]:
                         [twitchapi.start_stream(s)]
                         )
         watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=4)
         if current_info_setting == 'all' or current_info_setting == 'online':
             watch_button.grid_configure(rowspan=2)
-            info_button = tk.Button(main_frame,
+            info_button = default_button(main_frame,
                             text=package[1],
                             anchor='w',
                             font=cantarell_13_bold,
-                            relief='flat',
                             state='disabled',
-                            disabledforeground='#000000'
                             )
             online_info(count_rows, package[1], package[2],
                         package[3], package[4]
                         )
         else:
-            info_button = tk.Button(main_frame,
+            info_button = default_button(main_frame,
                             text=package[1],
                             anchor='w',
                             font=cantarell_13_bold,
-                            relief='flat',
                             command=lambda c=count_rows, s=package[1],
                                         cat=package[2], t=package[3],
                                         v=package[4]:
                                         online_info(c, s, cat, t, v)
                             )
         info_button.grid(column=1, row=count_rows, sticky='nsew')
-        unfollow_b = tk.Button(main_frame,
+        unfollow_b = default_button(main_frame,
                         image=unfollow_icon,
-                        relief='flat',
                         command=lambda s=package[0]:
                         [unfollow_dialog(s)]
                         )
         unfollow_b.grid(column=2, row=count_rows, sticky='nsew', ipadx=4)
-        vod_b = tk.Button(main_frame,
+        vod_b = default_button(main_frame,
                         image=vod_icon,
-                        relief='flat',
                         command=lambda s=package[0]:
                         vod_panel(s)
                         )
@@ -131,65 +125,66 @@ def streamer_buttons():
         count_rows += 3
     for streamer in offline_streamers:
         show_info_status[count_rows] = False
-        watch_button = tk.Label(main_frame,
+        watch_button = default_button(main_frame,
                         image=offline_icon,
-                        relief='flat'
                         )
         watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=4)
         if current_info_setting == 'all':
             watch_button.grid_configure(rowspan=2)
-            info_button = tk.Button(main_frame,
+            info_button = default_button(main_frame,
                             text=streamer,
                             anchor='w',
                             font=cantarell_13_bold,
-                            relief='flat',
                             state='disabled',
-                            disabledforeground='#474747'
                             )
             offline_info(count_rows, streamer)
         else:
-            info_button = tk.Button(main_frame,
+            info_button = default_button(main_frame,
                             text=streamer,
                             anchor='w',
                             font=cantarell_13_bold,
-                            fg='#474747',
-                            relief='flat',
                             compound='left',
                             command= lambda s=streamer, c=count_rows:
                                     offline_info(c, s)
                             )
         info_button.grid(column=1, row=count_rows, sticky='nsew')
-        unfollow_b = tk.Button(main_frame,
+        unfollow_b = default_button(main_frame,
                         image=unfollow_icon,
-                        relief='flat',
                         command=lambda s=streamer:
                         [unfollow_dialog(s)]
                         )
         unfollow_b.grid(column=2, row=count_rows, sticky='nsew', ipadx=4)
-        vod_b = tk.Button(main_frame,
+        vod_b = default_button(main_frame,
                         image=vod_icon,
-                        relief='flat',
                         command=lambda s=streamer:
                         vod_panel(s)
                         )
         vod_b.grid(column=3, row=count_rows, sticky='nsew', ipadx=8)
         if count_rows != (len(online_streamers)+len(offline_streamers))*3-3:
-            ttk.Separator(main_frame).grid(row=count_rows+2,
+            tk.Frame(main_frame, bg="#555555", height=1, bd=0).grid(row=count_rows+2,
                                             columnspan=5,
                                             sticky='ew'
                                             )
+            tk.Frame(main_frame, bg="#555555", height=1, bd=0).grid(row=count_rows+2,
+                                            columnspan=5,
+                                            sticky='ew'
+                                            )
+            """ttk.Separator(main_frame, style='dark').grid(row=count_rows+2,
+                                            columnspan=5,
+                                            sticky='ew'
+                                            )"""
         count_rows += 3
 
 def online_info(c, streamer, category, title, viewercount):
     if not show_info_status[c]:
-        info_content[c] = tk.Label(main_frame,
+        info_content[c] = default_label(main_frame,
                                     text=f'Title: {title}\n'
                                     f'Category: {category}\n'
                                     f'Viewer count: {viewercount}',
                                     justify='left',
-                                    anchor='w'
+                                    anchor='w',
                                     )
-        info_content[c].grid(row=c+1, column=1, columnspan=4, sticky='w', padx=10)
+        info_content[c].grid(row=c+1, column=1, columnspan=4, sticky='w', padx=12)
         show_info_status[c] = True
     else:
         info_content[c].grid_remove()
@@ -197,14 +192,13 @@ def online_info(c, streamer, category, title, viewercount):
 
 def offline_info(c, streamer):
     if not show_info_status[c]:
-        info_content[c] = tk.Label(main_frame,
+        info_content[c] = default_label(main_frame,
                                     text=f'Last seen: '
                                     f'{twitchapi.last_seen(streamer)}',
                                     justify='left',
                                     anchor='w',
-                                    fg='#474747'
                                     )
-        info_content[c].grid(row=c+1, column=1, columnspan=4, sticky='w')
+        info_content[c].grid(row=c+1, column=1, columnspan=4, sticky='w', padx=12)
         show_info_status[c] = True
     else:
         info_content[c].grid_remove()
@@ -293,12 +287,12 @@ def draw_main():
     online and offline streamers.
     '''
     # frame-canvas-frame to attach a scrollbar:
-    meta_frame = ttk.Frame(root)
+    meta_frame = tk.Frame(root, bg='#464646')
     meta_frame.grid(row=1, column=0, sticky='nsew')
     meta_frame.columnconfigure(0, weight=1)
     meta_frame.rowconfigure(0, weight=1)
     global meta_canvas
-    meta_canvas = tk.Canvas(meta_frame, highlightthickness='0')
+    meta_canvas = tk.Canvas(meta_frame, highlightthickness='0', bg='#464646')
     meta_canvas.grid(row=0, column=0, sticky="nsew")
     meta_canvas.columnconfigure(0, weight=1)
     meta_canvas.rowconfigure(0, weight=1)
@@ -307,7 +301,7 @@ def draw_main():
     scrollbar.grid(row=0, column=1, sticky="ns")
     meta_canvas.configure(yscrollcommand=scrollbar.set)
     global main_frame
-    main_frame = ttk.Frame(meta_canvas)
+    main_frame = tk.Frame(meta_canvas, bg='#464646')
     main_frame.grid(row=0, column=0, sticky='nsew')
     main_frame.columnconfigure(1, weight=1)
     main_frame.bind("<Configure>", lambda e:
@@ -499,28 +493,51 @@ def menu_bar():
 def custom_menu_bar():
     global current_quick_toggle_icon
     current_quick_toggle_icon = set_quick_toggle_icon(0)
-    menu_frame = tk.Frame(root)
+    menu_frame = tk.Frame(root, bg='#464646')
     menu_frame.grid(row=0, column=0, sticky='nesw')
     menu_frame.columnconfigure(2, weight=1)
-    refresh_b = tk.Button(menu_frame, text='Refresh', relief='flat',
+    refresh_b = default_button(menu_frame, text='Refresh',
                     font=cantarell_12_bold, command=lambda: refresh_main())
     refresh_b.grid(row=0, column=0)
-    follow_b = tk.Button(menu_frame, text='Follow', relief='flat',
+    follow_b = default_button(menu_frame, text='Follow',
                     font=cantarell_12, command=lambda: follow_dialog())
     follow_b.grid(row=0, column=1)
-    play_b = tk.Button(menu_frame, text='Play', relief='flat',
+    play_b = default_button(menu_frame, text='Play',
                     font=cantarell_12, command=lambda: play_dialog())
     play_b.grid(row=0, column=2, sticky='w')
-    settings_b = tk.Button(menu_frame, image=settings_icon, relief='flat',
+    settings_b = default_button(menu_frame, image=settings_icon,
                     font=cantarell_12, command=lambda: settings_dialog())
     settings_b.grid(row=0, column=3, sticky='e')
     global expand_b
-    expand_b = tk.Button(menu_frame, image=current_quick_toggle_icon,
-                    relief='flat', font=cantarell_12)
+    expand_b = default_button(menu_frame, image=current_quick_toggle_icon, font=cantarell_12)
     expand_b.grid(row=0, column=4, sticky='e')
     expand_b.configure(command=lambda: [info_quick_toggle(),
                                         set_quick_toggle_icon(1)])
     sep = ttk.Separator(menu_frame).grid(row=1, sticky='ew', columnspan=5)
+
+def default_label(master, **kwargs):
+    label = tk.Label(
+        master,
+        bg='#464646',
+        fg='#ffffff',
+        highlightthickness=0,
+        **kwargs              # Additional options
+    )
+    return label
+
+def default_button(master, **kwargs):
+    button = tk.Button(
+        master,
+        bg='#464646',
+        fg='#ffffff',
+        activebackground='#777777',
+        activeforeground='#ffffff',
+        disabledforeground='#ffffff',
+        highlightthickness=0,
+        relief='flat',
+        **kwargs              # Additional options
+    )
+    return button
 
 def save_window_size(event):
     twitchapi.change_settings_file('window_size', root.wm_geometry())
