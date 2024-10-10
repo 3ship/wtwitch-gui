@@ -26,22 +26,20 @@ def vod_panel(streamer):
                         relief='flat',
                         command=lambda: [vw_frame.forget(), vw_frame.destroy()]
                         )
-    vw_frame = ttk.Labelframe(root, labelwidget=close_button)
+    vw_frame = default_frame(root)
     vw_frame.grid(column=0, row=1, sticky='nsew')
     vw_frame.columnconfigure(0, weight=1)
     vw_frame.rowconfigure(0, weight=1)
-    met_frame = ttk.Frame(vw_frame)
-    met_frame.grid(column=0, row=1, sticky='nsew')
+    met_frame = default_frame(vw_frame)
+    met_frame.grid(column=0, row=0, sticky='nsew')
     met_frame.columnconfigure(0, weight=1)
     met_frame.rowconfigure(0, weight=1)
-    vw_canvas = tk.Canvas(met_frame)
+    vw_canvas = tk.Canvas(met_frame, highlightthickness='0', bg='#333333')
     vw_scrollbar = ttk.Scrollbar(met_frame,orient="vertical",
                         command=vw_canvas.yview
                         )
     vw_canvas.configure(yscrollcommand=vw_scrollbar.set)
-    vod_frame = ttk.Labelframe(met_frame,
-                        text=f"{streamer}'s VODs",
-                        )
+    vod_frame = default_frame(met_frame)
     vod_frame.bind("<Configure>", lambda e:
                         vw_canvas.configure(
                         scrollregion=vw_canvas.bbox("all"))
@@ -49,19 +47,17 @@ def vod_panel(streamer):
     # Draw the VOD grid:
     vod_number = 1
     for timestamp, title, length in zip(vods[0], vods[1], vods[2]):
-        watch_button = tk.Button(vod_frame,
+        watch_button = default_button(vod_frame,
                         image=play_icon,
-                        relief='flat',
                         height='24', width='24',
                         command=lambda s=streamer, v=vod_number:
                         [twitchapi.start_vod(s, v)]
                         )
         watch_button.grid(column=0, row=vod_number, sticky='nesw')
-        timestamp_button = tk.Button(vod_frame, text=f"{timestamp} ({length})",
+        timestamp_button = default_button(vod_frame, text=f"{timestamp} ({length})",
                         command=lambda ts=timestamp, t=title, p=root:
                         messagebox.showinfo("VOD", ts, detail=t, parent=p),
                         font=small_font,
-                        relief='flat',
                         anchor='w'
                         )
         timestamp_button.grid(column=1, row=vod_number, sticky='nesw')
@@ -118,14 +114,14 @@ def streamer_buttons():
                         vod_panel(s)
                         )
         vod_b.grid(column=3, row=count_rows, sticky='nsew', ipadx=8)
-        ttk.Separator(main_frame).grid(row=count_rows+2,
+        default_separator(main_frame).grid(row=count_rows+2,
                                         columnspan=5,
                                         sticky='ew'
                                         )
         count_rows += 3
     for streamer in offline_streamers:
         show_info_status[count_rows] = False
-        watch_button = default_button(main_frame,
+        watch_button = default_label(main_frame,
                         image=offline_icon,
                         )
         watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=4)
@@ -161,18 +157,7 @@ def streamer_buttons():
                         )
         vod_b.grid(column=3, row=count_rows, sticky='nsew', ipadx=8)
         if count_rows != (len(online_streamers)+len(offline_streamers))*3-3:
-            tk.Frame(main_frame, bg="#555555", height=1, bd=0).grid(row=count_rows+2,
-                                            columnspan=5,
-                                            sticky='ew'
-                                            )
-            tk.Frame(main_frame, bg="#555555", height=1, bd=0).grid(row=count_rows+2,
-                                            columnspan=5,
-                                            sticky='ew'
-                                            )
-            """ttk.Separator(main_frame, style='dark').grid(row=count_rows+2,
-                                            columnspan=5,
-                                            sticky='ew'
-                                            )"""
+            sep = default_separator(main_frame).grid(row=count_rows+2, columnspan=5, sticky='ew')
         count_rows += 3
 
 def online_info(c, streamer, category, title, viewercount):
@@ -287,12 +272,12 @@ def draw_main():
     online and offline streamers.
     '''
     # frame-canvas-frame to attach a scrollbar:
-    meta_frame = tk.Frame(root, bg='#464646')
+    meta_frame = default_frame(root)
     meta_frame.grid(row=1, column=0, sticky='nsew')
     meta_frame.columnconfigure(0, weight=1)
     meta_frame.rowconfigure(0, weight=1)
     global meta_canvas
-    meta_canvas = tk.Canvas(meta_frame, highlightthickness='0', bg='#464646')
+    meta_canvas = tk.Canvas(meta_frame, highlightthickness='0', bg='#333333')
     meta_canvas.grid(row=0, column=0, sticky="nsew")
     meta_canvas.columnconfigure(0, weight=1)
     meta_canvas.rowconfigure(0, weight=1)
@@ -301,7 +286,7 @@ def draw_main():
     scrollbar.grid(row=0, column=1, sticky="ns")
     meta_canvas.configure(yscrollcommand=scrollbar.set)
     global main_frame
-    main_frame = tk.Frame(meta_canvas, bg='#464646')
+    main_frame = default_frame(meta_canvas)
     main_frame.grid(row=0, column=0, sticky='nsew')
     main_frame.columnconfigure(1, weight=1)
     main_frame.bind("<Configure>", lambda e:
@@ -493,7 +478,7 @@ def menu_bar():
 def custom_menu_bar():
     global current_quick_toggle_icon
     current_quick_toggle_icon = set_quick_toggle_icon(0)
-    menu_frame = tk.Frame(root, bg='#464646')
+    menu_frame = default_frame(root)
     menu_frame.grid(row=0, column=0, sticky='nesw')
     menu_frame.columnconfigure(2, weight=1)
     refresh_b = default_button(menu_frame, text='Refresh',
@@ -513,29 +498,50 @@ def custom_menu_bar():
     expand_b.grid(row=0, column=4, sticky='e')
     expand_b.configure(command=lambda: [info_quick_toggle(),
                                         set_quick_toggle_icon(1)])
-    sep = ttk.Separator(menu_frame).grid(row=1, sticky='ew', columnspan=5)
+    sep = default_separator(menu_frame)
+    sep.config(bg='#262626')
+
+def default_separator(master, **kwargs):
+    separator = tk.Frame(
+        master,
+        bg='#3D3D3D',
+        height=1,
+        border=0,
+        **kwargs
+    )
+    separator.grid(columnspan=5, sticky='ew')
+    return separator
+
+def default_frame(master, **kwargs):
+    frame = tk.Frame(
+        master,
+        bg='#333333',
+        **kwargs
+    )
+    return frame
 
 def default_label(master, **kwargs):
     label = tk.Label(
         master,
-        bg='#464646',
-        fg='#ffffff',
+        bg='#333333',
+        fg='#BDBDBD',
         highlightthickness=0,
-        **kwargs              # Additional options
+        **kwargs
     )
     return label
 
 def default_button(master, **kwargs):
     button = tk.Button(
         master,
-        bg='#464646',
-        fg='#ffffff',
-        activebackground='#777777',
-        activeforeground='#ffffff',
-        disabledforeground='#ffffff',
+        bg='#333333',
+        fg='#BDBDBD',
+        activebackground='#3F3F3F',
+        activeforeground='#BDBDBD',
+        disabledforeground='#BDBDBD',
         highlightthickness=0,
         relief='flat',
-        **kwargs              # Additional options
+        border=0,
+        **kwargs
     )
     return button
 
@@ -597,16 +603,16 @@ cantarell_13_bold = ('Cantarell', 13, 'bold')
 
 # Import icons:
 icon_files = twitchapi.icon_paths()
-unfollow_icon = tk.PhotoImage(file=icon_files['unfollow_icon'])
-vod_icon = tk.PhotoImage(file=icon_files['vod_icon'])
+unfollow_icon = tk.PhotoImage(file=icon_files['unfollow_icon_light'])
+vod_icon = tk.PhotoImage(file=icon_files['vod_icon_light'])
 streaming_icon = tk.PhotoImage(file=icon_files['streaming_icon'])
 offline_icon = tk.PhotoImage(file=icon_files['offline_icon'])
 play_icon = tk.PhotoImage(file=icon_files['play_icon'])
 close_icon = tk.PhotoImage(file=icon_files['close_icon'])
-settings_icon = tk.PhotoImage(file=icon_files['settings_icon'])
+settings_icon = tk.PhotoImage(file=icon_files['settings_icon_light'])
 
-expand_icon = tk.PhotoImage(file=icon_files['expand_icon'])
-collapse_icon = tk.PhotoImage(file=icon_files['collapse_icon'])
+expand_icon = tk.PhotoImage(file=icon_files['expand_icon_light'])
+collapse_icon = tk.PhotoImage(file=icon_files['collapse_icon_light'])
 
 app_icon = tk.PhotoImage(file=icon_files['app_icon'])
 root.iconphoto(False, app_icon)
@@ -618,6 +624,12 @@ info_content = {}
 preset_info_setting = tk.StringVar()
 preset_info_setting = twitchapi.get_setting('show_info_preset')
 current_info_setting = twitchapi.get_setting('show_info')
+
+style = ttk.Style(root)
+style.configure('Vertical.TScrollbar', gripcount=0, relief='flat', troughrelief='flat', width=14, groovewidth=14, arrowsize=14,
+                foreground='#535353', background="#2C2C2C", darkcolor="red", lightcolor="red",
+                troughcolor="#595959", bordercolor="red", arrowcolor="#BDBDBD")
+style.map("Vertical.TScrollbar", background=[("active", "#363636")])
 
 custom_menu_bar()
 draw_main()
