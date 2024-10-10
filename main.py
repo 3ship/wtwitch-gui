@@ -294,7 +294,7 @@ def draw_main():
     '''
     # frame-canvas-frame to attach a scrollbar:
     meta_frame = ttk.Frame(root)
-    meta_frame.grid(row=0, column=0, sticky='nsew')
+    meta_frame.grid(row=1, column=0, sticky='nsew')
     meta_frame.columnconfigure(0, weight=1)
     meta_frame.rowconfigure(0, weight=1)
     global meta_canvas
@@ -452,13 +452,16 @@ def settings_dialog():
                 )
         pick_theme.pack(expand=True, fill='both')
 
-def set_quick_toggle_icon():
+def set_quick_toggle_icon(n):
     global current_info_setting
     global current_quick_toggle_icon
+    global expand_b
     if current_info_setting == 'no':
         current_quick_toggle_icon = expand_icon
     else:
         current_quick_toggle_icon = collapse_icon
+    if n == 1:
+        expand_b.config(image=current_quick_toggle_icon)
     return current_quick_toggle_icon
 
 def info_quick_toggle():
@@ -492,6 +495,32 @@ def menu_bar():
                                         image=current_quick_toggle_icon)
                                         ]
                                     )
+
+def custom_menu_bar():
+    global current_quick_toggle_icon
+    current_quick_toggle_icon = set_quick_toggle_icon(0)
+    menu_frame = tk.Frame(root)
+    menu_frame.grid(row=0, column=0, sticky='nesw')
+    menu_frame.columnconfigure(2, weight=1)
+    refresh_b = tk.Button(menu_frame, text='Refresh', relief='flat',
+                    font=cantarell_12_bold, command=lambda: refresh_main())
+    refresh_b.grid(row=0, column=0)
+    follow_b = tk.Button(menu_frame, text='Follow', relief='flat',
+                    font=cantarell_12, command=lambda: follow_dialog())
+    follow_b.grid(row=0, column=1)
+    play_b = tk.Button(menu_frame, text='Play', relief='flat',
+                    font=cantarell_12, command=lambda: play_dialog())
+    play_b.grid(row=0, column=2, sticky='w')
+    settings_b = tk.Button(menu_frame, image=settings_icon, relief='flat',
+                    font=cantarell_12, command=lambda: settings_dialog())
+    settings_b.grid(row=0, column=3, sticky='e')
+    global expand_b
+    expand_b = tk.Button(menu_frame, image=current_quick_toggle_icon,
+                    relief='flat', font=cantarell_12)
+    expand_b.grid(row=0, column=4, sticky='e')
+    expand_b.configure(command=lambda: [info_quick_toggle(),
+                                        set_quick_toggle_icon(1)])
+    sep = ttk.Separator(menu_frame).grid(row=1, sticky='ew', columnspan=5)
 
 def save_window_size(event):
     twitchapi.change_settings_file('window_size', root.wm_geometry())
@@ -541,7 +570,7 @@ root.geometry(initiate_window_dimensions())
 root.minsize(285, 360)
 root.bind("<Destroy>", save_window_size)
 root.columnconfigure(0, weight=1)
-root.rowconfigure(0, weight=1)
+root.rowconfigure(1, weight=1)
 
 # Fonts:
 small_font = ('', 10)
@@ -573,6 +602,6 @@ preset_info_setting = tk.StringVar()
 preset_info_setting = twitchapi.get_setting('show_info_preset')
 current_info_setting = twitchapi.get_setting('show_info')
 
-menu_bar()
+custom_menu_bar()
 draw_main()
 root.mainloop()
