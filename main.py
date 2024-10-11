@@ -10,6 +10,8 @@ def vod_panel(streamer):
     '''Draw 2 columns for the watch buttons and timestamps/stream length of
     the last 20 VODs.
     '''
+    global current_vod_panel
+    current_vod_panel = streamer
     # Retrieve the streamer's VODs:
     vods = twitchapi.fetch_vods(streamer)
     # Account for streamer having zero VODs:
@@ -20,6 +22,7 @@ def vod_panel(streamer):
                         )
         return
     # frame-canvas-frame to attach a scrollbar:
+    global vw_frame
     vw_frame = default_frame(root)
     vw_frame.grid(column=0, row=1, sticky='nsew')
     vw_frame.columnconfigure(0, weight=1)
@@ -34,6 +37,7 @@ def vod_panel(streamer):
                         command=vw_canvas.yview
                         )
     vw_canvas.configure(yscrollcommand=vw_scrollbar.set)
+    global vod_frame
     vod_frame = default_frame(met_frame)
     vod_frame.grid(column=0, row=0, sticky='nsew')
     vod_frame.columnconfigure(1, weight=1)
@@ -46,7 +50,7 @@ def vod_panel(streamer):
     close_button = default_button(
                         vod_frame,
                         image=close_icon,
-                        command=lambda: [vw_frame.forget(), vw_frame.destroy()]
+                        command=lambda: close_vod_panel()
                         )
     close_button.grid(column=0, row=0, sticky='nw', ipady=12, ipadx=12)
     vod_label = default_label(vod_frame,
@@ -54,24 +58,36 @@ def vod_panel(streamer):
                         )
     vod_label.grid(column=1, row=0)
     default_separator(vod_frame).grid(row=1)
-    vod_number = 2
+    vod_number = 1
+    count_vod_rows = 2
     for timestamp, title, length in zip(vods[0], vods[1], vods[2]):
+        vod_info_status[count_vod_rows] = False
         watch_button = default_button(vod_frame,
                         image=play_icon,
                         height='24', width='24',
                         command=lambda s=streamer, v=vod_number:
                         [twitchapi.start_vod(s, v)]
                         )
-        watch_button.grid(column=0, row=vod_number, sticky='nesw')
-        timestamp_button = default_button(vod_frame, text=f"{timestamp} ({length})",
-                        command=lambda ts=timestamp, t=title, p=root:
-                        messagebox.showinfo("VOD", ts, detail=t, parent=p),
+        watch_button.grid(column=0, row=count_vod_rows, sticky='nesw')
+        if current_info_setting == 'all' or current_info_setting == 'online':
+            timestamp_button = default_button(vod_frame,
+                            text=f"{timestamp} ({length})",
+                            anchor='w',
+                            state='disabled',
+                            font=small_font,
+                            )
+            vod_info(count_vod_rows, timestamp, title)
+        else:
+            timestamp_button = default_button(vod_frame, text=f"{timestamp} ({length})",
+                        command=lambda ts=timestamp, t=title, c=count_vod_rows:
+                        vod_info(c, v, ts, t),
                         font=small_font,
                         anchor='w'
                         )
-        timestamp_button.grid(column=1, row=vod_number, sticky='nesw')
-        default_separator(vod_frame).grid(row=vod_number+1)
-        vod_number += 2
+        timestamp_button.grid(column=1, row=count_vod_rows, sticky='nesw')
+        default_separator(vod_frame).grid(row=count_vod_rows+2)
+        vod_number += 1
+        count_vod_rows += 3
     # Finish the scrollbar
     global vw_canvas_window
     vw_canvas_window = vw_canvas.create_window((0, 0), window=vod_frame, anchor="nw")
@@ -80,12 +96,36 @@ def vod_panel(streamer):
     vw_canvas.bind("<Configure>", resize_canvas)
     vw_canvas.bind_all("<MouseWheel>", mouse_scroll)
 
+def vod_info(cr, timestamp, title):
+    if not vod_info_status[cr]:
+        vod_info_content[cr] = default_label(vod_frame,
+                                    text=f'{title} ({timestamp})',
+                                    justify='left',
+                                    anchor='w',
+                                    )
+        vod_info_content[cr].grid(row=cr+1, column=0, columnspan=3, sticky='w', padx=10)
+        vod_info_status[cr] = True
+    else:
+        vod_info_content[cr].grid_remove()
+        vod_info_status[cr] = False
+
+def refresh_vod_panel(streamer):
+    for widget in vod_frame.winfo_children():
+        widget.destroy()
+    vod_panel(streamer)
+
+def close_vod_panel():
+    vw_frame.forget()
+    vw_frame.destroy()
+    main_frame.destroy()
+    draw_main()
+
 def streamer_buttons():
     online_streamers = streamer_status[0]
     offline_streamers = streamer_status[1]
     count_rows = 0
     for package in online_streamers:
-        show_info_status[count_rows] = False
+        stream_info_status[count_rows] = False
         watch_button = default_button(main_frame,
                         image=streaming_icon,
                         command=lambda s=package[0]:
@@ -132,7 +172,7 @@ def streamer_buttons():
                                         )
         count_rows += 3
     for streamer in offline_streamers:
-        show_info_status[count_rows] = False
+        stream_info_status[count_rows] = False
         watch_button = default_label(main_frame,
                         image=offline_icon,
                         )
@@ -173,33 +213,33 @@ def streamer_buttons():
         count_rows += 3
 
 def online_info(c, streamer, category, title, viewercount):
-    if not show_info_status[c]:
-        info_content[c] = default_label(main_frame,
+    if not stream_info_status[c]:
+        stream_info_content[c] = default_label(main_frame,
                                     text=f'Title: {title}\n'
                                     f'Category: {category}\n'
                                     f'Viewer count: {viewercount}',
                                     justify='left',
                                     anchor='w',
                                     )
-        info_content[c].grid(row=c+1, column=1, columnspan=4, sticky='w', padx=10)
-        show_info_status[c] = True
+        stream_info_content[c].grid(row=c+1, column=1, columnspan=4, sticky='w', padx=10)
+        stream_info_status[c] = True
     else:
-        info_content[c].grid_remove()
-        show_info_status[c] = False
+        stream_info_content[c].grid_remove()
+        stream_info_status[c] = False
 
 def offline_info(c, streamer):
-    if not show_info_status[c]:
-        info_content[c] = default_label(main_frame, 'offline',
+    if not stream_info_status[c]:
+        stream_info_content[c] = default_label(main_frame, 'offline',
                                     text=f'Last seen: '
                                     f'{twitchapi.last_seen(streamer)}',
                                     justify='left',
                                     anchor='w',
                                     )
-        info_content[c].grid(row=c+1, column=1, columnspan=4, sticky='w', padx=10)
-        show_info_status[c] = True
+        stream_info_content[c].grid(row=c+1, column=1, columnspan=4, sticky='w', padx=10)
+        stream_info_status[c] = True
     else:
-        info_content[c].grid_remove()
-        show_info_status[c] = False
+        stream_info_content[c].grid_remove()
+        stream_info_status[c] = False
 
 def error_dialog(e):
     messagebox.showerror(title='Error',
@@ -259,6 +299,10 @@ def refresh_main_quiet():
     for widget in main_frame.winfo_children():
         widget.destroy()
     streamer_buttons()
+    try:
+        refresh_vod_panel(current_vod_panel)
+    except:
+        pass
 
 def refresh_main():
     '''Runs wtwitch c and then rebuilds the main panel.
@@ -457,29 +501,6 @@ def info_quick_toggle():
         twitchapi.change_settings_file('show_info', 'no')
     current_info_setting = twitchapi.get_setting('show_info')
     refresh_main_quiet()
-
-def menu_bar():
-    '''The menu bar of the root window.
-    '''
-    global current_quick_toggle_icon
-    current_quick_toggle_icon = set_quick_toggle_icon()
-    menubar = tk.Menu(root)
-    root.config(menu=menubar)
-    menubar.add_command(label='Refresh', font=cantarell_12_bold,
-                        command=lambda: refresh_main())
-    menubar.add_command(label='Follow', font=cantarell_12,
-                        command=lambda: follow_dialog())
-    menubar.add_command(label='Play', font=cantarell_12,
-                        command=lambda: play_dialog())
-    menubar.add_command(image=settings_icon, font=cantarell_12,
-                        command=lambda: settings_dialog())
-    menubar.add_command(image=current_quick_toggle_icon, font=cantarell_12,
-                        command=lambda: [info_quick_toggle(),
-                                        set_quick_toggle_icon(),
-                                        menubar.entryconfigure(5,
-                                        image=current_quick_toggle_icon)
-                                        ]
-                                    )
 
 def custom_menu_bar():
     global current_quick_toggle_icon
@@ -735,12 +756,15 @@ root.iconphoto(False, app_icon)
 
 # Variables to collect stream info
 # and settings value to show info for all streamers:
-show_info_status = {}
-info_content = {}
+stream_info_status = {}
+stream_info_content = {}
 preset_info_setting = tk.StringVar()
 preset_info_setting = twitchapi.get_setting('show_info_preset')
 current_info_setting = twitchapi.get_setting('show_info')
 
+current_vod_panel = ''
+vod_info_status = {}
+vod_info_content = {}
 
 custom_menu_bar()
 draw_main()
