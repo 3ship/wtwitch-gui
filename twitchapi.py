@@ -190,3 +190,17 @@ def get_setting(k):
     with open(f'{sys.path[0]}/settings.json', 'r') as settings:
         settings = json.load(settings)
     return settings[k]
+
+def detectDarkModeGnome():
+    '''Detects dark mode in GNOME'''
+    try:
+        getArgs = ['gsettings', 'get', 'org.gnome.desktop.interface', 'color-scheme']
+        currentTheme = subprocess.run(
+            getArgs, capture_output=True
+        ).stdout.decode("utf-8").strip()
+
+        if currentTheme == "'prefer-dark'":
+            return True
+        return False
+    except:
+        return False
