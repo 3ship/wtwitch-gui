@@ -20,12 +20,6 @@ def vod_panel(streamer):
                         )
         return
     # frame-canvas-frame to attach a scrollbar:
-    close_button = tk.Button(
-                        root,
-                        image=close_icon,
-                        relief='flat',
-                        command=lambda: [vw_frame.forget(), vw_frame.destroy()]
-                        )
     vw_frame = default_frame(root)
     vw_frame.grid(column=0, row=1, sticky='nsew')
     vw_frame.columnconfigure(0, weight=1)
@@ -34,18 +28,33 @@ def vod_panel(streamer):
     met_frame.grid(column=0, row=0, sticky='nsew')
     met_frame.columnconfigure(0, weight=1)
     met_frame.rowconfigure(0, weight=1)
-    vw_canvas = tk.Canvas(met_frame, highlightthickness='0', bg='#333333')
+    global vw_canvas
+    vw_canvas = default_canvas(met_frame)
     vw_scrollbar = ttk.Scrollbar(met_frame,orient="vertical",
                         command=vw_canvas.yview
                         )
     vw_canvas.configure(yscrollcommand=vw_scrollbar.set)
     vod_frame = default_frame(met_frame)
+    vod_frame.grid(column=0, row=0, sticky='nsew')
+    vod_frame.columnconfigure(1, weight=1)
+    vod_frame.rowconfigure(0, weight=1)
     vod_frame.bind("<Configure>", lambda e:
                         vw_canvas.configure(
                         scrollregion=vw_canvas.bbox("all"))
                         )
     # Draw the VOD grid:
-    vod_number = 1
+    close_button = default_button(
+                        vod_frame,
+                        image=close_icon,
+                        command=lambda: [vw_frame.forget(), vw_frame.destroy()]
+                        )
+    close_button.grid(column=0, row=0, sticky='nw', ipady=12, ipadx=12)
+    vod_label = default_label(vod_frame,
+                        text=f'{streamer}\'s VODs'
+                        )
+    vod_label.grid(column=1, row=0)
+    default_separator(vod_frame).grid(row=1)
+    vod_number = 2
     for timestamp, title, length in zip(vods[0], vods[1], vods[2]):
         watch_button = default_button(vod_frame,
                         image=play_icon,
@@ -61,11 +70,14 @@ def vod_panel(streamer):
                         anchor='w'
                         )
         timestamp_button.grid(column=1, row=vod_number, sticky='nesw')
-        vod_number += 1
+        default_separator(vod_frame).grid(row=vod_number+1)
+        vod_number += 2
     # Finish the scrollbar
-    vw_canvas.create_window((0, 0), window=vod_frame, anchor="nw")
-    vw_canvas.grid(row=0, column=0, sticky="nsew", padx=8, pady=5)
+    global vw_canvas_window
+    vw_canvas_window = vw_canvas.create_window((0, 0), window=vod_frame, anchor="nw")
+    vw_canvas.grid(row=0, column=0, sticky="nsew")
     vw_scrollbar.grid(row=0, column=1, sticky="ns")
+    vw_canvas.bind("<Configure>", resize_canvas)
     vw_canvas.bind_all("<MouseWheel>", mouse_scroll)
 
 def streamer_buttons():
@@ -79,7 +91,7 @@ def streamer_buttons():
                         command=lambda s=package[0]:
                         [twitchapi.start_stream(s)]
                         )
-        watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=4)
+        watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=4, ipady=8)
         if current_info_setting == 'all' or current_info_setting == 'online':
             watch_button.grid_configure(rowspan=2)
             info_button = default_button(main_frame,
@@ -127,7 +139,7 @@ def streamer_buttons():
         watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=4)
         if current_info_setting == 'all':
             watch_button.grid_configure(rowspan=2)
-            info_button = default_button(main_frame,
+            info_button = default_button(main_frame, 'offline',
                             text=streamer,
                             anchor='w',
                             font=cantarell_13_bold,
@@ -135,7 +147,7 @@ def streamer_buttons():
                             )
             offline_info(count_rows, streamer)
         else:
-            info_button = default_button(main_frame,
+            info_button = default_button(main_frame, 'offline',
                             text=streamer,
                             anchor='w',
                             font=cantarell_13_bold,
@@ -169,7 +181,7 @@ def online_info(c, streamer, category, title, viewercount):
                                     justify='left',
                                     anchor='w',
                                     )
-        info_content[c].grid(row=c+1, column=1, columnspan=4, sticky='w', padx=12)
+        info_content[c].grid(row=c+1, column=1, columnspan=4, sticky='w', padx=10)
         show_info_status[c] = True
     else:
         info_content[c].grid_remove()
@@ -177,13 +189,13 @@ def online_info(c, streamer, category, title, viewercount):
 
 def offline_info(c, streamer):
     if not show_info_status[c]:
-        info_content[c] = default_label(main_frame,
+        info_content[c] = default_label(main_frame, 'offline',
                                     text=f'Last seen: '
                                     f'{twitchapi.last_seen(streamer)}',
                                     justify='left',
                                     anchor='w',
                                     )
-        info_content[c].grid(row=c+1, column=1, columnspan=4, sticky='w', padx=12)
+        info_content[c].grid(row=c+1, column=1, columnspan=4, sticky='w', padx=10)
         show_info_status[c] = True
     else:
         info_content[c].grid_remove()
@@ -261,8 +273,12 @@ def refresh_main():
         widget.destroy()
     streamer_buttons()
 
-def resize_meta_canvas(e):
+def resize_canvas(e):
     meta_canvas.itemconfig(meta_canvas_window, width=e.width)
+    try:
+        vw_canvas.itemconfig(vw_canvas_window, width=e.width)
+    except:
+        pass
 
 def mouse_scroll(event):
     meta_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
@@ -277,7 +293,7 @@ def draw_main():
     meta_frame.columnconfigure(0, weight=1)
     meta_frame.rowconfigure(0, weight=1)
     global meta_canvas
-    meta_canvas = tk.Canvas(meta_frame, highlightthickness='0', bg='#333333')
+    meta_canvas = default_canvas(meta_frame)
     meta_canvas.grid(row=0, column=0, sticky="nsew")
     meta_canvas.columnconfigure(0, weight=1)
     meta_canvas.rowconfigure(0, weight=1)
@@ -296,7 +312,7 @@ def draw_main():
                     )
     global meta_canvas_window
     meta_canvas_window = meta_canvas.create_window((0, 0), window=main_frame, anchor="nw")
-    meta_canvas.bind("<Configure>", resize_meta_canvas)
+    meta_canvas.bind("<Configure>", resize_canvas)
     meta_canvas.bind("<MouseWheel>", mouse_scroll)
     # Draw main content:
     streamer_buttons()
@@ -361,75 +377,65 @@ def settings_dialog():
     settings_window.title('Settings')
     settings_window.transient(root)
     settings_window.grab_set()
-    meta_frame = ttk.Frame(settings_window)
+    meta_frame = default_frame(settings_window)
     meta_frame.pack(expand=True, fill='both', ipadx=10, ipady=10)
-    top_f = ttk.Frame(meta_frame)
+    top_f = default_frame(meta_frame)
     top_f.pack()
-    qual_f = ttk.Labelframe(top_f, text='Stream quality')
+    qual_f = default_frame(top_f)
     qual_f.pack(side='left', anchor='nw', padx=5, pady=5)
-    high_qual = ttk.Radiobutton(qual_f, text='High',
+    default_label(qual_f, text='Video quality:').pack()
+    high_qual = default_radiobutton(qual_f, text='High',
                 value='best', variable=selected_quality,
                 command=lambda: twitchapi.adjust_config('quality', 'best')
                 )
     high_qual.pack(expand=True, fill='both')
-    mid_qual = ttk.Radiobutton(qual_f, text='Medium',
+    mid_qual = default_radiobutton(qual_f, text='Medium',
                 value='720p,720p60,480p,best', variable=selected_quality,
                 command=lambda: twitchapi.adjust_config('quality', '720p,720p60,480p,best')
                 )
     mid_qual.pack(expand=True, fill='both')
-    low_qual = ttk.Radiobutton(qual_f, text='Low',
+    low_qual = default_radiobutton(qual_f, text='Low',
                 value='480p,worst', variable=selected_quality,
                 command=lambda: twitchapi.adjust_config('quality', '480p, worst')
                 )
     low_qual.pack(expand=True, fill='both')
-    custom_qual = ttk.Radiobutton(qual_f, text='Custom',
+    custom_qual = default_radiobutton(qual_f, text='Custom',
                 value='custom', variable=selected_quality,
                 command=lambda: custom_quality())
     custom_qual.pack(expand=True, fill='both')
-    play_f = ttk.Labelframe(top_f, text='Choose player')
+    play_f = default_frame(top_f)
     play_f.pack(side='right', anchor='ne', padx=5, pady=5)
-    pick_mpv = ttk.Radiobutton(play_f, text='mpv',
+    default_label(play_f, text='Pick media player:').pack()
+    pick_mpv = default_radiobutton(play_f, text='mpv',
                 value='mpv', variable=selected_player,
                 command=lambda: twitchapi.adjust_config('player', 'mpv')
                 )
     pick_mpv.pack(expand=True, fill='both')
-    pick_vlc = ttk.Radiobutton(play_f, text='VLC',
+    pick_vlc = default_radiobutton(play_f, text='VLC',
                 value='vlc', variable=selected_player,
                 command=lambda: twitchapi.adjust_config('player', 'vlc')
                 )
     pick_vlc.pack(expand=True, fill='both')
-    pick_custom = ttk.Radiobutton(play_f, text='Custom',
+    pick_custom = default_radiobutton(play_f, text='Custom',
                 value='custom', variable=selected_player,
                 command=lambda: custom_player())
     pick_custom.pack(expand=True, fill='both')
-    bottom_f = ttk.Frame(meta_frame)
+    bottom_f = default_frame(meta_frame)
     bottom_f.pack()
     global expand_info_setting
     expand_info_setting = tk.StringVar()
     expand_info_setting.set(preset_info_setting)
-    info_f = ttk.LabelFrame(bottom_f, text='Expand info')
+    info_f = default_frame(bottom_f, borderwidth=1)
     info_f.pack(anchor='nw', side='left', padx=5, pady=5)
-    all_info = ttk.Radiobutton(info_f, text='All',
+    default_label(info_f, text='Expand info?').pack()
+    all_info = default_radiobutton(info_f, text='All',
                 value='all', variable=expand_info_setting,
                 command=lambda: [change_info_preset('all')])
     all_info.pack(expand=True, fill='both')
-    only_online_info = ttk.Radiobutton(info_f, text='Only online',
+    only_online_info = default_radiobutton(info_f, text='Only online',
                 value='online', variable=expand_info_setting,
                 command=lambda: [change_info_preset('online')])
     only_online_info.pack(expand=True, fill='both')
-    global selected_theme
-    style = ttk.Style()
-    selected_theme = tk.StringVar()
-    theme_f = ttk.LabelFrame(bottom_f, text='Themes')
-    theme_f.pack(anchor='nw', side='right', padx=5, pady=5)
-    for theme_name in ttk.Style.theme_names(style):
-        pick_theme = ttk.Radiobutton(theme_f,
-                text=theme_name,
-                value=theme_name,
-                variable=selected_theme,
-                command=lambda t=theme_name: style.theme_use(t)
-                )
-        pick_theme.pack(expand=True, fill='both')
 
 def set_quick_toggle_icon(n):
     global current_info_setting
@@ -499,50 +505,144 @@ def custom_menu_bar():
     expand_b.configure(command=lambda: [info_quick_toggle(),
                                         set_quick_toggle_icon(1)])
     sep = default_separator(menu_frame)
-    sep.config(bg='#262626')
+
+def default_radiobutton(master, *args, **kwargs):
+    if isGnomeDarkmode:
+        info_font = '#BDBDBD'
+        button = tk.Radiobutton(
+            master,
+            bg='#333333',
+            fg=info_font,
+            activebackground='#3F3F3F',
+            activeforeground=info_font,
+            disabledforeground=info_font,
+            highlightthickness=0,
+            relief='flat',
+            anchor='w',
+            border=0,
+            **kwargs
+        )
+    else:
+        info_font = '#000000'
+        button = tk.Radiobutton(
+            master,
+            highlightthickness=0,
+            fg=info_font,
+            activeforeground=info_font,
+            disabledforeground=info_font,
+            relief='flat',
+            anchor='w',
+            border=0,
+            **kwargs
+        )
+    return button
 
 def default_separator(master, **kwargs):
-    separator = tk.Frame(
-        master,
-        bg='#3D3D3D',
-        height=1,
-        border=0,
-        **kwargs
-    )
+    if isGnomeDarkmode:
+        separator = tk.Frame(
+            master,
+            bg='#3D3D3D',
+            height=1,
+            border=0,
+            **kwargs
+        )
+    else:
+        separator = ttk.Separator(
+            master,
+            **kwargs
+        )
     separator.grid(columnspan=5, sticky='ew')
     return separator
 
+def default_canvas(master, **kwargs):
+    if isGnomeDarkmode:
+        canvas = tk.Canvas(
+            master,
+            bg='#333333',
+            highlightthickness='0',
+            **kwargs
+        )
+    else:
+        canvas = tk.Canvas(
+            master,
+            highlightthickness='0',
+            **kwargs
+        )
+    return canvas
+
 def default_frame(master, **kwargs):
-    frame = tk.Frame(
-        master,
-        bg='#333333',
-        **kwargs
-    )
+    if isGnomeDarkmode:
+        frame = tk.Frame(
+            master,
+            bg='#333333',
+            **kwargs
+        )
+    else:
+        frame = tk.Frame(
+            master,
+            **kwargs
+        )
     return frame
 
-def default_label(master, **kwargs):
-    label = tk.Label(
-        master,
-        bg='#333333',
-        fg='#BDBDBD',
-        highlightthickness=0,
-        **kwargs
-    )
+def default_label(master, *args, **kwargs):
+    if isGnomeDarkmode:
+        if 'offline' in args:
+            info_font = '#A4A4A4'
+        else:
+            info_font = '#BDBDBD'
+        label = tk.Label(
+            master,
+            bg='#333333',
+            fg=info_font,
+            highlightthickness=0,
+            **kwargs
+        )
+    else:
+        if 'offline' in args:
+            info_font = '#333333'
+        else:
+            info_font = '#000000'
+        label = tk.Label(
+            master,
+            fg=info_font,
+            highlightthickness=0,
+            **kwargs
+        )
     return label
 
-def default_button(master, **kwargs):
-    button = tk.Button(
-        master,
-        bg='#333333',
-        fg='#BDBDBD',
-        activebackground='#3F3F3F',
-        activeforeground='#BDBDBD',
-        disabledforeground='#BDBDBD',
-        highlightthickness=0,
-        relief='flat',
-        border=0,
-        **kwargs
-    )
+def default_button(master, *args, **kwargs):
+    if isGnomeDarkmode:
+        if 'offline' in args:
+            info_font = '#A4A4A4'
+        else:
+            info_font = '#BDBDBD'
+        button = tk.Button(
+            master,
+            bg='#333333',
+            fg=info_font,
+            activebackground='#3F3F3F',
+            activeforeground=info_font,
+            disabledforeground=info_font,
+            highlightthickness=0,
+            relief='flat',
+            border=0,
+            **kwargs
+        )
+    else:
+        if 'offline' in args:
+            info_font = '#333333'
+        else:
+            info_font = '#000000'
+        button = tk.Button(
+            master,
+            highlightthickness=0,
+            fg=info_font,
+            activeforeground=info_font,
+            disabledforeground=info_font,
+            relief='flat',
+            border=0,
+            **kwargs
+        )
     return button
 
 def save_window_size(event):
@@ -601,18 +701,34 @@ cantarell_12 = ('Cantarell', 12)
 cantarell_12_bold = ('Cantarell', 12, 'bold')
 cantarell_13_bold = ('Cantarell', 13, 'bold')
 
+# Detect Dark mode:
+isGnomeDarkmode = twitchapi.detectDarkModeGnome()
+
+if isGnomeDarkmode:
+    style = ttk.Style(root)
+    style.configure('Vertical.TScrollbar', gripcount=0, relief='flat', troughrelief='flat', width=14, groovewidth=14, arrowsize=14,
+                    background="#2c2c2c", troughcolor="#363636", arrowcolor="#BDBDBD")
+    style.map("Vertical.TScrollbar", background=[("active", "#222222")])
+else:
+    style = ttk.Style(root)
+    style.configure('Vertical.TScrollbar', gripcount=0, relief='flat', troughrelief='flat', width=14, groovewidth=14, arrowsize=14)
+
 # Import icons:
 icon_files = twitchapi.icon_paths()
-unfollow_icon = tk.PhotoImage(file=icon_files['unfollow_icon_light'])
-vod_icon = tk.PhotoImage(file=icon_files['vod_icon_light'])
+if isGnomeDarkmode:
+    light = '_light'
+else:
+    light = ''
+unfollow_icon = tk.PhotoImage(file=icon_files[f'unfollow_icon{light}'])
+vod_icon = tk.PhotoImage(file=icon_files[f'vod_icon{light}'])
 streaming_icon = tk.PhotoImage(file=icon_files['streaming_icon'])
 offline_icon = tk.PhotoImage(file=icon_files['offline_icon'])
-play_icon = tk.PhotoImage(file=icon_files['play_icon'])
-close_icon = tk.PhotoImage(file=icon_files['close_icon'])
-settings_icon = tk.PhotoImage(file=icon_files['settings_icon_light'])
+play_icon = tk.PhotoImage(file=icon_files[f'play_icon{light}'])
+close_icon = tk.PhotoImage(file=icon_files[f'close_icon{light}'])
+settings_icon = tk.PhotoImage(file=icon_files[f'settings_icon{light}'])
 
-expand_icon = tk.PhotoImage(file=icon_files['expand_icon_light'])
-collapse_icon = tk.PhotoImage(file=icon_files['collapse_icon_light'])
+expand_icon = tk.PhotoImage(file=icon_files[f'expand_icon{light}'])
+collapse_icon = tk.PhotoImage(file=icon_files[f'collapse_icon{light}'])
 
 app_icon = tk.PhotoImage(file=icon_files['app_icon'])
 root.iconphoto(False, app_icon)
@@ -625,11 +741,6 @@ preset_info_setting = tk.StringVar()
 preset_info_setting = twitchapi.get_setting('show_info_preset')
 current_info_setting = twitchapi.get_setting('show_info')
 
-style = ttk.Style(root)
-style.configure('Vertical.TScrollbar', gripcount=0, relief='flat', troughrelief='flat', width=14, groovewidth=14, arrowsize=14,
-                foreground='#535353', background="#2C2C2C", darkcolor="red", lightcolor="red",
-                troughcolor="#595959", bordercolor="red", arrowcolor="#BDBDBD")
-style.map("Vertical.TScrollbar", background=[("active", "#363636")])
 
 custom_menu_bar()
 draw_main()
