@@ -166,10 +166,7 @@ def streamer_buttons():
                         vod_panel(s)
                         )
         vod_b.grid(column=3, row=count_rows, sticky='nsew', ipadx=8)
-        default_separator(main_frame).grid(row=count_rows+2,
-                                        columnspan=5,
-                                        sticky='ew'
-                                        )
+        default_separator(main_frame).grid(row=count_rows+2)
         count_rows += 3
     for streamer in offline_streamers:
         stream_info_status[count_rows] = False
@@ -209,7 +206,7 @@ def streamer_buttons():
                         )
         vod_b.grid(column=3, row=count_rows, sticky='nsew', ipadx=8)
         if count_rows != (len(online_streamers)+len(offline_streamers))*3-3:
-            sep = default_separator(main_frame).grid(row=count_rows+2, columnspan=5, sticky='ew')
+            sep = default_separator(main_frame).grid(row=count_rows+2)
         count_rows += 3
 
 def online_info(c, streamer, category, title, viewercount):
