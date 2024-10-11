@@ -80,7 +80,7 @@ def vod_panel(streamer):
         else:
             timestamp_button = default_button(vod_frame, text=f"{timestamp} ({length})",
                         command=lambda ts=timestamp, t=title, c=count_vod_rows:
-                        vod_info(c, v, ts, t),
+                        vod_info(c, ts, t),
                         font=small_font,
                         anchor='w'
                         )
