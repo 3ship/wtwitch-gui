@@ -183,8 +183,8 @@ def streamer_buttons():
         info_button.grid(column=1, row=count_rows, sticky='nsew')
         unfollow_b = default_button(main_frame,
                         image=unfollow_icon,
-                        command=lambda s=package[0]:
-                        [unfollow_dialog(s)]
+                        command=lambda s=package[0], c=count_rows+2:
+                        [unfollow_dialog(s, c)]
                         )
         unfollow_b.grid(column=2, row=count_rows, sticky='nsew', ipadx=4)
         vod_b = default_button(main_frame,
@@ -194,9 +194,9 @@ def streamer_buttons():
                         )
         vod_b.grid(column=3, row=count_rows, sticky='nsew', ipadx=8)
         separator = default_separator(main_frame)
-        separator[0].grid(row=count_rows+2)
-        separator[1].grid(row=count_rows+3)
-        count_rows += 4
+        separator[0].grid(row=count_rows+3)
+        separator[1].grid(row=count_rows+4)
+        count_rows += 5
     for streamer in offline_streamers:
         stream_info_status[count_rows] = False
         watch_button = default_label(main_frame,
@@ -230,8 +230,8 @@ def streamer_buttons():
         info_button.grid(column=1, row=count_rows, sticky='nsew')
         unfollow_b = default_button(main_frame,
                         image=unfollow_icon,
-                        command=lambda s=streamer:
-                        [unfollow_dialog(s)]
+                        command=lambda s=streamer, c=count_rows+2:
+                        [unfollow_dialog(s, c)]
                         )
         unfollow_b.grid(column=2, row=count_rows, sticky='nsew', ipadx=4)
         vod_b = default_button(main_frame,
@@ -240,11 +240,11 @@ def streamer_buttons():
                         vod_panel(s)
                         )
         vod_b.grid(column=3, row=count_rows, sticky='nsew', ipadx=8)
-        if count_rows != (len(online_streamers)+len(offline_streamers))*4-4:
+        if count_rows != (len(online_streamers)+len(offline_streamers))*5-5:
             sep = default_separator(main_frame)
-            sep[0].grid(row=count_rows+2)
-            sep[1].grid(row=count_rows+3)
-        count_rows += 4
+            sep[0].grid(row=count_rows+3)
+            sep[1].grid(row=count_rows+4)
+        count_rows += 5
 
 def online_info(c, streamer, category, title, viewercount):
     if not stream_info_status[c]:
@@ -290,16 +290,11 @@ def error_dialog(e):
                         message=f'{e}\n\n Check your internet connection!',
                         )
 
-def unfollow_dialog(streamer):
+def unfollow_dialog(streamer, row):
     '''Asks for confirmation, if the unfollow button is pressed. Rebuild the
     main panel, if confirmed.
     '''
-    answer = messagebox.askyesno(title='Unfollow',
-                        message='Are you sure that you '
-                                f'want to unfollow {streamer}?',
-                        default='no',
-                        parent=root
-                        )
+    answer = add_askyesno_row(main_frame, f'\nUnfollow {streamer}?', row)
     if answer:
         twitchapi.unfollow_streamer(streamer)
         refresh_main()
@@ -654,6 +649,7 @@ def add_askstring_row(frame, prompt):
 def custom_menu_bar():
     global current_quick_toggle_icon
     current_quick_toggle_icon = set_quick_toggle_icon(0)
+    global menu_frame
     menu_frame = default_frame(root)
     menu_frame.grid(row=0, column=0, sticky='nesw')
     menu_frame.columnconfigure(2, weight=1)
@@ -980,6 +976,8 @@ current_expand_setting = twitchapi.get_setting('show_info')
 current_vod_panel = ''
 vod_info_status = {}
 vod_info_content = {}
+
+current_query_frame = None
 
 custom_menu_bar()
 draw_main()
