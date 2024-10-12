@@ -80,8 +80,9 @@ def vod_panel(streamer):
                             )
             vod_info(count_vod_rows, title)
         else:
-            timestamp_button = default_button(vod_frame, text=f"{timestamp} {length}",
-                        command=lambda ts=timestamp, t=title, c=count_vod_rows:
+            timestamp_button = default_button(vod_frame,
+                        text=f"{timestamp} {length}",
+                        command=lambda c=count_vod_rows, t=title:
                         vod_info(c, t),
                         font=small_font,
                         anchor='w'
@@ -95,7 +96,11 @@ def vod_panel(streamer):
         count_vod_rows += 4
     # Finish the scrollbar
     global vw_canvas_window
-    vw_canvas_window = vw_canvas.create_window((0, 0), window=vod_frame, anchor="nw")
+    vw_canvas_window = vw_canvas.create_window(
+                                            (0, 0),
+                                            window=vod_frame,
+                                            anchor="nw"
+                                            )
     vw_canvas.grid(row=0, column=0, sticky="nsew")
     vw_scrollbar.grid(row=0, column=1, sticky="ns")
     vw_canvas.bind("<Configure>", resize_canvas)
@@ -107,7 +112,13 @@ def vod_info(cr, title):
                                     justify='left',
                                     anchor='w',
                                     )
-        vod_info_content[cr].grid(row=cr+1, column=0, columnspan=3, sticky='w', padx=10)
+        vod_info_content[cr].grid(
+                                row=cr+1,
+                                column=0,
+                                columnspan=3,
+                                sticky='w',
+                                padx=10
+                                )
         vod_info_status[cr] = True
     else:
         vod_info_content[cr].grid_remove()
@@ -135,7 +146,13 @@ def streamer_buttons():
                         command=lambda s=package[0]:
                         [twitchapi.start_stream(s)]
                         )
-        watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=4, ipady=8)
+        watch_button.grid(
+                        column=0,
+                        row=count_rows,
+                        sticky='nsew',
+                        ipadx=4,
+                        ipady=8
+                        )
         if current_info_setting == 'all' or current_info_setting == 'online':
             watch_button.grid_configure(rowspan=2)
             info_button = default_button(main_frame,
@@ -179,7 +196,13 @@ def streamer_buttons():
         watch_button = default_label(main_frame,
                         image=offline_icon,
                         )
-        watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=4, ipady=6)
+        watch_button.grid(
+                        column=0,
+                        row=count_rows,
+                        sticky='nsew',
+                        ipadx=4,
+                        ipady=6
+                        )
         if current_info_setting == 'all':
             watch_button.grid_configure(rowspan=2)
             info_button = default_button(main_frame, 'offline',
@@ -226,7 +249,12 @@ def online_info(c, streamer, category, title, viewercount):
                                     justify='left',
                                     anchor='w',
                                     )
-        stream_info_content[c].grid(row=c+1, column=1, columnspan=4, sticky='w', padx=10)
+        stream_info_content[c].grid(row=c+1,
+                                    column=1,
+                                    columnspan=4,
+                                    sticky='w',
+                                    padx=10
+                                    )
         stream_info_status[c] = True
     else:
         stream_info_content[c].grid_remove()
@@ -240,7 +268,12 @@ def offline_info(c, streamer):
                                     justify='left',
                                     anchor='w',
                                     )
-        stream_info_content[c].grid(row=c+1, column=1, columnspan=4, sticky='w', padx=10)
+        stream_info_content[c].grid(row=c+1,
+                                    column=1,
+                                    columnspan=4,
+                                    sticky='w',
+                                    padx=10
+                                    )
         stream_info_status[c] = True
     else:
         stream_info_content[c].grid_remove()
@@ -352,11 +385,17 @@ def draw_main():
     main_frame.grid(row=0, column=0, sticky='nsew')
     main_frame.columnconfigure(1, weight=1)
     global meta_canvas_window
-    meta_canvas_window = meta_canvas.create_window((0, 0), window=main_frame, anchor="nw")
+    meta_canvas_window = meta_canvas.create_window(
+                                                (0, 0),
+                                                window=main_frame,
+                                                anchor="nw"
+                                                )
     meta_canvas.bind("<Configure>", resize_canvas)
     # Draw main content:
     streamer_buttons()
-    main_frame.bind("<Configure>", lambda event: meta_canvas.configure(scrollregion=meta_canvas.bbox("all")))
+    main_frame.bind("<Configure>", lambda event:
+                                    meta_canvas.configure(
+                                        scrollregion=meta_canvas.bbox("all")))
 
 def custom_player():
     '''Opens a dialog to set a custom media player.
@@ -391,7 +430,8 @@ def change_info_preset(value):
     global current_info_setting
     global preset_info_setting
     preset_info_setting = twitchapi.get_setting('show_info_preset')
-    if preset_info_setting == current_info_setting or current_info_setting == 'no':
+    cis = current_info_setting
+    if preset_info_setting == cis or cis == 'no':
         return
     else:
         twitchapi.change_settings_file('show_info', value)
@@ -409,7 +449,11 @@ def settings_dialog():
         selected_player.set('custom')
     global selected_quality
     selected_quality = tk.StringVar()
-    if twitchapi.check_config()[1] in ['best', '720p,720p60,480p,best', '480p,worst']:
+    if twitchapi.check_config()[1] in [
+                                        'best',
+                                        '720p,720p60,480p,best',
+                                        '480p,worst'
+                                        ]:
         selected_quality.set(twitchapi.check_config()[1])
     else:
         selected_quality.set('custom')
@@ -425,41 +469,71 @@ def settings_dialog():
     qual_f = default_frame(top_f)
     qual_f.pack(side='left', anchor='nw', padx=12, pady=12)
     default_label(qual_f, text='Video quality:').pack()
-    high_qual = default_radiobutton(qual_f, text='High',
-                value='best', variable=selected_quality,
-                command=lambda: twitchapi.adjust_config('quality', 'best')
+    high_qual = default_radiobutton(qual_f,
+                text='High',
+                value='best',
+                variable=selected_quality,
+                command=lambda: twitchapi.adjust_config(
+                                                'quality',
+                                                'best'
+                                                )
                 )
     high_qual.pack(expand=True, fill='both')
-    mid_qual = default_radiobutton(qual_f, text='Medium',
-                value='720p,720p60,480p,best', variable=selected_quality,
-                command=lambda: twitchapi.adjust_config('quality', '720p,720p60,480p,best')
+    mid_qual = default_radiobutton(qual_f,
+                text='Medium',
+                value='720p,720p60,480p,best',
+                variable=selected_quality,
+                command=lambda: twitchapi.adjust_config(
+                                                'quality',
+                                                '720p,720p60,480p,best'
+                                                )
                 )
     mid_qual.pack(expand=True, fill='both')
-    low_qual = default_radiobutton(qual_f, text='Low',
-                value='480p,worst', variable=selected_quality,
-                command=lambda: twitchapi.adjust_config('quality', '480p, worst')
+    low_qual = default_radiobutton(qual_f,
+                text='Low',
+                value='480p,worst',
+                variable=selected_quality,
+                command=lambda: twitchapi.adjust_config(
+                                                'quality',
+                                                '480p,worst'
+                                                )
                 )
     low_qual.pack(expand=True, fill='both')
-    custom_qual = default_radiobutton(qual_f, text='Custom',
-                value='custom', variable=selected_quality,
+    custom_qual = default_radiobutton(qual_f,
+                text='Custom',
+                value='custom',
+                variable=selected_quality,
                 command=lambda: custom_quality())
     custom_qual.pack(expand=True, fill='both')
     play_f = default_frame(top_f)
     play_f.pack(side='right', anchor='ne', padx=12, pady=12)
     default_label(play_f, text='Media player:').pack()
-    pick_mpv = default_radiobutton(play_f, text='mpv',
-                value='mpv', variable=selected_player,
-                command=lambda: twitchapi.adjust_config('player', 'mpv')
+    pick_mpv = default_radiobutton(play_f,
+                text='mpv',
+                value='mpv',
+                variable=selected_player,
+                command=lambda: twitchapi.adjust_config(
+                                                'player',
+                                                'mpv'
+                                                )
                 )
     pick_mpv.pack(expand=True, fill='both')
-    pick_vlc = default_radiobutton(play_f, text='VLC',
-                value='vlc', variable=selected_player,
-                command=lambda: twitchapi.adjust_config('player', 'vlc')
+    pick_vlc = default_radiobutton(play_f,
+                text='VLC',
+                value='vlc',
+                variable=selected_player,
+                command=lambda: twitchapi.adjust_config(
+                                                'player',
+                                                'vlc'
+                                                )
                 )
     pick_vlc.pack(expand=True, fill='both')
-    pick_custom = default_radiobutton(play_f, text='Custom',
-                value='custom', variable=selected_player,
-                command=lambda: custom_player())
+    pick_custom = default_radiobutton(play_f,
+                text='Custom',
+                value='custom',
+                variable=selected_player,
+                command=lambda: custom_player()
+                )
     pick_custom.pack(expand=True, fill='both')
     bottom_f = default_frame(meta_frame)
     bottom_f.pack()
@@ -469,13 +543,19 @@ def settings_dialog():
     info_f = default_frame(bottom_f, borderwidth=1)
     info_f.pack(anchor='nw', side='left', padx=12, pady=12)
     default_label(info_f, text='Expand info:').pack()
-    all_info = default_radiobutton(info_f, text='All',
-                value='all', variable=expand_info_setting,
-                command=lambda: [change_info_preset('all')])
+    all_info = default_radiobutton(info_f,
+                text='All',
+                value='all',
+                variable=expand_info_setting,
+                command=lambda: [change_info_preset('all')]
+                )
     all_info.pack(expand=True, fill='both')
-    only_online_info = default_radiobutton(info_f, text='Only online',
-                value='online', variable=expand_info_setting,
-                command=lambda: [change_info_preset('online')])
+    only_online_info = default_radiobutton(info_f,
+                text='Only online',
+                value='online',
+                variable=expand_info_setting,
+                command=lambda: [change_info_preset('online')]
+                )
     only_online_info.pack(expand=True, fill='both')
 
 def set_quick_toggle_icon(n):
@@ -505,23 +585,41 @@ def custom_menu_bar():
     menu_frame = default_frame(root)
     menu_frame.grid(row=0, column=0, sticky='nesw')
     menu_frame.columnconfigure(2, weight=1)
-    refresh_b = default_button(menu_frame, text='Refresh',
-                    font=cantarell_12_bold, command=lambda: refresh_main())
+    refresh_b = default_button(menu_frame,
+                    text='Refresh',
+                    font=cantarell_12_bold,
+                    command=lambda: refresh_main()
+                    )
     refresh_b.grid(row=0, column=0)
-    follow_b = default_button(menu_frame, text='Follow',
-                    font=cantarell_12, command=lambda: follow_dialog())
+    follow_b = default_button(menu_frame,
+                    text='Follow',
+                    font=cantarell_12,
+                    command=lambda: follow_dialog()
+                    )
     follow_b.grid(row=0, column=1)
-    play_b = default_button(menu_frame, text='Play',
-                    font=cantarell_12, command=lambda: play_dialog())
+    play_b = default_button(menu_frame,
+                    text='Play',
+                    font=cantarell_12,
+                    command=lambda: play_dialog()
+                    )
     play_b.grid(row=0, column=2, sticky='w')
-    settings_b = default_button(menu_frame, image=settings_icon,
-                    font=cantarell_12, command=lambda: settings_dialog())
+    settings_b = default_button(menu_frame,
+                    image=settings_icon,
+                    font=cantarell_12,
+                    command=lambda: settings_dialog()
+                    )
     settings_b.grid(row=0, column=3, sticky='e')
     global expand_b
-    expand_b = default_button(menu_frame, image=current_quick_toggle_icon, font=cantarell_12)
+    expand_b = default_button(menu_frame,
+                    image=current_quick_toggle_icon,
+                    font=cantarell_12
+                    )
     expand_b.grid(row=0, column=4, sticky='e')
-    expand_b.configure(command=lambda: [info_quick_toggle(),
-                                        set_quick_toggle_icon(1)])
+    expand_b.configure(command=lambda: [
+                                        info_quick_toggle(),
+                                        set_quick_toggle_icon(1)
+                                        ]
+                        )
     sep = default_separator(menu_frame)
 
 def default_radiobutton(master, *args, **kwargs):
@@ -734,7 +832,11 @@ root.rowconfigure(1, weight=1)
 
 # Detect GNOME to account for top bar in window position:
 is_gnome = twitchapi.gnome_check
-root.protocol("WM_DELETE_WINDOW", lambda: (save_window_size(), root.destroy()))
+root.protocol("WM_DELETE_WINDOW", lambda: (
+                                            save_window_size(),
+                                            root.destroy()
+                                            )
+                )
 
 # Fonts:
 small_font = ('', 10)
@@ -747,12 +849,28 @@ is_gnome_darkmode = twitchapi.detect_darkmode_gnome()
 
 if is_gnome_darkmode:
     style = ttk.Style(root)
-    style.configure('Vertical.TScrollbar', gripcount=0, relief='flat', troughrelief='flat', width=14, groovewidth=14, arrowsize=14,
-                    background="#2c2c2c", troughcolor="#363636", arrowcolor="#BDBDBD")
+    style.configure('Vertical.TScrollbar',
+                    gripcount=0,
+                    relief='flat',
+                    troughrelief='flat',
+                    width=14,
+                    groovewidth=14,
+                    arrowsize=14,
+                    background="#2c2c2c",
+                    troughcolor="#363636",
+                    arrowcolor="#BDBDBD"
+                    )
     style.map("Vertical.TScrollbar", background=[("active", "#222222")])
 else:
     style = ttk.Style(root)
-    style.configure('Vertical.TScrollbar', gripcount=0, relief='flat', troughrelief='flat', width=14, groovewidth=14, arrowsize=14)
+    style.configure('Vertical.TScrollbar',
+                    gripcount=0,
+                    relief='flat',
+                    troughrelief='flat',
+                    width=14,
+                    groovewidth=14,
+                    arrowsize=14
+                    )
 
 # Import icons:
 icon_files = twitchapi.icon_paths()
