@@ -693,6 +693,8 @@ def custom_menu_bar():
                                         ]
                         )
     sep = default_separator(menu_frame)
+    sep[0].grid(row=5)
+    sep[1].grid(row=6)
 
 def default_radiobutton(master, *args, **kwargs):
     if is_gnome_darkmode:
