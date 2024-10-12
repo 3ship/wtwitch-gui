@@ -57,9 +57,11 @@ def vod_panel(streamer):
                         text=f'{streamer}\'s VODs'
                         )
     vod_label.grid(column=1, row=0)
-    default_separator(vod_frame).grid(row=1)
+    separator = default_separator(vod_frame)
+    separator[0].grid(row=1)
+    separator[1].grid(row=2)
     vod_number = 1
-    count_vod_rows = 2
+    count_vod_rows = 3
     for timestamp, title, length in zip(vods[0], vods[1], vods[2]):
         vod_info_status[count_vod_rows] = False
         watch_button = default_button(vod_frame,
@@ -85,9 +87,11 @@ def vod_panel(streamer):
                         anchor='w'
                         )
         timestamp_button.grid(column=1, row=count_vod_rows, sticky='nesw')
-        default_separator(vod_frame).grid(row=count_vod_rows+2)
+        separator = default_separator(vod_frame)
+        separator[0].grid(row=count_vod_rows+2)
+        separator[1].grid(row=count_vod_rows+3)
         vod_number += 1
-        count_vod_rows += 3
+        count_vod_rows += 4
     # Finish the scrollbar
     global vw_canvas_window
     vw_canvas_window = vw_canvas.create_window((0, 0), window=vod_frame, anchor="nw")
@@ -98,7 +102,7 @@ def vod_panel(streamer):
 def vod_info(cr, timestamp, title):
     if not vod_info_status[cr]:
         vod_info_content[cr] = default_label(vod_frame,
-                                    text=f'{title} ({timestamp})',
+                                    text=f'{title}',
                                     justify='left',
                                     anchor='w',
                                     )
@@ -165,14 +169,16 @@ def streamer_buttons():
                         vod_panel(s)
                         )
         vod_b.grid(column=3, row=count_rows, sticky='nsew', ipadx=8)
-        default_separator(main_frame).grid(row=count_rows+2)
-        count_rows += 3
+        separator = default_separator(main_frame)
+        separator[0].grid(row=count_rows+2)
+        separator[1].grid(row=count_rows+3)
+        count_rows += 4
     for streamer in offline_streamers:
         stream_info_status[count_rows] = False
         watch_button = default_label(main_frame,
                         image=offline_icon,
                         )
-        watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=4)
+        watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=4, ipady=6)
         if current_info_setting == 'all':
             watch_button.grid_configure(rowspan=2)
             info_button = default_button(main_frame, 'offline',
@@ -204,9 +210,11 @@ def streamer_buttons():
                         vod_panel(s)
                         )
         vod_b.grid(column=3, row=count_rows, sticky='nsew', ipadx=8)
-        if count_rows != (len(online_streamers)+len(offline_streamers))*3-3:
-            sep = default_separator(main_frame).grid(row=count_rows+2)
-        count_rows += 3
+        if count_rows != (len(online_streamers)+len(offline_streamers))*4-4:
+            sep = default_separator(main_frame)
+            sep[0].grid(row=count_rows+2)
+            sep[1].grid(row=count_rows+3)
+        count_rows += 4
 
 def online_info(c, streamer, category, title, viewercount):
     if not stream_info_status[c]:
@@ -548,19 +556,41 @@ def default_radiobutton(master, *args, **kwargs):
 
 def default_separator(master, **kwargs):
     if is_gnome_darkmode:
+        sep1 = tk.Frame(
             master,
-            bg='#3D3D3D',
+            bg='#090909',
             height=1,
             border=0,
             **kwargs
         )
-    else:
-        separator = ttk.Separator(
+        sep2 = tk.Frame(
             master,
+            bg='#545454',
+            height=1,
+            border=0,
             **kwargs
         )
-    separator.grid(columnspan=5, sticky='ew')
-    return separator
+        sep1.grid(columnspan=5, sticky='ew')
+        sep2.grid(columnspan=5, sticky='ew')
+        separator = sep1, sep2
+    else:
+        sep1 = tk.Frame(
+            master,
+            bg='#909090',
+            height=1,
+            border=0,
+            **kwargs
+        )
+        sep2 = tk.Frame(
+            master,
+            bg='#FFFFFF',
+            height=1,
+            border=0,
+            **kwargs
+        )
+        sep1.grid(columnspan=5, sticky='ew')
+        sep2.grid(columnspan=5, sticky='ew')
+    return sep1, sep2
 
 def default_canvas(master, **kwargs):
     if is_gnome_darkmode:
