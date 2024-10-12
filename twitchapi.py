@@ -191,7 +191,12 @@ def get_setting(k):
         settings = json.load(settings)
     return settings[k]
 
-def detectDarkModeGnome():
+def gnome_check():
+    if os.environ.get('XDG_CURRENT_DESKTOP') == 'GNOME':
+        return True
+    return False
+
+def detect_darkmode_gnome():
     '''Detects dark mode in GNOME'''
     try:
         getArgs = ['gsettings', 'get', 'org.gnome.desktop.interface', 'color-scheme']
