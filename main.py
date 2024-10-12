@@ -630,6 +630,7 @@ def default_radiobutton(master, *args, **kwargs):
             bg='#333333',
             fg=info_font,
             activebackground='#3F3F3F',
+            selectcolor='#242424',
             activeforeground=info_font,
             disabledforeground=info_font,
             highlightthickness=0,
