@@ -696,22 +696,12 @@ def save_window_size():
     twitchapi.change_settings_file('window_size', geometry)
 
 def initiate_window_dimensions():
-    """Sets the default window length, depending on the number of streamers in
-    the follow list. Fixed between 360 and 650 px.
+    """Returns a default window size or user-adjusted window size and position
     """
     try:
         return twitchapi.get_setting('window_size')
     except:
-        min_height = 360
-        max_height = 650
-        variable_height = len(streamer_status[0])*28+len(streamer_status[1])*28+100
-        if variable_height > max_height:
-            window_height = str(max_height)
-        elif variable_height < min_height:
-            window_height = str(min_height)
-        else:
-            window_height = str(variable_height)
-        return f'330x{window_height}'
+        return f'285x450'
 
 def toggle_settings():
     """Checks if wtwitch prints offline streamers and color output. Latter is
