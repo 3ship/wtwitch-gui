@@ -150,7 +150,7 @@ def streamer_buttons():
                         column=0,
                         row=count_rows,
                         sticky='nsew',
-                        ipadx=4,
+                        ipadx=6,
                         ipady=8
                         )
         if current_info_setting == 'all' or current_info_setting == 'online':
@@ -200,7 +200,7 @@ def streamer_buttons():
                         column=0,
                         row=count_rows,
                         sticky='nsew',
-                        ipadx=4,
+                        ipadx=6,
                         ipady=6
                         )
         if current_info_setting == 'all':
