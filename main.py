@@ -422,7 +422,7 @@ def settings_dialog():
     top_f = default_frame(meta_frame)
     top_f.pack()
     qual_f = default_frame(top_f)
-    qual_f.pack(side='left', anchor='nw', padx=5, pady=5)
+    qual_f.pack(side='left', anchor='nw', padx=12, pady=12)
     default_label(qual_f, text='Video quality:').pack()
     high_qual = default_radiobutton(qual_f, text='High',
                 value='best', variable=selected_quality,
@@ -444,8 +444,8 @@ def settings_dialog():
                 command=lambda: custom_quality())
     custom_qual.pack(expand=True, fill='both')
     play_f = default_frame(top_f)
-    play_f.pack(side='right', anchor='ne', padx=5, pady=5)
-    default_label(play_f, text='Pick media player:').pack()
+    play_f.pack(side='right', anchor='ne', padx=12, pady=12)
+    default_label(play_f, text='Media player:').pack()
     pick_mpv = default_radiobutton(play_f, text='mpv',
                 value='mpv', variable=selected_player,
                 command=lambda: twitchapi.adjust_config('player', 'mpv')
@@ -466,8 +466,8 @@ def settings_dialog():
     expand_info_setting = tk.StringVar()
     expand_info_setting.set(preset_info_setting)
     info_f = default_frame(bottom_f, borderwidth=1)
-    info_f.pack(anchor='nw', side='left', padx=5, pady=5)
-    default_label(info_f, text='Expand info?').pack()
+    info_f.pack(anchor='nw', side='left', padx=12, pady=12)
+    default_label(info_f, text='Expand info:').pack()
     all_info = default_radiobutton(info_f, text='All',
                 value='all', variable=expand_info_setting,
                 command=lambda: [change_info_preset('all')])
