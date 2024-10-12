@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import webbrowser
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
@@ -186,12 +187,17 @@ def streamer_buttons():
                         [unfollow_dialog(s, c)]
                         )
         unfollow_b.grid(column=2, row=count_rows, sticky='nsew', ipadx=4)
+        web_b = default_button(main_frame,
+                        image=link_icon,
+                        command=lambda s=package[0]:
+                        webbrowser.open(f'http://www.twitch.tv/{s}'))
+        web_b.grid(column=3, row=count_rows, sticky='nsew', ipadx=4)
         vod_b = default_button(main_frame,
                         image=vod_icon,
                         command=lambda s=package[0]:
                         vod_panel(s)
                         )
-        vod_b.grid(column=3, row=count_rows, sticky='nsew', ipadx=8)
+        vod_b.grid(column=4, row=count_rows, sticky='nsew', ipadx=6)
         separator = default_separator(main_frame)
         separator[0].grid(row=count_rows+3)
         separator[1].grid(row=count_rows+4)
@@ -233,12 +239,17 @@ def streamer_buttons():
                         [unfollow_dialog(s, c)]
                         )
         unfollow_b.grid(column=2, row=count_rows, sticky='nsew', ipadx=4)
+        web_b = default_button(main_frame,
+                        image=link_icon,
+                        command=lambda s=streamer:
+                        webbrowser.open(f'http://www.twitch.tv/{s}'))
+        web_b.grid(column=3, row=count_rows, sticky='nsew', ipadx=4)
         vod_b = default_button(main_frame,
                         image=vod_icon,
                         command=lambda s=streamer:
                         vod_panel(s)
                         )
-        vod_b.grid(column=3, row=count_rows, sticky='nsew', ipadx=8)
+        vod_b.grid(column=4, row=count_rows, sticky='nsew', ipadx=6)
         if count_rows != (len(online_streamers)+len(offline_streamers))*5-5:
             sep = default_separator(main_frame)
             sep[0].grid(row=count_rows+3)
@@ -957,6 +968,7 @@ offline_icon = tk.PhotoImage(file=icon_files['offline_icon'])
 play_icon = tk.PhotoImage(file=icon_files[f'play_icon{light}'])
 close_icon = tk.PhotoImage(file=icon_files[f'close_icon{light}'])
 settings_icon = tk.PhotoImage(file=icon_files[f'settings_icon{light}'])
+link_icon = tk.PhotoImage(file=icon_files[f'link_icon{light}'])
 
 expand_icon = tk.PhotoImage(file=icon_files[f'expand_icon{light}'])
 collapse_icon = tk.PhotoImage(file=icon_files[f'collapse_icon{light}'])
