@@ -516,7 +516,7 @@ def custom_menu_bar():
     sep = default_separator(menu_frame)
 
 def default_radiobutton(master, *args, **kwargs):
-    if isGnomeDarkmode:
+    if is_gnome_darkmode:
         info_font = '#BDBDBD'
         button = tk.Radiobutton(
             master,
@@ -547,8 +547,7 @@ def default_radiobutton(master, *args, **kwargs):
     return button
 
 def default_separator(master, **kwargs):
-    if isGnomeDarkmode:
-        separator = tk.Frame(
+    if is_gnome_darkmode:
             master,
             bg='#3D3D3D',
             height=1,
@@ -564,7 +563,7 @@ def default_separator(master, **kwargs):
     return separator
 
 def default_canvas(master, **kwargs):
-    if isGnomeDarkmode:
+    if is_gnome_darkmode:
         canvas = tk.Canvas(
             master,
             bg='#333333',
@@ -580,7 +579,7 @@ def default_canvas(master, **kwargs):
     return canvas
 
 def default_frame(master, **kwargs):
-    if isGnomeDarkmode:
+    if is_gnome_darkmode:
         frame = tk.Frame(
             master,
             bg='#333333',
@@ -594,7 +593,7 @@ def default_frame(master, **kwargs):
     return frame
 
 def default_label(master, *args, **kwargs):
-    if isGnomeDarkmode:
+    if is_gnome_darkmode:
         if 'offline' in args:
             info_font = '#A4A4A4'
         else:
@@ -620,7 +619,7 @@ def default_label(master, *args, **kwargs):
     return label
 
 def default_button(master, *args, **kwargs):
-    if isGnomeDarkmode:
+    if is_gnome_darkmode:
         if 'offline' in args:
             info_font = '#A4A4A4'
         else:
@@ -654,8 +653,17 @@ def default_button(master, *args, **kwargs):
         )
     return button
 
-def save_window_size(event):
-    twitchapi.change_settings_file('window_size', root.wm_geometry())
+def save_window_size():
+    if is_gnome:
+        top_bar_height = 37
+    else:
+        top_bar_height = 0
+    x = root.winfo_x()
+    y = root.winfo_y() - top_bar_height
+    width = root.winfo_width()
+    height = root.winfo_height()
+    geometry = f"{width}x{height}+{x}+{y}"
+    twitchapi.change_settings_file('window_size', geometry)
 
 def initiate_window_dimensions():
     """Sets the default window length, depending on the number of streamers in
@@ -700,9 +708,12 @@ root = tk.Tk(className='Wince')
 root.title("Wince")
 root.geometry(initiate_window_dimensions())
 root.minsize(285, 360)
-root.bind("<Destroy>", save_window_size)
 root.columnconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)
+
+# Detect GNOME to account for top bar in window position:
+is_gnome = twitchapi.gnome_check
+root.protocol("WM_DELETE_WINDOW", lambda: (save_window_size(), root.destroy()))
 
 # Fonts:
 small_font = ('', 10)
@@ -711,9 +722,9 @@ cantarell_12_bold = ('Cantarell', 12, 'bold')
 cantarell_13_bold = ('Cantarell', 13, 'bold')
 
 # Detect Dark mode:
-isGnomeDarkmode = twitchapi.detectDarkModeGnome()
+is_gnome_darkmode = twitchapi.detect_darkmode_gnome()
 
-if isGnomeDarkmode:
+if is_gnome_darkmode:
     style = ttk.Style(root)
     style.configure('Vertical.TScrollbar', gripcount=0, relief='flat', troughrelief='flat', width=14, groovewidth=14, arrowsize=14,
                     background="#2c2c2c", troughcolor="#363636", arrowcolor="#BDBDBD")
@@ -724,7 +735,7 @@ else:
 
 # Import icons:
 icon_files = twitchapi.icon_paths()
-if isGnomeDarkmode:
+if is_gnome_darkmode:
     light = '_light'
 else:
     light = ''
