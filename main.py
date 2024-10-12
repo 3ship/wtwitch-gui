@@ -94,7 +94,6 @@ def vod_panel(streamer):
     vw_canvas.grid(row=0, column=0, sticky="nsew")
     vw_scrollbar.grid(row=0, column=1, sticky="ns")
     vw_canvas.bind("<Configure>", resize_canvas)
-    vw_canvas.bind_all("<MouseWheel>", mouse_scroll)
 
 def vod_info(cr, timestamp, title):
     if not vod_info_status[cr]:
@@ -321,9 +320,6 @@ def resize_canvas(e):
     except:
         pass
 
-def mouse_scroll(event):
-    meta_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
-
 def draw_main():
     '''The main window. Calls streamer_buttons() twice, to draw buttons for
     online and offline streamers.
@@ -346,17 +342,12 @@ def draw_main():
     main_frame = default_frame(meta_canvas)
     main_frame.grid(row=0, column=0, sticky='nsew')
     main_frame.columnconfigure(1, weight=1)
-    main_frame.bind("<Configure>", lambda e:
-                        meta_canvas.configure(
-                        scrollregion=meta_canvas.bbox("all")
-                        )
-                    )
     global meta_canvas_window
     meta_canvas_window = meta_canvas.create_window((0, 0), window=main_frame, anchor="nw")
     meta_canvas.bind("<Configure>", resize_canvas)
-    meta_canvas.bind("<MouseWheel>", mouse_scroll)
     # Draw main content:
     streamer_buttons()
+    main_frame.bind("<Configure>", lambda event: meta_canvas.configure(scrollregion=meta_canvas.bbox("all")))
 
 def custom_player():
     '''Opens a dialog to set a custom media player.
