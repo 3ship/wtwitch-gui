@@ -161,18 +161,24 @@ def streamer_buttons():
                             font=cantarell_13_bold,
                             state='disabled',
                             )
-            online_info(count_rows, package[1], package[2],
-                        package[3], package[4]
+            online_info(count_rows,
+                        package[1],
+                        package[2],
+                        package[3],
+                        package[4]
                         )
         else:
             info_button = default_button(main_frame,
                             text=package[1],
                             anchor='w',
                             font=cantarell_13_bold,
-                            command=lambda c=count_rows, s=package[1],
-                                        cat=package[2], t=package[3],
+                            command=lambda
+                                        cr=count_rows,
+                                        s=package[1],
+                                        c=package[2],
+                                        t=package[3],
                                         v=package[4]:
-                                        online_info(c, s, cat, t, v)
+                                        online_info(cr, s, c, t, v)
                             )
         info_button.grid(column=1, row=count_rows, sticky='nsew')
         unfollow_b = default_button(main_frame,
