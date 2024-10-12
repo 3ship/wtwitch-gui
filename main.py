@@ -71,7 +71,7 @@ def vod_panel(streamer):
                         [twitchapi.start_vod(s, v)]
                         )
         watch_button.grid(column=0, row=count_vod_rows, sticky='nesw')
-        if current_info_setting == 'all' or current_info_setting == 'online':
+        if current_expand_setting == 'all' or current_expand_setting == 'online':
             timestamp_button = default_button(vod_frame,
                             text=f"{timestamp} {length}",
                             anchor='w',
@@ -153,7 +153,7 @@ def streamer_buttons():
                         ipadx=6,
                         ipady=8
                         )
-        if current_info_setting == 'all' or current_info_setting == 'online':
+        if current_expand_setting == 'all' or current_expand_setting == 'online':
             watch_button.grid_configure(rowspan=2)
             info_button = default_button(main_frame,
                             text=package[1],
@@ -209,7 +209,7 @@ def streamer_buttons():
                         ipadx=6,
                         ipady=6
                         )
-        if current_info_setting == 'all':
+        if current_expand_setting == 'all':
             watch_button.grid_configure(rowspan=2)
             info_button = default_button(main_frame, 'offline',
                             text=streamer,
@@ -433,15 +433,15 @@ def custom_quality():
 
 def change_info_preset(value):
     twitchapi.change_settings_file('show_info_preset', value)
-    global current_info_setting
+    global current_expand_setting
     global preset_info_setting
     preset_info_setting = twitchapi.get_setting('show_info_preset')
-    cis = current_info_setting
+    cis = current_expand_setting
     if preset_info_setting == cis or cis == 'no':
         return
     else:
         twitchapi.change_settings_file('show_info', value)
-        current_info_setting = preset_info_setting
+        current_expand_setting = preset_info_setting
         refresh_main_quiet()
 
 def settings_dialog():
@@ -565,10 +565,10 @@ def settings_dialog():
     only_online_info.pack(expand=True, fill='both')
 
 def set_quick_toggle_icon(n):
-    global current_info_setting
+    global current_expand_setting
     global current_quick_toggle_icon
     global expand_b
-    if current_info_setting == 'no':
+    if current_expand_setting == 'no':
         current_quick_toggle_icon = expand_icon
     else:
         current_quick_toggle_icon = collapse_icon
@@ -577,12 +577,12 @@ def set_quick_toggle_icon(n):
     return current_quick_toggle_icon
 
 def info_quick_toggle():
-    global current_info_setting
-    if current_info_setting == 'no':
+    global current_expand_setting
+    if current_expand_setting == 'no':
         twitchapi.change_settings_file('show_info', preset_info_setting)
     else:
         twitchapi.change_settings_file('show_info', 'no')
-    current_info_setting = twitchapi.get_setting('show_info')
+    current_expand_setting = twitchapi.get_setting('show_info')
     refresh_main_quiet()
 
 def custom_menu_bar():
@@ -854,15 +854,17 @@ cantarell_13_bold = ('Cantarell', 13, 'bold')
 # Detect Dark mode:
 is_gnome_darkmode = twitchapi.detect_darkmode_gnome()
 
+# Presets for the scrollbar:
+scrollbar_width = 15
 if is_gnome_darkmode:
     style = ttk.Style(root)
     style.configure('Vertical.TScrollbar',
                     gripcount=0,
                     relief='flat',
                     troughrelief='flat',
-                    width=14,
-                    groovewidth=14,
-                    arrowsize=14,
+                    width=scrollbar_width,
+                    groovewidth=scrollbar_width,
+                    arrowsize=scrollbar_width,
                     background="#2c2c2c",
                     troughcolor="#363636",
                     arrowcolor="#BDBDBD"
@@ -874,9 +876,9 @@ else:
                     gripcount=0,
                     relief='flat',
                     troughrelief='flat',
-                    width=14,
-                    groovewidth=14,
-                    arrowsize=14
+                    width=scrollbar_width,
+                    groovewidth=scrollbar_width,
+                    arrowsize=scrollbar_width
                     )
 
 # Import icons:
@@ -905,7 +907,7 @@ stream_info_status = {}
 stream_info_content = {}
 preset_info_setting = tk.StringVar()
 preset_info_setting = twitchapi.get_setting('show_info_preset')
-current_info_setting = twitchapi.get_setting('show_info')
+current_expand_setting = twitchapi.get_setting('show_info')
 
 current_vod_panel = ''
 vod_info_status = {}
