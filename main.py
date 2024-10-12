@@ -918,7 +918,7 @@ cantarell_13_bold = ('Cantarell', 13, 'bold')
 is_gnome_darkmode = twitchapi.detect_darkmode_gnome()
 
 # Presets for the scrollbar:
-scrollbar_width = 15
+scrollbar_width = 16
 if is_gnome_darkmode:
     style = ttk.Style(root)
     style.configure('Vertical.TScrollbar',
