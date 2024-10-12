@@ -585,6 +585,72 @@ def info_quick_toggle():
     current_expand_setting = twitchapi.get_setting('show_info')
     refresh_main_quiet()
 
+def add_askyesno_row(frame, prompt, row):
+    global current_query_frame
+    if current_query_frame is not None:
+        current_query_frame.destroy()
+        current_query_frame = None
+
+    def on_yes(event=None):
+        nonlocal response
+        response = True
+        askyesno_frame.destroy()
+
+    def on_no():
+        nonlocal response
+        response = False
+        askyesno_frame.destroy()
+
+    askyesno_frame = default_frame(frame)
+    askyesno_frame.grid(row=row, column=0, columnspan=5)
+    current_query_frame = askyesno_frame
+
+    label = default_label(askyesno_frame, text=prompt)
+    label.grid(row=0, column=0, padx=6, sticky='ew', columnspan=2)
+
+    yes_button = default_button(askyesno_frame, text="Yes", command=on_yes)
+    yes_button.grid(row=2, column=0, sticky='ew', pady=6)
+
+    no_button = default_button(askyesno_frame, text="No", command=on_no)
+    no_button.grid(row=2, column=1, sticky='ew')
+
+    response = None
+    askyesno_frame.wait_window()
+    return response
+
+def add_askstring_row(frame, prompt):
+    global current_query_frame
+    if current_query_frame is not None:
+        current_query_frame.destroy()
+        current_query_frame = None
+
+    def on_submit(event=None):
+        nonlocal response
+        response = entry.get()
+        askstring_frame.destroy()
+
+    def on_cancel():
+        nonlocal response
+        response = None
+        askstring_frame.destroy()
+
+    askstring_frame = default_frame(frame)
+    askstring_frame.grid(row=1, column=0, columnspan=5)
+    current_query_frame = askstring_frame
+    label = default_label(askstring_frame, text=prompt)
+    label.grid(row=0, column=0, padx=6, sticky='ew', columnspan=2)
+    entry = tk.Entry(askstring_frame)
+    entry.grid(row=1, column=0, padx=6, pady=4, sticky='ew', columnspan=2)
+    entry.bind("<Return>", on_submit)
+    cancel_button = default_button(askstring_frame, text="Cancel", command=on_cancel)
+    cancel_button.grid(row=2, column=0, sticky='ew', pady=6)
+    submit_button = default_button(askstring_frame, text="Enter", command=on_submit)
+    submit_button.grid(row=2, column=1, sticky='ew')
+
+    response = None
+    askstring_frame.wait_window()
+    return response
+
 def custom_menu_bar():
     global current_quick_toggle_icon
     current_quick_toggle_icon = set_quick_toggle_icon(0)
