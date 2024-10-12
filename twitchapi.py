@@ -142,7 +142,7 @@ def fetch_vods(streamer):
     length = []
     timestamp_pattern = re.compile(r'\d{2}\S\d{2}.* \d{2}:\d{2}')
     titles_pattern = re.compile(r'(?<=\x1b\[0m\s)(.*?)(?=\s\x1b\[93m)')
-    length_pattern = re.compile(r'\d+h\d+m')
+    length_pattern = re.compile(r'\(?(\d+h)?\d+m\d+s\)?')
     with open(vods_file, 'r') as vods:
         for line in vods:
             for match in timestamp_pattern.finditer(line):

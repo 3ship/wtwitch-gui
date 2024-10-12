@@ -73,23 +73,24 @@ def vod_panel(streamer):
         watch_button.grid(column=0, row=count_vod_rows, sticky='nesw')
         if current_info_setting == 'all' or current_info_setting == 'online':
             timestamp_button = default_button(vod_frame,
-                            text=f"{timestamp} ({length})",
+                            text=f"{timestamp} {length}",
                             anchor='w',
                             state='disabled',
                             font=small_font,
                             )
-            vod_info(count_vod_rows, timestamp, title)
+            vod_info(count_vod_rows, title)
         else:
-            timestamp_button = default_button(vod_frame, text=f"{timestamp} ({length})",
+            timestamp_button = default_button(vod_frame, text=f"{timestamp} {length}",
                         command=lambda ts=timestamp, t=title, c=count_vod_rows:
-                        vod_info(c, ts, t),
+                        vod_info(c, t),
                         font=small_font,
                         anchor='w'
                         )
         timestamp_button.grid(column=1, row=count_vod_rows, sticky='nesw')
-        separator = default_separator(vod_frame)
-        separator[0].grid(row=count_vod_rows+2)
-        separator[1].grid(row=count_vod_rows+3)
+        if vod_number != len(vods[0]):
+            separator = default_separator(vod_frame)
+            separator[0].grid(row=count_vod_rows+2)
+            separator[1].grid(row=count_vod_rows+3)
         vod_number += 1
         count_vod_rows += 4
     # Finish the scrollbar
@@ -99,7 +100,7 @@ def vod_panel(streamer):
     vw_scrollbar.grid(row=0, column=1, sticky="ns")
     vw_canvas.bind("<Configure>", resize_canvas)
 
-def vod_info(cr, timestamp, title):
+def vod_info(cr, title):
     if not vod_info_status[cr]:
         vod_info_content[cr] = default_label(vod_frame,
                                     text=f'{title}',
