@@ -302,10 +302,7 @@ def unfollow_dialog(streamer, row):
 def follow_dialog():
     '''Opens a text dialog and adds the entered string to the follow list.
     '''
-    answer = simpledialog.askstring(title='Follow',
-                        prompt='Enter streamer name: ',
-                        parent=root
-                        )
+    answer = add_askstring_row(menu_frame, 'Add streamer:')
     if answer is None or len(answer) == 0:
         return
     else:
@@ -315,11 +312,7 @@ def follow_dialog():
 def play_dialog():
     '''Opens a text dialog to play a custom stream
     '''
-    streamer = simpledialog.askstring(title='Play a custom stream',
-                                    prompt='Play a stream without adding it\n'
-                                    'to your follow list',
-                                    parent=root
-                                    )
+    streamer = add_askstring_row(menu_frame, 'Play a custom stream:')
     if streamer is None or len(streamer) == 0:
         return
     else:
