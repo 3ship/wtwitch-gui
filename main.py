@@ -124,7 +124,7 @@ def vod_info(cr, title):
         vod_info_status[cr] = False
 
 def refresh_vod_panel(streamer):
-    for widget in vod_frame.winfo_children():
+    for widget in vw_frame.winfo_children():
         widget.destroy()
     vod_panel(streamer)
 
