@@ -141,6 +141,7 @@ def streamer_buttons():
     count_rows = 0
     for package in online_streamers:
         stream_info_status[count_rows] = False
+        weblink_status[count_rows] = False
         watch_button = default_button(main_frame,
                         image=streaming_icon,
                         command=lambda s=package[0]:
@@ -183,14 +184,14 @@ def streamer_buttons():
         info_button.grid(column=1, row=count_rows, sticky='nsew')
         unfollow_b = default_button(main_frame,
                         image=unfollow_icon,
-                        command=lambda s=package[0], c=count_rows+2:
+                        command=lambda s=package[0], c=count_rows+3:
                         [unfollow_dialog(s, c)]
                         )
         unfollow_b.grid(column=2, row=count_rows, sticky='nsew', ipadx=4)
         web_b = default_button(main_frame,
                         image=link_icon,
-                        command=lambda s=package[0]:
-                        webbrowser.open(f'http://www.twitch.tv/{s}'))
+                        command=lambda s=package[0], c=count_rows:
+                        website_dialog(c, s))
         web_b.grid(column=3, row=count_rows, sticky='nsew', ipadx=4)
         vod_b = default_button(main_frame,
                         image=vod_icon,
@@ -199,11 +200,12 @@ def streamer_buttons():
                         )
         vod_b.grid(column=4, row=count_rows, sticky='nsew', ipadx=6)
         separator = default_separator(main_frame)
-        separator[0].grid(row=count_rows+3)
-        separator[1].grid(row=count_rows+4)
-        count_rows += 5
+        separator[0].grid(row=count_rows+4)
+        separator[1].grid(row=count_rows+5)
+        count_rows += 6
     for streamer in offline_streamers:
         stream_info_status[count_rows] = False
+        weblink_status[count_rows] = False
         watch_button = default_label(main_frame,
                         image=offline_icon,
                         )
@@ -235,14 +237,14 @@ def streamer_buttons():
         info_button.grid(column=1, row=count_rows, sticky='nsew')
         unfollow_b = default_button(main_frame,
                         image=unfollow_icon,
-                        command=lambda s=streamer, c=count_rows+2:
+                        command=lambda s=streamer, c=count_rows+3:
                         [unfollow_dialog(s, c)]
                         )
         unfollow_b.grid(column=2, row=count_rows, sticky='nsew', ipadx=4)
         web_b = default_button(main_frame,
                         image=link_icon,
-                        command=lambda s=streamer:
-                        webbrowser.open(f'http://www.twitch.tv/{s}'))
+                        command=lambda s=streamer, c=count_rows:
+                        website_dialog(c, s))
         web_b.grid(column=3, row=count_rows, sticky='nsew', ipadx=4)
         vod_b = default_button(main_frame,
                         image=vod_icon,
@@ -250,11 +252,11 @@ def streamer_buttons():
                         vod_panel(s)
                         )
         vod_b.grid(column=4, row=count_rows, sticky='nsew', ipadx=6)
-        if count_rows != (len(online_streamers)+len(offline_streamers))*5-5:
+        if count_rows != (len(online_streamers)+len(offline_streamers))*6-6:
             sep = default_separator(main_frame)
-            sep[0].grid(row=count_rows+3)
-            sep[1].grid(row=count_rows+4)
-        count_rows += 5
+            sep[0].grid(row=count_rows+4)
+            sep[1].grid(row=count_rows+5)
+        count_rows += 6
 
 def online_info(c, streamer, category, title, viewercount):
     if not stream_info_status[c]:
@@ -294,6 +296,37 @@ def offline_info(c, streamer):
     else:
         stream_info_content[c].grid_remove()
         stream_info_status[c] = False
+
+def website_dialog(c, streamer):
+    if not weblink_status[c]:
+        weblink_content[c] = default_frame(main_frame)
+        weblink_content[c].grid(row=c+2,
+                                column=1,
+                                columnspan=4
+                                )
+        website_button = default_button(weblink_content[c],
+                                    text='Website',
+                                    command=lambda s=streamer:
+                                    webbrowser.open(
+                                        f'http://www.twitch.tv/'
+                                        f'{s}'
+                                        )
+                                    )
+        website_button.grid(row=0, column=0, sticky='ew')
+        webplayer_button = default_button(weblink_content[c],
+                                    text='Webplayer',
+                                    command=lambda s=streamer:
+                                    webbrowser.open(
+                                        f'https://player.twitch.tv/'
+                                        f'?channel={s}'
+                                        f'&parent=twitch.tv'
+                                        )
+                                    )
+        webplayer_button.grid(row=0, column=1, sticky='ew')
+        weblink_status[c] = True
+    else:
+        weblink_content[c].grid_remove()
+        weblink_status[c] = False
 
 def error_dialog(e):
     messagebox.showerror(title='Error',
@@ -983,6 +1016,10 @@ stream_info_content = {}
 preset_info_setting = tk.StringVar()
 preset_info_setting = twitchapi.get_setting('show_info_preset')
 current_expand_setting = twitchapi.get_setting('show_info')
+
+# Store whether the weblink buttons are currently displayed:
+weblink_status = {}
+weblink_content = {}
 
 current_vod_panel = ''
 vod_info_status = {}
