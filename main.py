@@ -785,14 +785,14 @@ def default_separator(master, **kwargs):
     if is_gnome_darkmode:
         sep1 = tk.Frame(
             master,
-            bg='#090909',
+            bg='#252525',
             height=1,
             border=0,
             **kwargs
         )
         sep2 = tk.Frame(
             master,
-            bg='#545454',
+            bg='#484848',
             height=1,
             border=0,
             **kwargs
