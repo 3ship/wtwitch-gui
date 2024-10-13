@@ -397,12 +397,12 @@ def resize_canvas(event, canvas, window):
 
 def on_mouse_wheel(event, canvas):
     if event.num == 4 or event.delta > 0:
-        canvas.yview_scroll(-1, "units")
+        canvas.yview_scroll(-2, "units")
     elif event.num == 5 or event.delta < 0:
-        canvas.yview_scroll(1, "units")
+        canvas.yview_scroll(2, "units")
 
 def on_mouse_wheel_windows(event, canvas):
-    canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+    canvas.yview_scroll(int(-2*(event.delta/120)), "units")
 
 def draw_main():
     '''The main window. Calls streamer_buttons() twice, to draw buttons for
