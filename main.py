@@ -769,6 +769,7 @@ def default_radiobutton(master, *args, **kwargs):
         info_font = '#000000'
         button = tk.Radiobutton(
             master,
+            bg='#FAFAFA',
             highlightthickness=0,
             fg=info_font,
             activeforeground=info_font,
@@ -802,7 +803,7 @@ def default_separator(master, **kwargs):
     else:
         sep1 = tk.Frame(
             master,
-            bg='#909090',
+            bg='#E3E3E3',
             height=1,
             border=0,
             **kwargs
@@ -829,6 +830,7 @@ def default_canvas(master, **kwargs):
     else:
         canvas = tk.Canvas(
             master,
+            bg='#FAFAFA',
             highlightthickness='0',
             **kwargs
         )
@@ -844,6 +846,7 @@ def default_frame(master, **kwargs):
     else:
         frame = tk.Frame(
             master,
+            bg='#FAFAFA',
             **kwargs
         )
     return frame
@@ -868,6 +871,7 @@ def default_label(master, *args, **kwargs):
             info_font = '#000000'
         label = tk.Label(
             master,
+            bg='#FAFAFA',
             fg=info_font,
             highlightthickness=0,
             **kwargs
@@ -899,10 +903,11 @@ def default_button(master, *args, **kwargs):
             info_font = '#000000'
         button = tk.Button(
             master,
-            highlightthickness=0,
+            bg='#FAFAFA',
             fg=info_font,
             activeforeground=info_font,
             disabledforeground=info_font,
+            highlightthickness=0,
             relief='flat',
             border=0,
             **kwargs
