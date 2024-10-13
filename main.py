@@ -99,7 +99,7 @@ def vod_panel(streamer):
                                             )
     vw_canvas.grid(row=0, column=0, sticky="nsew")
     vw_scrollbar.grid(row=0, column=1, sticky="ns")
-    vw_canvas.bind("<Configure>", lambda e: resize_canvas(e, vw_canvas))
+    vw_canvas.bind("<Configure>", lambda e: resize_canvas(e, vw_canvas, vw_canvas_window))
     vw_canvas.bind_all("<Button-4>", lambda e: on_mouse_wheel(e, vw_canvas))
     vw_canvas.bind_all("<Button-5>", lambda e: on_mouse_wheel(e, vw_canvas))
     vw_canvas.bind_all("<MouseWheel>", lambda e: on_mouse_wheel_windows(e, meta_canvas))
@@ -391,8 +391,8 @@ def refresh_main():
         widget.destroy()
     streamer_buttons()
 
-def resize_canvas(event, canvas):
-    canvas.itemconfig(meta_canvas_window, width=event.width)
+def resize_canvas(event, canvas, window):
+    canvas.itemconfig(window, width=event.width)
     canvas.configure(scrollregion=meta_canvas.bbox("all"))
 
 def on_mouse_wheel(event, canvas):
@@ -432,7 +432,7 @@ def draw_main():
                                                 window=main_frame,
                                                 anchor="nw"
                                                 )
-    meta_canvas.bind("<Configure>", lambda e: resize_canvas(e, meta_canvas))
+    meta_canvas.bind("<Configure>", lambda e: resize_canvas(e, meta_canvas, meta_canvas_window))
     meta_canvas.bind_all("<Button-4>", lambda e: on_mouse_wheel(e, meta_canvas))
     meta_canvas.bind_all("<Button-5>", lambda e: on_mouse_wheel(e, meta_canvas))
     meta_canvas.bind_all("<MouseWheel>", lambda e: on_mouse_wheel_windows(e, meta_canvas))
