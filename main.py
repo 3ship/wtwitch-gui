@@ -624,10 +624,10 @@ def info_quick_toggle():
     refresh_main_quiet()
 
 def add_askyesno_row(frame, prompt, row):
-    global current_query_frame
-    if current_query_frame is not None:
-        current_query_frame.destroy()
-        current_query_frame = None
+    global current_yesno_frame
+    if current_yesno_frame is not None:
+        current_yesno_frame.destroy()
+        current_yesno_frame = None
 
     def on_yes(event=None):
         nonlocal response
@@ -641,7 +641,7 @@ def add_askyesno_row(frame, prompt, row):
 
     askyesno_frame = default_frame(frame)
     askyesno_frame.grid(row=row, column=0, columnspan=5)
-    current_query_frame = askyesno_frame
+    current_yesno_frame = askyesno_frame
 
     label = default_label(askyesno_frame, text=prompt)
     label.grid(row=0, column=0, padx=6, sticky='ew', columnspan=2)
@@ -1025,6 +1025,7 @@ current_vod_panel = ''
 vod_info_status = {}
 vod_info_content = {}
 
+current_yesno_frame = None
 current_query_frame = None
 
 custom_menu_bar()
