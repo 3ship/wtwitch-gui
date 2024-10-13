@@ -938,15 +938,15 @@ def toggle_settings():
     if twitchapi.check_config()[3] == 'false':
         twitchapi.adjust_config('printOfflineSubscriptions', 'true')
 
-# Make sure that colors in the terminal output are activated:
-toggle_settings()
 # Check the online/offline status once before window initialization:
 twitchapi.check_status()
 try:
     streamer_status = twitchapi.extract_streamer_status()
 except Exception as e:
     error_dialog(e)
-# Create a gwt-specific settings file:
+# Make sure that colors in the terminal output are activated:
+toggle_settings()
+# Create a Wince-specific settings file:
 twitchapi.create_settings_file()
 
 # Create the main window

@@ -66,6 +66,9 @@ def wtwitch_subscription_cache():
     else:
         cachehome = os.path.join(os.environ['HOME'], '.cache')
     cachepath = os.path.join(cachehome, 'wtwitch/subscription-cache.json')
+    if not os.path.isfile(cachepath):
+        with open(cachepath, 'w') as initcachepath:
+            initcachepath.write(r'{"data":[],"pagination":{}}')
     return cachepath, cachehome
 
 def extract_streamer_status():
