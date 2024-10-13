@@ -439,9 +439,10 @@ def draw_main():
 def custom_player():
     '''Opens a dialog to set a custom media player.
     '''
-    new_player = add_askstring_row(top_f, 'Enter your media player:', 
-                        #initialvalue=twitchapi.check_config()[0]
-                        )
+    new_player = add_askstring_row(settings_top_frame,
+                                'Enter your media player:',
+                                initial_value=twitchapi.check_config()[0]
+                                )
     if new_player is None or len(new_player) == 0:
         return
     else:
@@ -450,7 +451,7 @@ def custom_player():
 def custom_quality():
     '''Opens a dialog to set a custom stream quality.
     '''
-    new_quality = add_askstring_row(top_f,
+    new_quality = add_askstring_row(settings_top_frame,
                                 '\n Options: 1080p60, 720p60, 720p, 480p, \n'
                                 ' 360p, 160p, best, worst, and audio_only \n'
                                 '\n'
@@ -504,16 +505,16 @@ def settings_dialog():
     settings_window.grab_set()
     meta_frame = default_frame(settings_window)
     meta_frame.grid(sticky='nesw', ipady=10)
-    global top_f
-    top_f = default_frame(meta_frame)
-    top_f.grid(row=0, column=0, sticky='nesw')
-    top_f.grid_rowconfigure(0, weight=1)
-    top_f.grid_columnconfigure(0, weight=1)
-    qual_f = default_frame(top_f)
+    global settings_top_frame
+    settings_top_frame = default_frame(meta_frame)
+    settings_top_frame.grid(row=0, column=0, sticky='nesw')
+    settings_top_frame.grid_rowconfigure(0, weight=1)
+    settings_top_frame.grid_columnconfigure(0, weight=1)
+    qual_f = default_frame(settings_top_frame)
     qual_f.grid(row=0, column=0, sticky='nesw', ipadx=10, ipady=10)
-    qual_l = default_label(qual_f, text='Video quality:')
-    qual_l.grid(row=0, column=0, sticky='nesw', ipadx=10, ipady=10)
-    high_qual = default_radiobutton(qual_f,
+    quality_label = default_label(qual_f, text='Video quality:')
+    quality_label.grid(row=0, column=0, sticky='nesw', ipadx=10, ipady=10)
+    high_quality = default_radiobutton(qual_f,
                 text='High',
                 value='best',
                 variable=selected_quality,
@@ -522,8 +523,8 @@ def settings_dialog():
                                                 'best'
                                                 )
                 )
-    high_qual.grid(row=1, column=0, sticky='nesw', ipadx=10)
-    mid_qual = default_radiobutton(qual_f,
+    high_quality.grid(row=1, column=0, sticky='nesw', ipadx=10)
+    mid_quality = default_radiobutton(qual_f,
                 text='Medium',
                 value='720p,720p60,480p,best',
                 variable=selected_quality,
@@ -532,8 +533,8 @@ def settings_dialog():
                                                 '720p,720p60,480p,best'
                                                 )
                 )
-    mid_qual.grid(row=2, column=0, sticky='nesw', ipadx=10)
-    low_qual = default_radiobutton(qual_f,
+    mid_quality.grid(row=2, column=0, sticky='nesw', ipadx=10)
+    low_quality = default_radiobutton(qual_f,
                 text='Low',
                 value='480p,worst',
                 variable=selected_quality,
@@ -542,18 +543,18 @@ def settings_dialog():
                                                 '480p,worst'
                                                 )
                 )
-    low_qual.grid(row=3, column=0, sticky='nesw', ipadx=10)
-    custom_qual = default_radiobutton(qual_f,
+    low_quality.grid(row=3, column=0, sticky='nesw', ipadx=10)
+    pick_custom_quality = default_radiobutton(qual_f,
                 text='Custom',
                 value='custom',
                 variable=selected_quality,
                 command=lambda: custom_quality())
-    custom_qual.grid(row=4, column=0, sticky='nesw', ipadx=10)
-    play_f = default_frame(top_f)
-    play_f.grid(row=0, column=1, sticky='nesw', ipadx=10, ipady=10)
-    play_l = default_label(play_f, text='Media player:')
-    play_l.grid(row=0, column=0, sticky='nesw', ipadx=10, ipady=10)
-    pick_mpv = default_radiobutton(play_f,
+    pick_custom_quality.grid(row=4, column=0, sticky='nesw', ipadx=10)
+    play_frame = default_frame(settings_top_frame)
+    play_frame.grid(row=0, column=1, sticky='nesw', ipadx=10, ipady=10)
+    play_label = default_label(play_frame, text='Media player:')
+    play_label.grid(row=0, column=0, sticky='nesw', ipadx=10, ipady=10)
+    pick_mpv = default_radiobutton(play_frame,
                 text='mpv',
                 value='mpv',
                 variable=selected_player,
@@ -563,7 +564,7 @@ def settings_dialog():
                                                 )
                 )
     pick_mpv.grid(row=1, column=0, sticky='nesw', ipadx=10)
-    pick_vlc = default_radiobutton(play_f,
+    pick_vlc = default_radiobutton(play_frame,
                 text='VLC',
                 value='vlc',
                 variable=selected_player,
@@ -573,33 +574,33 @@ def settings_dialog():
                                                 )
                 )
     pick_vlc.grid(row=2, column=0, sticky='nesw', ipadx=10)
-    pick_custom = default_radiobutton(play_f,
+    pick_custom_player = default_radiobutton(play_frame,
                 text='Custom',
                 value='custom',
                 variable=selected_player,
                 command=lambda: custom_player()
                 )
-    pick_custom.grid(row=3, column=0, sticky='nesw', ipadx=10)
-    separator = default_separator(top_f)
+    pick_custom_player.grid(row=3, column=0, sticky='nesw', ipadx=10)
+    separator = default_separator(settings_top_frame)
     separator[0].grid(row=10)
     separator[1].grid(row=11)
-    bottom_f = default_frame(meta_frame)
-    bottom_f.grid(row=1, column=0, sticky='nesw')
+    settings_bottom_frame = default_frame(meta_frame)
+    settings_bottom_frame.grid(row=1, column=0, sticky='nesw')
     global expand_info_setting
     expand_info_setting = tk.StringVar()
     expand_info_setting.set(preset_info_setting)
-    info_f = default_frame(bottom_f, borderwidth=1)
-    info_f.grid(row=0, column=0, sticky='nesw', ipadx=10)
-    info_l = default_label(info_f, text='Expand info:')
-    info_l.grid(row=0, column=0, sticky='nesw', ipadx=10, ipady=10)
-    all_info = default_radiobutton(info_f,
+    info_frame = default_frame(settings_bottom_frame, borderwidth=1)
+    info_frame.grid(row=0, column=0, sticky='nesw', ipadx=10)
+    info_label = default_label(info_frame, text='Expand info:')
+    info_label.grid(row=0, column=0, sticky='nesw', ipadx=10, ipady=10)
+    all_info = default_radiobutton(info_frame,
                 text='All',
                 value='all',
                 variable=expand_info_setting,
                 command=lambda: [change_info_preset('all')]
                 )
     all_info.grid(row=1, column=0, sticky='nesw', ipadx=10)
-    only_online_info = default_radiobutton(info_f,
+    only_online_info = default_radiobutton(info_frame,
                 text='Only online',
                 value='online',
                 variable=expand_info_setting,
