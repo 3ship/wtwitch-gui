@@ -432,7 +432,9 @@ def draw_main():
     streamer_buttons()
     main_frame.bind("<Configure>", lambda event:
                                     meta_canvas.configure(
-                                        scrollregion=meta_canvas.bbox("all")))
+                                        scrollregion=meta_canvas.bbox("all")
+                                        )
+                                    )
 
 def custom_player():
     '''Opens a dialog to set a custom media player.
@@ -509,7 +511,8 @@ def settings_dialog():
     top_f.grid_columnconfigure(0, weight=1)
     qual_f = default_frame(top_f)
     qual_f.grid(row=0, column=0, sticky='nesw', ipadx=10, ipady=10)
-    default_label(qual_f, text='Video quality:').grid(row=0, column=0, sticky='nesw', ipadx=10, ipady=10)
+    qual_l = default_label(qual_f, text='Video quality:')
+    qual_l.grid(row=0, column=0, sticky='nesw', ipadx=10, ipady=10)
     high_qual = default_radiobutton(qual_f,
                 text='High',
                 value='best',
@@ -548,7 +551,8 @@ def settings_dialog():
     custom_qual.grid(row=4, column=0, sticky='nesw', ipadx=10)
     play_f = default_frame(top_f)
     play_f.grid(row=0, column=1, sticky='nesw', ipadx=10, ipady=10)
-    default_label(play_f, text='Media player:').grid(row=0, column=0, sticky='nesw', ipadx=10, ipady=10)
+    play_l = default_label(play_f, text='Media player:')
+    play_l.grid(row=0, column=0, sticky='nesw', ipadx=10, ipady=10)
     pick_mpv = default_radiobutton(play_f,
                 text='mpv',
                 value='mpv',
@@ -586,7 +590,8 @@ def settings_dialog():
     expand_info_setting.set(preset_info_setting)
     info_f = default_frame(bottom_f, borderwidth=1)
     info_f.grid(row=0, column=0, sticky='nesw', ipadx=10)
-    default_label(info_f, text='Expand info:').grid(row=0, column=0, sticky='nesw', ipadx=10, ipady=10)
+    info_l = default_label(info_f, text='Expand info:')
+    info_l.grid(row=0, column=0, sticky='nesw', ipadx=10, ipady=10)
     all_info = default_radiobutton(info_f,
                 text='All',
                 value='all',
@@ -680,9 +685,15 @@ def add_askstring_row(frame, prompt):
     entry = tk.Entry(askstring_frame)
     entry.grid(row=1, column=0, padx=6, pady=4, sticky='ew', columnspan=2)
     entry.bind("<Return>", on_submit)
-    cancel_button = default_button(askstring_frame, text="Cancel", command=on_cancel)
+    cancel_button = default_button(askstring_frame,
+                                    text="Cancel",
+                                    command=on_cancel
+                                    )
     cancel_button.grid(row=2, column=0, sticky='ew', pady=6)
-    submit_button = default_button(askstring_frame, text="Enter", command=on_submit)
+    submit_button = default_button(askstring_frame,
+                                    text="Enter",
+                                    command=on_submit
+                                    )
     submit_button.grid(row=2, column=1, sticky='ew')
 
     response = None
