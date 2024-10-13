@@ -42,10 +42,6 @@ def vod_panel(streamer):
     vod_frame.grid(column=0, row=0, sticky='nsew')
     vod_frame.columnconfigure(1, weight=1)
     vod_frame.rowconfigure(0, weight=1)
-    vod_frame.bind("<Configure>", lambda e:
-                        vw_canvas.configure(
-                        scrollregion=vw_canvas.bbox("all"))
-                        )
     # Draw the VOD grid:
     close_button = default_button(
                         vod_frame,
@@ -103,7 +99,10 @@ def vod_panel(streamer):
                                             )
     vw_canvas.grid(row=0, column=0, sticky="nsew")
     vw_scrollbar.grid(row=0, column=1, sticky="ns")
-    vw_canvas.bind("<Configure>", resize_canvas)
+    vw_canvas.bind("<Configure>", lambda e: resize_canvas(e, vw_canvas))
+    vw_canvas.bind_all("<Button-4>", lambda e: on_mouse_wheel(e, vw_canvas))
+    vw_canvas.bind_all("<Button-5>", lambda e: on_mouse_wheel(e, vw_canvas))
+    vw_canvas.bind_all("<MouseWheel>", lambda e: on_mouse_wheel_windows(e, meta_canvas))
 
 def vod_info(cr, title):
     if not vod_info_status[cr]:
@@ -392,12 +391,18 @@ def refresh_main():
         widget.destroy()
     streamer_buttons()
 
-def resize_canvas(e):
-    meta_canvas.itemconfig(meta_canvas_window, width=e.width)
-    try:
-        vw_canvas.itemconfig(vw_canvas_window, width=e.width)
-    except:
-        pass
+def resize_canvas(event, canvas):
+    canvas.itemconfig(meta_canvas_window, width=event.width)
+    canvas.configure(scrollregion=meta_canvas.bbox("all"))
+
+def on_mouse_wheel(event, canvas):
+    if event.num == 4 or event.delta > 0:
+        canvas.yview_scroll(-1, "units")
+    elif event.num == 5 or event.delta < 0:
+        canvas.yview_scroll(1, "units")
+
+def on_mouse_wheel_windows(event, canvas):
+    canvas.yview_scroll(int(-1*(event.delta/120)), "units")
 
 def draw_main():
     '''The main window. Calls streamer_buttons() twice, to draw buttons for
@@ -427,14 +432,12 @@ def draw_main():
                                                 window=main_frame,
                                                 anchor="nw"
                                                 )
-    meta_canvas.bind("<Configure>", resize_canvas)
+    meta_canvas.bind("<Configure>", lambda e: resize_canvas(e, meta_canvas))
+    meta_canvas.bind_all("<Button-4>", lambda e: on_mouse_wheel(e, meta_canvas))
+    meta_canvas.bind_all("<Button-5>", lambda e: on_mouse_wheel(e, meta_canvas))
+    meta_canvas.bind_all("<MouseWheel>", lambda e: on_mouse_wheel_windows(e, meta_canvas))
     # Draw main content:
     streamer_buttons()
-    main_frame.bind("<Configure>", lambda event:
-                                    meta_canvas.configure(
-                                        scrollregion=meta_canvas.bbox("all")
-                                        )
-                                    )
 
 def custom_player():
     '''Opens a dialog to set a custom media player.
