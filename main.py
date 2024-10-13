@@ -687,6 +687,7 @@ def add_askstring_row(frame, prompt, initial_value=""):
     entry.grid(row=1, column=0, padx=6, pady=4, sticky='ew', columnspan=2)
     entry.bind("<Return>", on_submit)
     entry.insert(0, initial_value)
+    entry.focus_set()
     cancel_button = default_button(askstring_frame,
                                     text="Cancel",
                                     command=on_cancel
