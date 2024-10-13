@@ -684,7 +684,7 @@ def add_askstring_row(frame, prompt, initial_value=""):
     label = default_label(askstring_frame, text=prompt)
     label.grid(row=0, column=0, padx=6, sticky='ew', columnspan=2)
     entry = tk.Entry(askstring_frame)
-    entry.grid(row=1, column=0, padx=6, pady=4, sticky='ew', columnspan=2)
+    entry.grid(row=1, column=0, padx=6, pady=4, columnspan=2)
     entry.bind("<Return>", on_submit)
     entry.insert(0, initial_value)
     entry.focus_set()
