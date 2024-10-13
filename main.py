@@ -456,8 +456,8 @@ def custom_quality():
                                 '\n'
                                 ' Specify fallbacks separated by a comma: \n'
                                 ' E.g. "720p,480p,worst" \n',
-                        #initialvalue=twitchapi.check_config()[1],
-                        )
+                                initial_value=twitchapi.check_config()[1],
+                                )
     if new_quality is None or len(new_quality) == 0:
         return
     else:
@@ -661,7 +661,7 @@ def add_askyesno_row(frame, prompt, row):
     askyesno_frame.wait_window()
     return response
 
-def add_askstring_row(frame, prompt):
+def add_askstring_row(frame, prompt, initial_value=""):
     global current_query_frame
     if current_query_frame is not None:
         current_query_frame.destroy()
@@ -685,6 +685,7 @@ def add_askstring_row(frame, prompt):
     entry = tk.Entry(askstring_frame)
     entry.grid(row=1, column=0, padx=6, pady=4, sticky='ew', columnspan=2)
     entry.bind("<Return>", on_submit)
+    entry.insert(0, initial_value)
     cancel_button = default_button(askstring_frame,
                                     text="Cancel",
                                     command=on_cancel
