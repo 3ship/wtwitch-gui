@@ -377,6 +377,8 @@ def refresh_main_quiet():
         refresh_vod_panel(current_vod_panel)
     except:
         pass
+    meta_canvas.update_idletasks()
+    meta_canvas.configure(scrollregion=meta_canvas.bbox("all"))
 
 def refresh_main():
     '''Runs wtwitch c and then rebuilds the main panel.
@@ -393,7 +395,7 @@ def refresh_main():
 
 def resize_canvas(event, canvas, window):
     canvas.itemconfig(window, width=event.width)
-    canvas.configure(scrollregion=meta_canvas.bbox("all"))
+    canvas.configure(scrollregion=canvas.bbox("all"))
 
 def on_mouse_wheel(event, canvas):
     if event.num == 4 or event.delta > 0:
