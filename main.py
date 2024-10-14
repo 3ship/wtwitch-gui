@@ -9,6 +9,7 @@ import twitchapi
 vod_buttons_dict = {}
 vod_info_status = {}
 vod_info_content = {}
+current_vod_panel = ''
 
 def vod_panel(streamer):
     '''Draw 2 columns for the watch buttons and timestamps/stream length of the last 20 VODs.'''
@@ -102,6 +103,7 @@ def vod_panel(streamer):
     vw_canvas.bind_all("<Button-4>", lambda e: on_mouse_wheel(e, vw_canvas))
     vw_canvas.bind_all("<Button-5>", lambda e: on_mouse_wheel(e, vw_canvas))
     vw_canvas.bind_all("<MouseWheel>", lambda e: on_mouse_wheel_windows(e, vw_canvas))
+
 
 def vod_info(c, title):
     if not vod_info_status[c]:
@@ -374,6 +376,7 @@ def refresh_main():
         widget.destroy()
     streamer_buttons()
     update_meta_canvas()
+
 
 def update_meta_canvas(force_update=False):
     if force_update or meta_canvas.bbox("all") != meta_canvas.bbox("view"):
@@ -1067,9 +1070,6 @@ current_expand_setting = twitchapi.get_setting('show_info')
 weblink_status = {}
 weblink_content = {}
 
-current_vod_panel = ''
-vod_info_status = {}
-vod_info_content = {}
 
 current_yesno_frame = None
 current_query_frame = None
