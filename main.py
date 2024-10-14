@@ -612,6 +612,33 @@ def settings_dialog():
                 command=lambda: [change_info_preset('online')]
                 )
     only_online_info.grid(row=2, column=0, sticky='nesw', ipadx=10)
+    theme_frame = default_frame(settings_bottom_frame, borderwidth=1)
+    theme_frame.grid(row=0, column=1, sticky='nesw', ipadx=10)
+    theme_label = default_label(theme_frame, text='Theme:')
+    theme_label.grid(row=0, column=0, sticky='nesw', ipadx=10, ipady=10)
+    dark_mode = default_radiobutton(theme_frame,
+                                    text='Dark',
+                                    value='dark',
+                                    variable=is_gnome_darkmode,
+                                    command=lambda: [twitchapi.change_settings_file('theme', 'dark')]
+                                    )
+    dark_mode.grid(row=1, column=0, sticky='nesw', ipadx=10)
+
+    light_mode = default_radiobutton(theme_frame,
+                                    text='Light',
+                                    value='light',
+                                    variable=is_gnome_darkmode,
+                                    command=lambda: [twitchapi.change_settings_file('theme', 'light')]
+                                    )
+    light_mode.grid(row=2, column=0, sticky='nesw', ipadx=10)
+
+    gnome_mode = default_radiobutton(theme_frame,
+                                    text='GNOME',
+                                    value='gnome',
+                                    variable=is_gnome_darkmode,
+                                    command=lambda: [twitchapi.change_settings_file('theme', 'gnome')]
+                                    )
+    gnome_mode.grid(row=3, column=0, sticky='nesw', ipadx=10)
 
 def set_quick_toggle_icon(n):
     global current_expand_setting
@@ -755,7 +782,7 @@ def custom_menu_bar():
     sep[1].grid(row=6)
 
 def default_radiobutton(master, *args, **kwargs):
-    if is_gnome_darkmode:
+    if is_darkmode:
         info_font = '#BDBDBD'
         button = tk.Radiobutton(
             master,
@@ -788,7 +815,7 @@ def default_radiobutton(master, *args, **kwargs):
     return button
 
 def default_separator(master, **kwargs):
-    if is_gnome_darkmode:
+    if is_darkmode:
         sep1 = tk.Frame(
             master,
             bg='#252525',
@@ -826,7 +853,7 @@ def default_separator(master, **kwargs):
     return sep1, sep2
 
 def default_canvas(master, **kwargs):
-    if is_gnome_darkmode:
+    if is_darkmode:
         canvas = tk.Canvas(
             master,
             bg='#333333',
@@ -843,7 +870,7 @@ def default_canvas(master, **kwargs):
     return canvas
 
 def default_frame(master, **kwargs):
-    if is_gnome_darkmode:
+    if is_darkmode:
         frame = tk.Frame(
             master,
             bg='#333333',
@@ -858,7 +885,7 @@ def default_frame(master, **kwargs):
     return frame
 
 def default_label(master, *args, **kwargs):
-    if is_gnome_darkmode:
+    if is_darkmode:
         if 'offline' in args:
             info_font = '#A4A4A4'
         else:
@@ -885,7 +912,7 @@ def default_label(master, *args, **kwargs):
     return label
 
 def default_button(master, *args, **kwargs):
-    if is_gnome_darkmode:
+    if is_darkmode:
         if 'offline' in args:
             info_font = '#A4A4A4'
         else:
@@ -919,6 +946,33 @@ def default_button(master, *args, **kwargs):
             **kwargs
         )
     return button
+
+def scrollbar_presets():
+    scrollbar_width = 16
+    if is_darkmode:
+        style = ttk.Style(root)
+        style.configure('Vertical.TScrollbar',
+                        gripcount=0,
+                        relief='flat',
+                        troughrelief='flat',
+                        width=scrollbar_width,
+                        groovewidth=scrollbar_width,
+                        arrowsize=scrollbar_width,
+                        background="#2c2c2c",
+                        troughcolor="#363636",
+                        arrowcolor="#BDBDBD"
+                        )
+        style.map("Vertical.TScrollbar", background=[("active", "#222222")])
+    else:
+        style = ttk.Style(root)
+        style.configure('Vertical.TScrollbar',
+                        gripcount=0,
+                        relief='flat',
+                        troughrelief='flat',
+                        width=scrollbar_width,
+                        groovewidth=scrollbar_width,
+                        arrowsize=scrollbar_width
+                        )
 
 def save_window_size():
     if is_gnome:
@@ -983,38 +1037,15 @@ cantarell_12_bold = ('Cantarell', 12, 'bold')
 cantarell_13_bold = ('Cantarell', 13, 'bold')
 
 # Detect Dark mode:
-is_gnome_darkmode = twitchapi.detect_darkmode_gnome()
+is_darkmode = twitchapi.detect_darkmode_gnome()
+is_gnome_darkmode = tk.StringVar()
+is_gnome_darkmode.set(twitchapi.get_setting('theme'))
 
-# Presets for the scrollbar:
-scrollbar_width = 16
-if is_gnome_darkmode:
-    style = ttk.Style(root)
-    style.configure('Vertical.TScrollbar',
-                    gripcount=0,
-                    relief='flat',
-                    troughrelief='flat',
-                    width=scrollbar_width,
-                    groovewidth=scrollbar_width,
-                    arrowsize=scrollbar_width,
-                    background="#2c2c2c",
-                    troughcolor="#363636",
-                    arrowcolor="#BDBDBD"
-                    )
-    style.map("Vertical.TScrollbar", background=[("active", "#222222")])
-else:
-    style = ttk.Style(root)
-    style.configure('Vertical.TScrollbar',
-                    gripcount=0,
-                    relief='flat',
-                    troughrelief='flat',
-                    width=scrollbar_width,
-                    groovewidth=scrollbar_width,
-                    arrowsize=scrollbar_width
-                    )
+scrollbar_presets()
 
 # Import icons:
 icon_files = twitchapi.icon_paths()
-if is_gnome_darkmode:
+if is_darkmode:
     light = '_light'
 else:
     light = ''

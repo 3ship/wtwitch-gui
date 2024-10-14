@@ -177,10 +177,16 @@ def icon_paths():
     return icon_file_paths
 
 def create_settings_file():
-    default_settings = '{"show_info": "no", "show_info_preset": "online"}'
-    if not os.path.isfile(f'{sys.path[0]}/settings.json'):
-        with open(f'{sys.path[0]}/settings.json', 'w') as settings:
-            settings.write(default_settings)
+    default_settings = {
+        "show_info": "no",
+        "show_info_preset": "online",
+        "theme": "gnome",
+        "window_size": "285x450"
+    }
+    settings_path = f'{sys.path[0]}/settings.json'
+    if not os.path.isfile(settings_path):
+        with open(settings_path, 'w') as settings:
+            json.dump(default_settings, settings, indent=4)
 
 def change_settings_file(setting, new_value):
     with open(f'{sys.path[0]}/settings.json', 'r') as settings:
@@ -200,15 +206,21 @@ def gnome_check():
     return False
 
 def detect_darkmode_gnome():
-    '''Detects dark mode in GNOME'''
-    try:
-        getArgs = ['gsettings', 'get', 'org.gnome.desktop.interface', 'color-scheme']
-        currentTheme = subprocess.run(
-            getArgs, capture_output=True
-        ).stdout.decode("utf-8").strip()
+    """
+    Detects dark mode in GNOME, with the option to manually override and
+    default to dark if not in GNOME.
+    """
+    theme_setting = get_setting('theme')
+    
+    if theme_setting in ['dark', 'light']:
+        return theme_setting == 'dark'
+    elif theme_setting == 'gnome':
+        if gnome_check():
+            getArgs = ['gsettings', 'get', 'org.gnome.desktop.interface', 'color-scheme']
+            currentTheme = subprocess.run(
+                getArgs, capture_output=True
+            ).stdout.decode("utf-8").strip()
+            return currentTheme == "'prefer-dark'"
+        return True  # Default to dark if GNOME check fails
 
-        if currentTheme == "'prefer-dark'":
-            return True
-        return False
-    except:
-        return False
+    return True
