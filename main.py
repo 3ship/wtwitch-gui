@@ -148,204 +148,161 @@ def close_vod_panel():
     draw_main()
     update_meta_canvas()
 
+# Initialize the dictionary globally
+streamer_buttons_dict = {}
+
 def streamer_buttons():
+    global streamer_buttons_dict, stream_info_status, stream_info_content, weblink_status, weblink_content
+
     online_streamers = streamer_status[0]
     offline_streamers = streamer_status[1]
     count_rows = 0
+
+    # Initialize or clear dictionaries
+    streamer_buttons_dict = {}
+    stream_info_status = {}
+    stream_info_content = {}
+    weblink_status = {}
+    weblink_content = {}
+
     for package in online_streamers:
+        streamer_buttons_dict[package[0]] = {
+            'watch_button': default_button(main_frame, image=streaming_icon, command=lambda s=package[0]: [twitchapi.start_stream(s)]),
+            'info_button': None,
+            'unfollow_b': default_button(main_frame, image=unfollow_icon, command=lambda s=package[0], c=count_rows+3: [unfollow_dialog(s, c)]),
+            'web_b': default_button(main_frame, image=link_icon, command=lambda s=package[0], c=count_rows: website_dialog(c, s)),
+            'vod_b': default_button(main_frame, image=vod_icon, command=lambda s=package[0]: vod_panel(s))
+        }
+
+        watch_button = streamer_buttons_dict[package[0]]['watch_button']
+        watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=6, ipady=8)
+
         stream_info_status[count_rows] = False
         weblink_status[count_rows] = False
-        watch_button = default_button(main_frame,
-                        image=streaming_icon,
-                        command=lambda s=package[0]:
-                        [twitchapi.start_stream(s)]
-                        )
-        watch_button.grid(
-                        column=0,
-                        row=count_rows,
-                        sticky='nsew',
-                        ipadx=6,
-                        ipady=8
-                        )
+
         if current_expand_setting == 'all' or current_expand_setting == 'online':
             watch_button.grid_configure(rowspan=2)
-            info_button = default_button(main_frame,
-                            text=package[1],
-                            anchor='w',
-                            font=cantarell_13_bold,
-                            state='disabled',
-                            )
-            online_info(count_rows,
-                        package[1],
-                        package[2],
-                        package[3],
-                        package[4]
-                        )
+            info_button = default_button(main_frame, text=package[1], anchor='w', font=cantarell_13_bold, state='disabled')
+            streamer_buttons_dict[package[0]]['info_button'] = info_button
+            online_info(count_rows, package[1], package[2], package[3], package[4])
         else:
-            info_button = default_button(main_frame,
-                            text=package[1],
-                            anchor='w',
-                            font=cantarell_13_bold,
-                            command=lambda
-                                        cr=count_rows,
-                                        s=package[1],
-                                        c=package[2],
-                                        t=package[3],
-                                        v=package[4]:
-                                        online_info(cr, s, c, t, v)
-                            )
+            info_button = default_button(main_frame, text=package[1], anchor='w', font=cantarell_13_bold, command=lambda cr=count_rows, s=package[1], c=package[2], t=package[3], v=package[4]: online_info(cr, s, c, t, v))
+            streamer_buttons_dict[package[0]]['info_button'] = info_button
+
         info_button.grid(column=1, row=count_rows, sticky='nsew')
-        unfollow_b = default_button(main_frame,
-                        image=unfollow_icon,
-                        command=lambda s=package[0], c=count_rows+3:
-                        [unfollow_dialog(s, c)]
-                        )
+        unfollow_b = streamer_buttons_dict[package[0]]['unfollow_b']
         unfollow_b.grid(column=2, row=count_rows, sticky='nsew', ipadx=4)
-        web_b = default_button(main_frame,
-                        image=link_icon,
-                        command=lambda s=package[0], c=count_rows:
-                        website_dialog(c, s))
+        web_b = streamer_buttons_dict[package[0]]['web_b']
         web_b.grid(column=3, row=count_rows, sticky='nsew', ipadx=4)
-        vod_b = default_button(main_frame,
-                        image=vod_icon,
-                        command=lambda s=package[0]:
-                        vod_panel(s)
-                        )
+        vod_b = streamer_buttons_dict[package[0]]['vod_b']
         vod_b.grid(column=4, row=count_rows, sticky='nsew', ipadx=6)
+
         separator = default_separator(main_frame)
-        separator[0].grid(row=count_rows+4)
-        separator[1].grid(row=count_rows+5)
+        separator[0].grid(row=count_rows + 4)
+        separator[1].grid(row=count_rows + 5)
         count_rows += 6
+
     for streamer in offline_streamers:
+        streamer_buttons_dict[streamer] = {
+            'watch_button': default_label(main_frame, image=offline_icon),
+            'info_button': None,
+            'unfollow_b': default_button(main_frame, image=unfollow_icon, command=lambda s=streamer, c=count_rows + 3: [unfollow_dialog(s, c)]),
+            'web_b': default_button(main_frame, image=link_icon, command=lambda s=streamer, c=count_rows: website_dialog(c, s)),
+            'vod_b': default_button(main_frame, image=vod_icon, command=lambda s=streamer: vod_panel(s))
+        }
+
+        watch_button = streamer_buttons_dict[streamer]['watch_button']
+        watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=6, ipady=6)
+
         stream_info_status[count_rows] = False
         weblink_status[count_rows] = False
-        watch_button = default_label(main_frame,
-                        image=offline_icon,
-                        )
-        watch_button.grid(
-                        column=0,
-                        row=count_rows,
-                        sticky='nsew',
-                        ipadx=6,
-                        ipady=6
-                        )
+
         if current_expand_setting == 'all':
             watch_button.grid_configure(rowspan=2)
-            info_button = default_button(main_frame, 'offline',
-                            text=streamer,
-                            anchor='w',
-                            font=cantarell_13_bold,
-                            state='disabled',
-                            )
+            info_button = default_button(main_frame, text=streamer, anchor='w', font=cantarell_13_bold, state='disabled')
+            streamer_buttons_dict[streamer]['info_button'] = info_button
             offline_info(count_rows, streamer)
         else:
-            info_button = default_button(main_frame, 'offline',
-                            text=streamer,
-                            anchor='w',
-                            font=cantarell_13_bold,
-                            compound='left',
-                            command= lambda s=streamer, c=count_rows:
-                                    offline_info(c, s)
-                            )
+            info_button = default_button(main_frame, text=streamer, anchor='w', font=cantarell_13_bold, compound='left', command=lambda s=streamer, c=count_rows: offline_info(c, s))
+            streamer_buttons_dict[streamer]['info_button'] = info_button
+
         info_button.grid(column=1, row=count_rows, sticky='nsew')
-        unfollow_b = default_button(main_frame,
-                        image=unfollow_icon,
-                        command=lambda s=streamer, c=count_rows+3:
-                        [unfollow_dialog(s, c)]
-                        )
+        unfollow_b = streamer_buttons_dict[streamer]['unfollow_b']
         unfollow_b.grid(column=2, row=count_rows, sticky='nsew', ipadx=4)
-        web_b = default_button(main_frame,
-                        image=link_icon,
-                        command=lambda s=streamer, c=count_rows:
-                        website_dialog(c, s))
+        web_b = streamer_buttons_dict[streamer]['web_b']
         web_b.grid(column=3, row=count_rows, sticky='nsew', ipadx=4)
-        vod_b = default_button(main_frame,
-                        image=vod_icon,
-                        command=lambda s=streamer:
-                        vod_panel(s)
-                        )
+        vod_b = streamer_buttons_dict[streamer]['vod_b']
         vod_b.grid(column=4, row=count_rows, sticky='nsew', ipadx=6)
-        if count_rows != (len(online_streamers)+len(offline_streamers))*6-6:
-            sep = default_separator(main_frame)
-            sep[0].grid(row=count_rows+4)
-            sep[1].grid(row=count_rows+5)
+
+        if count_rows != (len(online_streamers) + len(offline_streamers)) * 6 - 6:
+            separator = default_separator(main_frame)
+            separator[0].grid(row=count_rows + 4)
+            separator[1].grid(row=count_rows + 5)
         count_rows += 6
 
 def online_info(c, streamer, category, title, viewercount):
     if not stream_info_status[c]:
-        stream_info_content[c] = default_label(main_frame,
-                                    text=f'Title: {title}\n'
-                                    f'Category: {category}\n'
-                                    f'Viewer count: {viewercount}',
-                                    justify='left',
-                                    anchor='w',
-                                    )
-        stream_info_content[c].grid(row=c+1,
-                                    column=1,
-                                    columnspan=4,
-                                    sticky='w',
-                                    padx=10
-                                    )
+        if c not in stream_info_content:
+            stream_info_content[c] = default_label(main_frame,
+                                                   text=f'Title: {title}\nCategory: {category}\nViewer count: {viewercount}',
+                                                   justify='left',
+                                                   anchor='w')
+            stream_info_content[c].grid(row=c+1,
+                                        column=1,
+                                        columnspan=4,
+                                        sticky='w',
+                                        padx=10)
+        else:
+            stream_info_content[c].config(text=f'Title: {title}\nCategory: {category}\nViewer count: {viewercount}')
+            stream_info_content[c].grid()
         stream_info_status[c] = True
-        update_meta_canvas()
     else:
         stream_info_content[c].grid_remove()
         stream_info_status[c] = False
-        update_meta_canvas()
+    update_meta_canvas()
 
 def offline_info(c, streamer):
     if not stream_info_status[c]:
-        stream_info_content[c] = default_label(main_frame, 'offline',
-                                    text=f'Last seen: '
-                                    f'{twitchapi.last_seen(streamer)}',
-                                    justify='left',
-                                    anchor='w',
-                                    )
-        stream_info_content[c].grid(row=c+1,
-                                    column=1,
-                                    columnspan=4,
-                                    sticky='w',
-                                    padx=10
-                                    )
+        last_seen_text = f'Last seen: {twitchapi.last_seen(streamer)}'
+        if c not in stream_info_content:
+            stream_info_content[c] = default_label(main_frame,
+                                                   text=last_seen_text,
+                                                   justify='left',
+                                                   anchor='w')
+            stream_info_content[c].grid(row=c+1,
+                                        column=1,
+                                        columnspan=4,
+                                        sticky='w',
+                                        padx=10)
+        else:
+            stream_info_content[c].config(text=last_seen_text)
+            stream_info_content[c].grid()
         stream_info_status[c] = True
-        update_meta_canvas()
     else:
         stream_info_content[c].grid_remove()
         stream_info_status[c] = False
-        update_meta_canvas()
+    update_meta_canvas()
 
 def website_dialog(c, streamer):
     if not weblink_status[c]:
-        weblink_content[c] = default_frame(main_frame)
-        weblink_content[c].grid(row=c+2,
-                                column=1,
-                                columnspan=4
-                                )
-        website_button = default_button(weblink_content[c],
-                                    text='Website',
-                                    command=lambda s=streamer:
-                                    webbrowser.open(
-                                        f'http://www.twitch.tv/'
-                                        f'{s}'
-                                        )
-                                    )
-        website_button.grid(row=0, column=0, sticky='ew')
-        webplayer_button = default_button(weblink_content[c],
-                                    text='Webplayer',
-                                    command=lambda s=streamer:
-                                    webbrowser.open(
-                                        f'https://player.twitch.tv/'
-                                        f'?channel={s}'
-                                        f'&parent=twitch.tv'
-                                        )
-                                    )
-        webplayer_button.grid(row=0, column=1, sticky='ew')
+        if c not in weblink_content:
+            weblink_content[c] = default_frame(main_frame)
+            weblink_content[c].grid(row=c+2, column=1, columnspan=4)
+            website_button = default_button(weblink_content[c],
+                                            text='Website',
+                                            command=lambda s=streamer: webbrowser.open(f'http://www.twitch.tv/{s}'))
+            website_button.grid(row=0, column=0, sticky='ew')
+            webplayer_button = default_button(weblink_content[c],
+                                              text='Webplayer',
+                                              command=lambda s=streamer: webbrowser.open(f'https://player.twitch.tv/?channel={s}&parent=twitch.tv'))
+            webplayer_button.grid(row=0, column=1, sticky='ew')
+        else:
+            weblink_content[c].grid()
         weblink_status[c] = True
-        update_meta_canvas()
     else:
         weblink_content[c].grid_remove()
         weblink_status[c] = False
-        update_meta_canvas()
+    update_meta_canvas()
 
 def error_dialog(e):
     messagebox.showerror(title='Error',
@@ -381,23 +338,28 @@ def play_dialog():
         update = twitchapi.start_stream(streamer)
 
 def refresh_main_quiet():
-    '''Refresh the main panel without running wtwitch c to avoid unnecessary
-    Twitch API calls.
-    '''
-    global streamer_status
+    global streamer_status, current_vod_panel
     try:
         streamer_status = twitchapi.extract_streamer_status()
     except Exception as e:
         error_dialog(e)
-    twitchapi.extract_streamer_status()
+
+    meta_canvas.update_idletasks()  # Flush the event queue
+    meta_canvas.configure(yscrollcommand=None)  # Temporarily disable scroll command
+
+    # Clear and repopulate main_frame
     for widget in main_frame.winfo_children():
         widget.destroy()
-    streamer_buttons()
-    try:
+    streamer_buttons()  # Re-populate the main_frame
+
+    meta_canvas.update_idletasks()  # Flush the event queue
+    meta_canvas.configure(yscrollcommand=scrollbar.set)  # Re-enable scroll command
+    update_meta_canvas()  # Update the canvas region
+
+    # If a VOD panel is active, refresh it
+    if current_vod_panel:
         refresh_vod_panel(current_vod_panel)
-    except:
-        pass
-    update_meta_canvas()
+
 
 def refresh_main():
     '''Runs wtwitch c and then rebuilds the main panel.
@@ -413,9 +375,10 @@ def refresh_main():
     streamer_buttons()
     update_meta_canvas()
 
-def update_meta_canvas():
-    meta_canvas.update_idletasks()
-    meta_canvas.configure(scrollregion=meta_canvas.bbox("all"))
+def update_meta_canvas(force_update=False):
+    if force_update or meta_canvas.bbox("all") != meta_canvas.bbox("view"):
+        meta_canvas.update_idletasks()
+        meta_canvas.configure(scrollregion=meta_canvas.bbox("all"))
 
 def resize_canvas(event, canvas, window):
     if canvas.winfo_exists():
@@ -432,33 +395,31 @@ def on_mouse_wheel_windows(event, canvas):
     canvas.yview_scroll(int(-1*(event.delta/120)), "units")
 
 def draw_main():
-    '''The main window. Calls streamer_buttons() twice, to draw buttons for
-    online and offline streamers.
-    '''
-    # frame-canvas-frame to attach a scrollbar:
+    '''The main window. Calls streamer_buttons() twice, to draw buttons for online and offline streamers.'''
     meta_frame = default_frame(root)
     meta_frame.grid(row=1, column=0, sticky='nsew')
     meta_frame.columnconfigure(0, weight=1)
     meta_frame.rowconfigure(0, weight=1)
+
     global meta_canvas
     meta_canvas = default_canvas(meta_frame)
     meta_canvas.grid(row=0, column=0, sticky="nsew")
     meta_canvas.columnconfigure(0, weight=1)
     meta_canvas.rowconfigure(0, weight=1)
-    scrollbar = ttk.Scrollbar(meta_frame,
-                        orient="vertical", command=meta_canvas.yview)
+
+    global scrollbar
+    scrollbar = ttk.Scrollbar(meta_frame, orient="vertical", command=meta_canvas.yview)
     scrollbar.grid(row=0, column=1, sticky="ns")
     meta_canvas.configure(yscrollcommand=scrollbar.set)
+
     global main_frame
     main_frame = default_frame(meta_canvas)
     main_frame.grid(row=0, column=0, sticky='nsew')
     main_frame.columnconfigure(1, weight=1)
+
     global meta_canvas_window
-    meta_canvas_window = meta_canvas.create_window(
-                                                (0, 0),
-                                                window=main_frame,
-                                                anchor="nw"
-                                                )
+    meta_canvas_window = meta_canvas.create_window((0, 0), window=main_frame, anchor="nw")
+
     meta_canvas.bind("<Configure>", lambda e: resize_canvas(e, meta_canvas, meta_canvas_window))
     meta_canvas.bind_all("<Button-4>", lambda e: on_mouse_wheel(e, meta_canvas))
     meta_canvas.bind_all("<Button-5>", lambda e: on_mouse_wheel(e, meta_canvas))
