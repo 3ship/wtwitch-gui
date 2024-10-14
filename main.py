@@ -131,8 +131,14 @@ def refresh_vod_panel(streamer):
 def close_vod_panel():
     vw_frame.forget()
     vw_frame.destroy()
-    main_frame.destroy()
+    vw_canvas.unbind_all("<Configure>")
+    vw_canvas.unbind_all("<Button-4>")
+    vw_canvas.unbind_all("<Button-5>")
+    vw_canvas.unbind_all("<MouseWheel>")
+
+    meta_canvas.destroy()
     draw_main()
+    update_meta_canvas()
 
 def streamer_buttons():
     online_streamers = streamer_status[0]
@@ -273,9 +279,11 @@ def online_info(c, streamer, category, title, viewercount):
                                     padx=10
                                     )
         stream_info_status[c] = True
+        update_meta_canvas()
     else:
         stream_info_content[c].grid_remove()
         stream_info_status[c] = False
+        update_meta_canvas()
 
 def offline_info(c, streamer):
     if not stream_info_status[c]:
@@ -292,9 +300,11 @@ def offline_info(c, streamer):
                                     padx=10
                                     )
         stream_info_status[c] = True
+        update_meta_canvas()
     else:
         stream_info_content[c].grid_remove()
         stream_info_status[c] = False
+        update_meta_canvas()
 
 def website_dialog(c, streamer):
     if not weblink_status[c]:
@@ -323,9 +333,11 @@ def website_dialog(c, streamer):
                                     )
         webplayer_button.grid(row=0, column=1, sticky='ew')
         weblink_status[c] = True
+        update_meta_canvas()
     else:
         weblink_content[c].grid_remove()
         weblink_status[c] = False
+        update_meta_canvas()
 
 def error_dialog(e):
     messagebox.showerror(title='Error',
@@ -377,8 +389,7 @@ def refresh_main_quiet():
         refresh_vod_panel(current_vod_panel)
     except:
         pass
-    meta_canvas.update_idletasks()
-    meta_canvas.configure(scrollregion=meta_canvas.bbox("all"))
+    update_meta_canvas()
 
 def refresh_main():
     '''Runs wtwitch c and then rebuilds the main panel.
@@ -392,6 +403,11 @@ def refresh_main():
     for widget in main_frame.winfo_children():
         widget.destroy()
     streamer_buttons()
+    update_meta_canvas()
+
+def update_meta_canvas():
+    meta_canvas.update_idletasks()
+    meta_canvas.configure(scrollregion=meta_canvas.bbox("all"))
 
 def resize_canvas(event, canvas, window):
     canvas.itemconfig(window, width=event.width)
@@ -689,9 +705,10 @@ def add_askyesno_row(frame, prompt, row):
 
     no_button = default_button(askyesno_frame, text="No", command=on_no)
     no_button.grid(row=2, column=1, sticky='ew')
-
+    update_meta_canvas()
     response = None
     askyesno_frame.wait_window()
+    update_meta_canvas()
     return response
 
 def add_askstring_row(frame, prompt, initial_value=""):
@@ -730,9 +747,10 @@ def add_askstring_row(frame, prompt, initial_value=""):
                                     command=on_submit
                                     )
     submit_button.grid(row=2, column=1, sticky='ew')
-
+    update_meta_canvas()
     response = None
     askstring_frame.wait_window()
+    update_meta_canvas()
     return response
 
 def custom_menu_bar():
@@ -774,7 +792,8 @@ def custom_menu_bar():
     expand_b.grid(row=0, column=4, sticky='e')
     expand_b.configure(command=lambda: [
                                         info_quick_toggle(),
-                                        set_quick_toggle_icon(1)
+                                        set_quick_toggle_icon(1),
+                                        update_meta_canvas()
                                         ]
                         )
     sep = default_separator(menu_frame)
@@ -1082,4 +1101,5 @@ current_query_frame = None
 
 custom_menu_bar()
 draw_main()
+update_meta_canvas()
 root.mainloop()
