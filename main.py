@@ -26,9 +26,21 @@ def vod_panel(streamer):
     vw_frame = default_frame(root)
     vw_frame.grid(column=0, row=1, sticky='nsew')
     vw_frame.columnconfigure(0, weight=1)
-    vw_frame.rowconfigure(0, weight=1)
+    vw_frame.rowconfigure(1, weight=1)
+
+    header_frame = default_frame(vw_frame)
+    header_frame.grid(column=0, row=0, sticky='nsew')
+    header_frame.columnconfigure(1, weight=1)
+    close_button = default_button(header_frame, image=close_icon, command=lambda: close_vod_panel())
+    close_button.grid(column=0, row=0, sticky='nw', ipady=12, ipadx=12)
+    vod_label = default_label(header_frame, text=f"{streamer}'s VODs")
+    vod_label.grid(column=1, row=0)
+    separator = default_separator(header_frame)
+    separator[0].grid(row=1, columnspan=2)
+    separator[1].grid(row=2, columnspan=2)
+
     met_frame = default_frame(vw_frame)
-    met_frame.grid(column=0, row=0, sticky='nsew')
+    met_frame.grid(column=0, row=1, sticky='nsew')
     met_frame.columnconfigure(0, weight=1)
     met_frame.rowconfigure(0, weight=1)
     global vw_canvas
@@ -36,37 +48,24 @@ def vod_panel(streamer):
     vw_scrollbar = ttk.Scrollbar(met_frame,orient="vertical",
                         command=vw_canvas.yview
                         )
+    vw_canvas.grid(row=0, column=0, sticky="nsew")
+    vw_scrollbar.grid(row=0, column=1, sticky="ns")    
     vw_canvas.configure(yscrollcommand=vw_scrollbar.set)
     global vod_frame
     vod_frame = default_frame(met_frame)
     vod_frame.grid(column=0, row=0, sticky='nsew')
     vod_frame.columnconfigure(1, weight=1)
-    vod_frame.rowconfigure(0, weight=1)
     # Draw the VOD grid:
-    close_button = default_button(
-                        vod_frame,
-                        image=close_icon,
-                        command=lambda: close_vod_panel()
-                        )
-    close_button.grid(column=0, row=0, sticky='nw', ipady=12, ipadx=12)
-    vod_label = default_label(vod_frame,
-                        text=f'{streamer}\'s VODs'
-                        )
-    vod_label.grid(column=1, row=0)
-    separator = default_separator(vod_frame)
-    separator[0].grid(row=1)
-    separator[1].grid(row=2)
     vod_number = 1
     count_vod_rows = 3
     for timestamp, title, length in zip(vods[0], vods[1], vods[2]):
         vod_info_status[count_vod_rows] = False
         watch_button = default_button(vod_frame,
                         image=play_icon,
-                        height='24', width='24',
                         command=lambda s=streamer, v=vod_number:
                         [twitchapi.start_vod(s, v)]
                         )
-        watch_button.grid(column=0, row=count_vod_rows, sticky='nesw')
+        watch_button.grid(column=0, row=count_vod_rows, sticky='nesw', ipadx=12, ipady=6)
         if current_expand_setting == 'all' or current_expand_setting == 'online':
             timestamp_button = default_button(vod_frame,
                             text=f"{timestamp} {length}",
@@ -97,8 +96,6 @@ def vod_panel(streamer):
                                             window=vod_frame,
                                             anchor="nw"
                                             )
-    vw_canvas.grid(row=0, column=0, sticky="nsew")
-    vw_scrollbar.grid(row=0, column=1, sticky="ns")
     vw_canvas.bind("<Configure>", lambda e: resize_canvas(e, vw_canvas, vw_canvas_window))
     vw_canvas.bind_all("<Button-4>", lambda e: on_mouse_wheel(e, vw_canvas))
     vw_canvas.bind_all("<Button-5>", lambda e: on_mouse_wheel(e, vw_canvas))

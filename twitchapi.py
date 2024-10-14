@@ -10,44 +10,6 @@ import base64
 from datetime import datetime
 import encoded_images
 
-def check_config():
-    with open(wtwitch_config_file(), 'r') as config:
-        config = json.load(config)
-        player = config['player']
-        quality = config['quality']
-        colors = config['colors']
-        print_offline_subs = config['printOfflineSubscriptions']
-    return player, quality, colors, print_offline_subs
-
-def adjust_config(setting, new_value):
-    with open(wtwitch_config_file(), 'r') as config:
-        config = json.load(config)
-    config[setting] = new_value
-    with open(wtwitch_config_file(), 'w') as nconfig:
-        json.dump(config, nconfig)
-
-def follow_streamer(s):
-    new_entry = {'streamer': s}
-    with open(wtwitch_config_file(), 'r') as config:
-        config = json.load(config)
-    if new_entry not in config['subscriptions']:
-        config['subscriptions'].append(new_entry)
-    with open(wtwitch_config_file(), 'w') as nconfig:
-        json.dump(config, nconfig)
-
-def unfollow_streamer(s):
-    with open(wtwitch_config_file(), 'r') as config:
-        config = json.load(config)
-    new_subscriptions = []
-    for i in config['subscriptions']:
-        if i['streamer'] == s:
-            continue
-        else:
-            new_subscriptions.append(i)
-    config['subscriptions'] = new_subscriptions
-    with open(wtwitch_config_file(), 'w') as nconfig:
-        json.dump(config, nconfig)
-
 def wtwitch_config_file():
     if 'APPDATA' in os.environ:
         confighome = os.environ['APPDATA']
@@ -55,8 +17,7 @@ def wtwitch_config_file():
         confighome = os.environ['XDG_CONFIG_HOME']
     else:
         confighome = os.path.join(os.environ['HOME'], '.config')
-    configfile = os.path.join(confighome, 'wtwitch/config.json')
-    return configfile
+    return os.path.join(confighome, 'wtwitch/config.json')
 
 def wtwitch_subscription_cache():
     if 'LOCALAPPDATA' in os.environ:
@@ -66,26 +27,90 @@ def wtwitch_subscription_cache():
     else:
         cachehome = os.path.join(os.environ['HOME'], '.cache')
     cachepath = os.path.join(cachehome, 'wtwitch/subscription-cache.json')
+    onlinesubs_path = os.path.join(cachehome, 'wtwitch/online-subs')
     if not os.path.isfile(cachepath):
+        default_cache = {"data": [], "pagination": {}}
         with open(cachepath, 'w') as initcachepath:
-            initcachepath.write(r'{"data":[],"pagination":{}}')
-    return cachepath, cachehome
+            json.dump(default_cache, initcachepath, indent=4)
+    return cachepath, onlinesubs_path, cachehome
+
+def read_config():
+    with open(wtwitch_config_file(), 'r') as config:
+        return json.load(config)
+
+def write_config(config):
+    with open(wtwitch_config_file(), 'w') as nconfig:
+        json.dump(config, nconfig, indent=4)
+
+def check_config():
+    config = read_config()
+    player = config.get('player')
+    quality = config.get('quality')
+    colors = config.get('colors')
+    print_offline_subs = config.get('printOfflineSubscriptions')
+    return player, quality, colors, print_offline_subs
+
+def adjust_config(setting, new_value):
+    config = read_config()
+    config[setting] = new_value
+    write_config(config)
+
+def follow_streamer(s):
+    new_entry = {'streamer': s}
+    config = read_config()
+    if new_entry not in config['subscriptions']:
+        config['subscriptions'].append(new_entry)
+        write_config(config)
+
+        # Check if the streamer is in the subscription cache and add to the
+        # online-subs file if present
+        cachepath, onlinesubs_path, _ = wtwitch_subscription_cache()
+        with open(cachepath, 'r') as cache:
+            cachefile = json.load(cache)
+            for streamer in cachefile['data']:
+                if streamer['user_login'] == s:
+                    with open(onlinesubs_path, 'a') as f:
+                        f.write(f"\n{s}")
+                    break
+
+def unfollow_streamer(s):
+    config = read_config()
+    config['subscriptions'] = [i for i in config['subscriptions'] if i['streamer'] != s]
+    write_config(config)
+    
+    # Remove the streamer from the online-subs file
+    _, onlinesubs_path, _ = wtwitch_subscription_cache()
+    with open(onlinesubs_path, 'r') as f:
+        online_lines = f.read().splitlines()
+    online_lines = [line for line in online_lines if line != s]
+    with open(onlinesubs_path, 'w') as f:
+        f.write('\n'.join(online_lines))
 
 def extract_streamer_status():
+    cachepath, onlinesubs_path, _ = wtwitch_subscription_cache()
     online_streamers = []
     online_package = []
     offline_streamers = []
-    with open(wtwitch_subscription_cache()[0], 'r') as cache:
+
+    # Read the online-subs file
+    with open(onlinesubs_path, 'r') as f:
+        online_lines = f.read().splitlines()
+    
+    # Read the cache file
+    with open(cachepath, 'r') as cache:
         cachefile = json.load(cache)
         for streamer in cachefile['data']:
-            online_streamers.append(streamer['user_login'])
-            login = streamer['user_login']
-            name = streamer['user_name']
-            categ = streamer['game_name']
-            title = streamer['title']
-            views = streamer['viewer_count']
-            package = login,name,categ,title,views
-            online_package.append(package)
+            if streamer['user_login'] in online_lines:
+                online_streamers.append(streamer['user_login'])
+                login = streamer['user_login']
+                name = streamer['user_name']
+                categ = streamer['game_name']
+                title = streamer['title']
+                views = streamer['viewer_count']
+                package = login, name, categ, title, views
+                online_package.append(package)
+
+    # Read the config file
     with open(wtwitch_config_file(), 'r') as config:
         configfile = json.load(config)
         subscriptions = configfile['subscriptions']
@@ -93,19 +118,21 @@ def extract_streamer_status():
             streamer = diction['streamer']
             if streamer not in online_streamers:
                 offline_streamers.append(streamer)
+
     online_package.sort()
     offline_streamers.sort()
     return online_package, offline_streamers
 
 def last_seen(s):
-    lastseen_dir = f'{wtwitch_subscription_cache()[1]}/wtwitch/lastSeen/{s}'
+    _, _, cachehome = wtwitch_subscription_cache()
+    lastseen_dir = f'{cachehome}/wtwitch/lastSeen/{s}'
     try:
         with open(lastseen_dir) as lastseen:
             ts = int(lastseen.read())
             ts = datetime.utcfromtimestamp(ts)
             ts = ts.strftime('%Y-%m-%d - %H:%M')
             return ts
-    except:
+    except Exception:
         return 'unknown'
 
 def check_status():
@@ -116,45 +143,48 @@ def check_status():
                     text=True
                     )
 
-def fetch_vods(streamer):
-    '''Run wtwitch v and extract all timestamps/titles of the streamer's VODs
-    with regex. Cap the title length at 50 characters.
-    '''
-    # Make sure vods directory exists:
-    if not os.path.isdir(f'{sys.path[0]}/vods'):
-        os.makedirs(f'{sys.path[0]}/vods')
-    # Make sure the streamer's vods file exist and set it's age:
-    vods_file = f'{sys.path[0]}/vods/{streamer}.txt'
+def ensure_vod_directory_and_file(vods_path: str, vods_file: str) -> float:
+    if not os.path.isdir(vods_path):
+        os.makedirs(vods_path)
     if not os.path.isfile(vods_file):
         open(vods_file, 'a').close()
-        cache_age = 10000
+        return 10000.0
     else:
         cache_modified = os.path.getmtime(vods_file)
-        cache_age = time.time() - cache_modified
-    # Only update the vods file, if it's new or older than 1 hour:
+        return time.time() - cache_modified
+
+def fetch_vods(streamer: str) -> tuple[list[str], list[str], list[str]]:
+    """
+    Run wtwitch v and extract all timestamps/titles of the streamer's VODs
+    with regex.
+    """
+    vods_path = f'{sys.path[0]}/vods'
+    vods_file = f'{vods_path}/{streamer}.txt'
+    
+    cache_age = ensure_vod_directory_and_file(vods_path, vods_file)
+
     if cache_age > 3600:
-        wtwitch_v = subprocess.check_output(['wtwitch', 'v', streamer],
-                            text=True
-                            )
-        wtwitch_v = fr'{wtwitch_v}'
-        with open(vods_file, 'w') as vods:
+        wtwitch_v = subprocess.check_output(['wtwitch', 'v', streamer])
+        with open(vods_file, 'wb') as vods:
             vods.write(wtwitch_v)
-    # Retrieve relevant data from vods file and return it:
-    timestamps = []
-    titles = []
-    length = []
-    timestamp_pattern = re.compile(r'\d{2}\S\d{2}.* \d{2}:\d{2}')
-    titles_pattern = re.compile(r'(?<=\x1b\[0m\s)(.*?)(?=\s\x1b\[93m)')
-    length_pattern = re.compile(r'\(?(\d+h)?\d+m\d+s\)?')
-    with open(vods_file, 'r') as vods:
-        for line in vods:
-            for match in timestamp_pattern.finditer(line):
-                timestamps.append(match.group())
-            for match in titles_pattern.finditer(line):
-                titles.append(match.group())
-            for match in length_pattern.finditer(line):
-                length.append(match.group())
-    return timestamps, titles, length
+
+    timestamps, dates, times, titles, lengths = [], [], [], [], []
+    date_pattern = re.compile(rb'\d{2}[./-]\d{2}[./-]\d{4}')
+    time_pattern = re.compile(rb'\d{2}:\d{2}:\d{2}')
+    titles_pattern = re.compile(rb'\d+\.\s\x1b\[96m\[.*?\]\x1b\[0m\s(.*?)\s\x1b\[93m')
+    length_pattern = re.compile(rb'\x1b\[93m\((.*?)\)\x1b\[0m')
+
+    with open(vods_file, 'rb') as vods:
+        content = vods.read()
+        dates = [match.decode('utf-8') for match in date_pattern.findall(content)]
+        times = [match.decode('utf-8') for match in time_pattern.findall(content)]
+        titles = [match.decode('utf-8') for match in titles_pattern.findall(content)]
+        lengths = [f"({match.decode('utf-8')})" for match in length_pattern.findall(content)]
+
+        timestamps = [f"{date} - {time}" for date, time in zip(dates, times)]
+
+    return timestamps, titles, lengths
+
 
 def start_vod(s, v):
     subprocess.run(['wtwitch', 'v', s, str(v)])
@@ -189,21 +219,21 @@ def create_settings_file():
             json.dump(default_settings, settings, indent=4)
 
 def change_settings_file(setting, new_value):
-    with open(f'{sys.path[0]}/settings.json', 'r') as settings:
+    settings_path = f'{sys.path[0]}/settings.json'
+    with open(settings_path, 'r') as settings:
         settings = json.load(settings)
     settings[setting] = new_value
-    with open(f'{sys.path[0]}/settings.json', 'w') as nsettings:
-        json.dump(settings, nsettings)
+    with open(settings_path, 'w') as nsettings:
+        json.dump(settings, nsettings, indent=4)
 
 def get_setting(k):
-    with open(f'{sys.path[0]}/settings.json', 'r') as settings:
+    settings_path = f'{sys.path[0]}/settings.json'
+    with open(settings_path, 'r') as settings:
         settings = json.load(settings)
     return settings[k]
 
 def gnome_check():
-    if os.environ.get('XDG_CURRENT_DESKTOP') == 'GNOME':
-        return True
-    return False
+    return os.environ.get('XDG_CURRENT_DESKTOP') == 'GNOME'
 
 def detect_darkmode_gnome():
     """
