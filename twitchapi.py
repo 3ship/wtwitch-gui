@@ -6,6 +6,7 @@ import re
 import json
 import subprocess
 import time
+import locale
 import base64
 from datetime import datetime
 import encoded_images
@@ -155,31 +156,35 @@ def ensure_vod_directory_and_file(vods_path: str, vods_file: str) -> float:
 
 def fetch_vods(streamer: str) -> tuple[list[str], list[str], list[str]]:
     """
-    Run wtwitch v and extract all timestamps/titles of the streamer's VODs
-    with regex.
+    Run wtwitch v and extract all timestamps/titles of the streamer's VODs with regex.
     """
+    # Set the locale to ensure date and time formats are handled correctly
+    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+
     vods_path = f'{sys.path[0]}/vods'
     vods_file = f'{vods_path}/{streamer}.txt'
-    
-    cache_age = ensure_vod_directory_and_file(vods_path, vods_file)
 
+    cache_age = ensure_vod_directory_and_file(vods_path, vods_file)
     if cache_age > 3600:
         wtwitch_v = subprocess.check_output(['wtwitch', 'v', streamer])
         with open(vods_file, 'wb') as vods:
             vods.write(wtwitch_v)
 
     timestamps, dates, times, titles, lengths = [], [], [], [], []
-    date_pattern = re.compile(rb'\d{2}[./-]\d{2}[./-]\d{4}')
-    time_pattern = re.compile(rb'\d{2}:\d{2}:\d{2}')
-    titles_pattern = re.compile(rb'\d+\.\s\x1b\[96m\[.*?\]\x1b\[0m\s(.*?)\s\x1b\[93m')
-    length_pattern = re.compile(rb'\x1b\[93m\((.*?)\)\x1b\[0m')
+
+    # Adjusted regex patterns
+    date_pattern = re.compile(r'\d{2}[./-]\d{2}[./-]\d{2}')
+    time_pattern = re.compile(r'\d{2}:\d{2}:\d{2}')
+    titles_pattern = re.compile(r'\d+\.\s\x1b\[96m\[.*?\]\x1b\[0m\s(.*?)\s\x1b\[93m')
+    length_pattern = re.compile(r'\x1b\[93m\((.*?)\)\x1b\[0m')
 
     with open(vods_file, 'rb') as vods:
-        content = vods.read()
-        dates = [match.decode('utf-8') for match in date_pattern.findall(content)]
-        times = [match.decode('utf-8') for match in time_pattern.findall(content)]
-        titles = [match.decode('utf-8') for match in titles_pattern.findall(content)]
-        lengths = [f"({match.decode('utf-8')})" for match in length_pattern.findall(content)]
+        content = vods.read().decode('utf-8')  # Decode bytes to string
+        
+        dates = date_pattern.findall(content)
+        times = time_pattern.findall(content)
+        titles = titles_pattern.findall(content)
+        lengths = [f"({match})" for match in length_pattern.findall(content)]
 
         timestamps = [f"{date} - {time}" for date, time in zip(dates, times)]
 

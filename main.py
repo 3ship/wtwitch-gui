@@ -6,28 +6,31 @@ from tkinter import ttk
 from tkinter import messagebox
 import twitchapi
 
+vod_buttons_dict = {}
+vod_info_status = {}
+vod_info_content = {}
+
 def vod_panel(streamer):
-    '''Draw 2 columns for the watch buttons and timestamps/stream length of
-    the last 20 VODs.
-    '''
-    global current_vod_panel
+    '''Draw 2 columns for the watch buttons and timestamps/stream length of the last 20 VODs.'''
+    global current_vod_panel, vod_buttons_dict, vod_info_status, vod_info_content, vw_frame
     current_vod_panel = streamer
-    # Retrieve the streamer's VODs:
     vods = twitchapi.fetch_vods(streamer)
-    # Account for streamer having zero VODs:
+    
     if len(vods[0]) == 0:
         no_vods = messagebox.showinfo(title=f"No VODs",
-                        message=f"{streamer} has no VODs",
-                        parent=root
-                        )
+                                      message=f"{streamer} has no VODs",
+                                      parent=root)
         return
-    # frame-canvas-frame to attach a scrollbar:
-    global vw_frame
+
+    vod_buttons_dict = {}
+    vod_info_status = {}
+    vod_info_content = {}
+
     vw_frame = default_frame(root)
     vw_frame.grid(column=0, row=1, sticky='nsew')
     vw_frame.columnconfigure(0, weight=1)
     vw_frame.rowconfigure(1, weight=1)
-
+    
     header_frame = default_frame(vw_frame)
     header_frame.grid(column=0, row=0, sticky='nsew')
     header_frame.columnconfigure(1, weight=1)
@@ -38,101 +41,109 @@ def vod_panel(streamer):
     separator = default_separator(header_frame)
     separator[0].grid(row=1, columnspan=2)
     separator[1].grid(row=2, columnspan=2)
-
+    
     met_frame = default_frame(vw_frame)
     met_frame.grid(column=0, row=1, sticky='nsew')
     met_frame.columnconfigure(0, weight=1)
     met_frame.rowconfigure(0, weight=1)
+    
     global vw_canvas
     vw_canvas = default_canvas(met_frame)
-    vw_scrollbar = ttk.Scrollbar(met_frame,orient="vertical",
-                        command=vw_canvas.yview
-                        )
+    vw_scrollbar = ttk.Scrollbar(met_frame, orient="vertical", command=vw_canvas.yview)
     vw_canvas.grid(row=0, column=0, sticky="nsew")
-    vw_scrollbar.grid(row=0, column=1, sticky="ns")    
+    vw_scrollbar.grid(row=0, column=1, sticky="ns")
     vw_canvas.configure(yscrollcommand=vw_scrollbar.set)
+    
     global vod_frame
     vod_frame = default_frame(met_frame)
     vod_frame.grid(column=0, row=0, sticky='nsew')
     vod_frame.columnconfigure(1, weight=1)
-    # Draw the VOD grid:
+    
     vod_number = 1
     count_vod_rows = 3
     for timestamp, title, length in zip(vods[0], vods[1], vods[2]):
         vod_info_status[count_vod_rows] = False
-        watch_button = default_button(vod_frame,
-                        image=play_icon,
-                        command=lambda s=streamer, v=vod_number:
-                        [twitchapi.start_vod(s, v)]
-                        )
+        vod_buttons_dict[count_vod_rows] = {
+            'watch_button': default_button(vod_frame, image=play_icon, command=lambda s=streamer, v=vod_number: [twitchapi.start_vod(s, v)]),
+            'timestamp_button': None
+        }
+
+        watch_button = vod_buttons_dict[count_vod_rows]['watch_button']
         watch_button.grid(column=0, row=count_vod_rows, sticky='nesw', ipadx=12, ipady=6)
+
         if current_expand_setting == 'all' or current_expand_setting == 'online':
             timestamp_button = default_button(vod_frame,
-                            text=f"{timestamp} {length}",
-                            anchor='w',
-                            state='disabled',
-                            font=small_font,
-                            )
+                                              text=f"{timestamp} {length}",
+                                              anchor='w',
+                                              state='disabled',
+                                              font=small_font)
             vod_info(count_vod_rows, title)
         else:
             timestamp_button = default_button(vod_frame,
-                        text=f"{timestamp} {length}",
-                        command=lambda c=count_vod_rows, t=title:
-                        vod_info(c, t),
-                        font=small_font,
-                        anchor='w'
-                        )
+                                              text=f"{timestamp} {length}",
+                                              command=lambda c=count_vod_rows, t=title: vod_info(c, t),
+                                              font=small_font,
+                                              anchor='w')
+        
+        vod_buttons_dict[count_vod_rows]['timestamp_button'] = timestamp_button
         timestamp_button.grid(column=1, row=count_vod_rows, sticky='nesw')
+        
         if vod_number != len(vods[0]):
             separator = default_separator(vod_frame)
-            separator[0].grid(row=count_vod_rows+2)
-            separator[1].grid(row=count_vod_rows+3)
+            separator[0].grid(row=count_vod_rows + 2)
+            separator[1].grid(row=count_vod_rows + 3)
+        
         vod_number += 1
         count_vod_rows += 4
-    # Finish the scrollbar
+    
     global vw_canvas_window
-    vw_canvas_window = vw_canvas.create_window(
-                                            (0, 0),
-                                            window=vod_frame,
-                                            anchor="nw"
-                                            )
+    vw_canvas_window = vw_canvas.create_window((0, 0), window=vod_frame, anchor="nw")
     vw_canvas.bind("<Configure>", lambda e: resize_canvas(e, vw_canvas, vw_canvas_window))
     vw_canvas.bind_all("<Button-4>", lambda e: on_mouse_wheel(e, vw_canvas))
     vw_canvas.bind_all("<Button-5>", lambda e: on_mouse_wheel(e, vw_canvas))
-    vw_canvas.bind_all("<MouseWheel>", lambda e: on_mouse_wheel_windows(e, meta_canvas))
+    vw_canvas.bind_all("<MouseWheel>", lambda e: on_mouse_wheel_windows(e, vw_canvas))
 
-def vod_info(cr, title):
-    if not vod_info_status[cr]:
-        vod_info_content[cr] = default_label(vod_frame,
-                                    text=f'{title}',
-                                    justify='left',
-                                    anchor='w',
-                                    )
-        vod_info_content[cr].grid(
-                                row=cr+1,
-                                column=0,
-                                columnspan=3,
-                                sticky='w',
-                                padx=10
-                                )
-        vod_info_status[cr] = True
+def vod_info(c, title):
+    if not vod_info_status[c]:
+        if c not in vod_info_content:
+            vod_info_content[c] = default_label(vod_frame,
+                                                text=f'{title}',
+                                                justify='left',
+                                                anchor='w')
+            vod_info_content[c].grid(row=c+1,
+                                     column=0,
+                                     columnspan=3,
+                                     sticky='w',
+                                     padx=10)
+        else:
+            vod_info_content[c].config(text=f'{title}')
+            vod_info_content[c].grid()
+        vod_info_status[c] = True
     else:
-        vod_info_content[cr].grid_remove()
-        vod_info_status[cr] = False
+        vod_info_content[c].grid_remove()
+        vod_info_status[c] = False
 
 def refresh_vod_panel(streamer):
-    for widget in vw_frame.winfo_children():
-        widget.destroy()
-    vod_panel(streamer)
+    global vw_frame, meta_canvas
+    if 'vw_frame' in globals() and vw_frame.winfo_exists():
+        for widget in vw_frame.winfo_children():
+            widget.destroy()
+        vod_panel(streamer)
 
 def close_vod_panel():
-    vw_frame.forget()
-    vw_frame.destroy()
-    vw_canvas.unbind_all("<Configure>")
-    vw_canvas.unbind_all("<Button-4>")
-    vw_canvas.unbind_all("<Button-5>")
-    vw_canvas.unbind_all("<MouseWheel>")
-
+    global vw_frame, vw_canvas, current_vod_panel
+    try:
+        if vw_frame.winfo_exists():
+            vw_frame.forget()
+            vw_frame.destroy()
+        vw_canvas.unbind_all("<Configure>")
+        vw_canvas.unbind_all("<Button-4>")
+        vw_canvas.unbind_all("<Button-5>")
+        vw_canvas.unbind_all("<MouseWheel>")
+    except Exception as e:
+        print("Error while closing VOD panel:", e)
+    
+    current_vod_panel = None  # Reset current_vod_panel
     meta_canvas.destroy()
     draw_main()
     update_meta_canvas()
