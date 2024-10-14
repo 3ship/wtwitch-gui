@@ -161,7 +161,6 @@ def streamer_buttons():
     count_rows = 0
 
     # Initialize or clear dictionaries
-    streamer_buttons_dict = {}
     stream_info_status = {}
     stream_info_content = {}
     weblink_status = {}
@@ -364,14 +363,17 @@ def refresh_main_quiet():
 
 
 def refresh_main():
-    '''Runs wtwitch c and then rebuilds the main panel.
-    '''
+    '''Runs wtwitch c and then rebuilds the main panel.'''
     twitchapi.check_status()
-    global streamer_status
+    global streamer_status, streamer_buttons_dict
     try:
         streamer_status = twitchapi.extract_streamer_status()
     except Exception as e:
         error_dialog(e)
+    
+    # Clear the dictionary before updating
+    streamer_buttons_dict = {}
+
     for widget in main_frame.winfo_children():
         widget.destroy()
     streamer_buttons()
