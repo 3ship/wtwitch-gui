@@ -463,8 +463,10 @@ def draw_main():
     meta_canvas.bind_all("<Button-4>", lambda e: on_mouse_wheel(e, meta_canvas))
     meta_canvas.bind_all("<Button-5>", lambda e: on_mouse_wheel(e, meta_canvas))
     meta_canvas.bind_all("<MouseWheel>", lambda e: on_mouse_wheel_windows(e, meta_canvas))
+
     # Draw main content:
     streamer_buttons()
+    update_meta_canvas(True)  # Force update the canvas scroll region
 
 def custom_player():
     '''Opens a dialog to set a custom media player.
@@ -678,13 +680,17 @@ def set_quick_toggle_icon(n):
     return current_quick_toggle_icon
 
 def info_quick_toggle():
-    global current_expand_setting
+    global current_expand_setting, current_vod_panel
     if current_expand_setting == 'no':
         twitchapi.change_settings_file('show_info', preset_info_setting)
     else:
         twitchapi.change_settings_file('show_info', 'no')
     current_expand_setting = twitchapi.get_setting('show_info')
     refresh_main_quiet()
+
+    # Check if a VOD panel is active
+    if current_vod_panel:
+        refresh_vod_panel(current_vod_panel)
 
 def add_askyesno_row(frame, prompt, row):
     global current_yesno_frame
@@ -801,8 +807,7 @@ def custom_menu_bar():
     expand_b.grid(row=0, column=4, sticky='e')
     expand_b.configure(command=lambda: [
                                         info_quick_toggle(),
-                                        set_quick_toggle_icon(1),
-                                        update_meta_canvas()
+                                        set_quick_toggle_icon(1)
                                         ]
                         )
     sep = default_separator(menu_frame)
@@ -1110,5 +1115,4 @@ current_query_frame = None
 
 custom_menu_bar()
 draw_main()
-update_meta_canvas()
 root.mainloop()
