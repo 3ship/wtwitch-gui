@@ -989,10 +989,7 @@ def save_window_size():
 def initiate_window_dimensions():
     """Returns a default window size or user-adjusted window size and position
     """
-    try:
-        return twitchapi.get_setting('window_size')
-    except:
-        return f'285x450'
+    return twitchapi.get_setting('window_size')
 
 def toggle_settings():
     """Checks if wtwitch prints offline streamers and color output. Latter is
