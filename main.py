@@ -523,7 +523,7 @@ def refresh_settings_window():
     global settings_window
     for widget in settings_window.winfo_children():
         widget.destroy()
-    settings_dialog()
+    settings_window_content()
 
 def open_settings_window():
     global settings_window
@@ -533,15 +533,15 @@ def open_settings_window():
     settings_window.title('Settings')
     settings_window.transient(root)
     settings_window.grab_set()
-    settings_dialog()
+    settings_window_content()
 
-def settings_dialog():
+def settings_window_content():
     '''Opens a toplevel window with four settings options.'''
 
     # Global variables
     global settings_window, settings_frame
 
-    global preset_info_setting, extra_buttons_always_visible, theme_setting
+    global preset_expand_setting, extra_buttons_always_visible, theme_setting
     
     global selected_player, selected_quality
     selected_player = tk.StringVar()
@@ -566,32 +566,32 @@ def settings_dialog():
     settings_frame.grid_columnconfigure(0, weight=1)
 
     # Play settings frame
-    play_frame = default_frame(settings_frame)
-    play_frame.grid(row=0, column=0, sticky='nesw', padx=20, pady=10)
-    play_label = default_label(play_frame, text='Media player:')
-    play_label.grid(row=0, column=0, sticky='nsw', ipady=10)
+    player_frame = default_frame(settings_frame)
+    player_frame.grid(row=0, column=0, sticky='nesw', padx=20, pady=4)
+    player_label = default_label(player_frame, text='Media player:')
+    player_label.grid(row=0, column=0, sticky='nsw', ipady=10)
     
     pick_mpv = default_radiobutton(
-        play_frame, text='mpv', value='mpv', variable=selected_player,
+        player_frame, text='mpv', value='mpv', variable=selected_player,
         command=lambda: twitchapi.adjust_config('player', 'mpv')
     )
     pick_mpv.grid(row=1, column=0, sticky='nesw')
     
     pick_vlc = default_radiobutton(
-        play_frame, text='VLC', value='vlc', variable=selected_player,
+        player_frame, text='VLC', value='vlc', variable=selected_player,
         command=lambda: twitchapi.adjust_config('player', 'vlc')
     )
     pick_vlc.grid(row=2, column=0, sticky='nesw')
     
     pick_custom_player = default_radiobutton(
-        play_frame, text='Custom', value='custom', variable=selected_player,
+        player_frame, text='Custom', value='custom', variable=selected_player,
         command=lambda: custom_player()
     )
     pick_custom_player.grid(row=3, column=0, sticky='nesw')
 
     # Quality settings frame
     quality_frame = default_frame(settings_frame)
-    quality_frame.grid(row=0, column=1, sticky='nesw', padx=20, pady=10)
+    quality_frame.grid(row=0, column=1, sticky='nesw', padx=20, pady=4)
     quality_label = default_label(quality_frame, text='Video quality:')
     quality_label.grid(row=0, column=0, sticky='nsw', ipady=10)
     
@@ -629,65 +629,65 @@ def settings_dialog():
 
     # Info settings frame
     info_frame = default_frame(settings_frame)
-    info_frame.grid(row=4, column=1, sticky='nesw', padx=20, pady=20)
+    info_frame.grid(row=4, column=1, sticky='nesw', padx=20, pady=4)
     info_label = default_label(info_frame, text='Expand info:')
     info_label.grid(row=0, column=0, sticky='nsw', ipady=10)
     
     all_info = default_radiobutton(
-        info_frame, text='All', value='all', variable=preset_info_setting,
+        info_frame, text='All', value='all', variable=preset_expand_setting,
         command=lambda: [change_info_preset('all')]
     )
     all_info.grid(row=1, column=0, sticky='nesw')
     
     only_online_info = default_radiobutton(
         info_frame, text='Only online', value='online',
-        variable=preset_info_setting,
+        variable=preset_expand_setting,
         command=lambda: [change_info_preset('online')]
     )
     only_online_info.grid(row=2, column=0, sticky='nesw')
 
     # Theme settings frame
     theme_frame = default_frame(settings_frame)
-    theme_frame.grid(row=4, column=0, sticky='nesw', padx=20, pady=20)
+    theme_frame.grid(row=4, column=0, sticky='nesw', padx=20, pady=4)
     theme_label = default_label(theme_frame, text='Theme:')
     theme_label.grid(row=0, column=0, sticky='nsw', ipady=10)
     
-    dark_mode = default_radiobutton(
+    set_dark_theme = default_radiobutton(
         theme_frame, text='Dark', value='dark', variable=theme_setting,
         command=lambda: [settings_theme_switch('dark')]
     )
-    dark_mode.grid(row=1, column=0, sticky='nesw')
+    set_dark_theme.grid(row=1, column=0, sticky='nesw')
     
-    light_mode = default_radiobutton(
+    set_light_theme = default_radiobutton(
         theme_frame, text='Light', value='light', variable=theme_setting,
         command=lambda: [settings_theme_switch('light')]
     )
-    light_mode.grid(row=2, column=0, sticky='nesw')
+    set_light_theme.grid(row=2, column=0, sticky='nesw')
     
-    gnome_mode = default_radiobutton(
-        theme_frame, text='System (GNOME only)', value='system', variable=theme_setting,
-        command=lambda: [settings_theme_switch('system')]
+    set_system_theme = default_radiobutton(
+        theme_frame, text='System\n(GNOME only)', value='system', variable=theme_setting,
+        command=lambda: [settings_theme_switch('system')], justify='left'
     )
-    gnome_mode.grid(row=3, column=0, sticky='nesw')
+    set_system_theme.grid(row=3, column=0, sticky='nesw')
 
     # Always show unfollow/web/VOD buttons?
     extra_frame = default_frame(settings_frame)
-    extra_frame.grid(row=5, column=0, sticky='nesw', padx=20, pady=20)
+    extra_frame.grid(row=5, column=0, sticky='nesw', padx=20, pady=4)
     extra_label = default_label(extra_frame, text=  'Always show\n'
                                                     'all buttons')
     extra_label.grid(row=0, column=0, sticky='nsw', ipady=10)
     
-    show_e_yes = default_radiobutton(
+    show_extra_yes = default_radiobutton(
         extra_frame, text='Yes', value='yes', variable=extra_buttons_always_visible,
         command=lambda: [change_extrabuttons_preset('yes')]
     )
-    show_e_yes.grid(row=1, column=0, sticky='nesw')
+    show_extra_yes.grid(row=1, column=0, sticky='nesw')
     
-    show_e_no = default_radiobutton(
+    show_extra_no = default_radiobutton(
         extra_frame, text='No', value='no', variable=extra_buttons_always_visible,
         command=lambda: [change_extrabuttons_preset('no')]
     )
-    show_e_no.grid(row=2, column=0, sticky='nesw')
+    show_extra_no.grid(row=2, column=0, sticky='nesw')
 
 
 def settings_theme_switch(value):
@@ -719,7 +719,7 @@ def set_quick_toggle_icon(n):
 def info_quick_toggle():
     global current_expand_setting, current_vod_panel
     if current_expand_setting == 'no':
-        twitchapi.change_settings_file('show_info', preset_info_setting.get())
+        twitchapi.change_settings_file('show_info', preset_expand_setting.get())
     else:
         twitchapi.change_settings_file('show_info', 'no')
     current_expand_setting = twitchapi.get_setting('show_info')
@@ -1146,8 +1146,8 @@ get_icons()
 # and settings value to show info for all streamers:
 stream_info_visible = {}
 stream_info_content = {}
-preset_info_setting = tk.StringVar()
-preset_info_setting.set(twitchapi.get_setting('show_info_preset'))
+preset_expand_setting = tk.StringVar()
+preset_expand_setting.set(twitchapi.get_setting('show_info_preset'))
 current_expand_setting = twitchapi.get_setting('show_info')
 
 # Store whether the weblink buttons are currently displayed:
