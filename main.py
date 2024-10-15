@@ -1025,6 +1025,14 @@ def get_icons():
     app_icon = tk.PhotoImage(file=icon_files['app_icon'])
     root.iconphoto(False, app_icon)
 
+def refresh_theme():
+    global is_dark_theme, theme_setting
+    is_dark_theme = twitchapi.detect_dark_theme()
+    theme_setting = tk.StringVar()
+    theme_setting.set(twitchapi.get_setting('theme'))
+    scrollbar_presets()
+    get_icons()
+
 def save_window_size():
     if is_gnome:
         top_bar_height = 37
