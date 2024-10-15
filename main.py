@@ -502,6 +502,24 @@ def change_info_preset(value):
         current_expand_setting = preset_info_setting
         refresh_main_quiet()
 
+
+
+def refresh_settings_window():
+    global settings_window
+    for widget in settings_window.winfo_children():
+        widget.destroy()
+    settings_dialog()
+
+def open_settings_window():
+    global settings_window
+    settings_window = tk.Toplevel(master=root)
+    settings_window.grid_rowconfigure(0, weight=1)
+    settings_window.grid_columnconfigure(0, weight=1)
+    settings_window.title('Settings')
+    settings_window.transient(root)
+    settings_window.grab_set()
+    settings_dialog()
+
 def settings_dialog():
     '''Opens a toplevel window with four settings options.'''
 
@@ -526,13 +544,6 @@ def settings_dialog():
         selected_quality.set(twitchapi.check_config()[1])
     else:
         selected_quality.set('custom')
-
-    settings_window = tk.Toplevel(master=root)
-    settings_window.grid_rowconfigure(0, weight=1)
-    settings_window.grid_columnconfigure(0, weight=1)
-    settings_window.title('Settings')
-    settings_window.transient(root)
-    settings_window.grab_set()
 
     settings_frame = default_frame(settings_window)
     settings_frame.grid(sticky='nesw', ipady=10, ipadx=10)
@@ -774,7 +785,7 @@ def custom_menu_bar():
     settings_b = default_button(menu_frame,
                     image=settings_icon,
                     font=cantarell_12,
-                    command=lambda: settings_dialog()
+                    command=lambda: open_settings_window()
                     )
     settings_b.grid(row=0, column=3, sticky='e')
     global expand_b
