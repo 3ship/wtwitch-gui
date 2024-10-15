@@ -492,12 +492,9 @@ def custom_quality():
 def change_info_preset(value):
     twitchapi.change_settings_file('show_info_preset', value)
     global current_expand_setting
-    global preset_info_setting
     preset_info_setting = twitchapi.get_setting('show_info_preset')
-    cis = current_expand_setting
-    if preset_info_setting == cis or cis == 'no':
-        return
-    else:
+    
+    if preset_info_setting != current_expand_setting and current_expand_setting != 'no':
         twitchapi.change_settings_file('show_info', value)
         current_expand_setting = preset_info_setting
         refresh_main_quiet()
@@ -619,14 +616,14 @@ def settings_dialog():
     info_label.grid(row=0, column=0, sticky='nsw', ipady=10)
     
     all_info = default_radiobutton(
-        info_frame, text='All', value='all', variable=settings_expand_setting,
+        info_frame, text='All', value='all', variable=preset_info_setting,
         command=lambda: [change_info_preset('all')]
     )
     all_info.grid(row=1, column=0, sticky='nesw')
     
     only_online_info = default_radiobutton(
         info_frame, text='Only online', value='online',
-        variable=settings_expand_setting,
+        variable=preset_info_setting,
         command=lambda: [change_info_preset('online')]
     )
     only_online_info.grid(row=2, column=0, sticky='nesw')
