@@ -671,7 +671,7 @@ def set_quick_toggle_icon(n):
 def info_quick_toggle():
     global current_expand_setting, current_vod_panel
     if current_expand_setting == 'no':
-        twitchapi.change_settings_file('show_info', preset_info_setting)
+        twitchapi.change_settings_file('show_info', preset_info_setting.get())
     else:
         twitchapi.change_settings_file('show_info', 'no')
     current_expand_setting = twitchapi.get_setting('show_info')
@@ -1088,7 +1088,7 @@ root.iconphoto(False, app_icon)
 stream_info_visible = {}
 stream_info_content = {}
 preset_info_setting = tk.StringVar()
-preset_info_setting = twitchapi.get_setting('show_info_preset')
+preset_info_setting.set(twitchapi.get_setting('show_info_preset'))
 current_expand_setting = twitchapi.get_setting('show_info')
 
 # Store whether the weblink buttons are currently displayed:
