@@ -993,8 +993,30 @@ def scrollbar_presets():
                         troughrelief='flat',
                         width=scrollbar_width,
                         groovewidth=scrollbar_width,
-                        arrowsize=scrollbar_width
-                        )
+def get_icons():
+    global unfollow_icon, vod_icon, streaming_icon, offline_icon, play_icon
+    global close_icon, settings_icon, link_icon, expand_icon, collapse_icon
+    global app_icon
+    # Import icons:
+    icon_files = twitchapi.icon_paths()
+    if is_dark_theme:
+        light = '_light'
+    else:
+        light = ''
+    unfollow_icon = tk.PhotoImage(file=icon_files[f'unfollow_icon{light}'])
+    vod_icon = tk.PhotoImage(file=icon_files[f'vod_icon{light}'])
+    streaming_icon = tk.PhotoImage(file=icon_files['streaming_icon'])
+    offline_icon = tk.PhotoImage(file=icon_files['offline_icon'])
+    play_icon = tk.PhotoImage(file=icon_files[f'play_icon{light}'])
+    close_icon = tk.PhotoImage(file=icon_files[f'close_icon{light}'])
+    settings_icon = tk.PhotoImage(file=icon_files[f'settings_icon{light}'])
+    link_icon = tk.PhotoImage(file=icon_files[f'link_icon{light}'])
+
+    expand_icon = tk.PhotoImage(file=icon_files[f'expand_icon{light}'])
+    collapse_icon = tk.PhotoImage(file=icon_files[f'collapse_icon{light}'])
+
+    app_icon = tk.PhotoImage(file=icon_files['app_icon'])
+    root.iconphoto(False, app_icon)
 
 def save_window_size():
     if is_gnome:
@@ -1062,26 +1084,7 @@ theme_setting.set(twitchapi.get_setting('theme'))
 
 scrollbar_presets()
 
-# Import icons:
-icon_files = twitchapi.icon_paths()
-if is_dark_theme:
-    light = '_light'
-else:
-    light = ''
-unfollow_icon = tk.PhotoImage(file=icon_files[f'unfollow_icon{light}'])
-vod_icon = tk.PhotoImage(file=icon_files[f'vod_icon{light}'])
-streaming_icon = tk.PhotoImage(file=icon_files['streaming_icon'])
-offline_icon = tk.PhotoImage(file=icon_files['offline_icon'])
-play_icon = tk.PhotoImage(file=icon_files[f'play_icon{light}'])
-close_icon = tk.PhotoImage(file=icon_files[f'close_icon{light}'])
-settings_icon = tk.PhotoImage(file=icon_files[f'settings_icon{light}'])
-link_icon = tk.PhotoImage(file=icon_files[f'link_icon{light}'])
-
-expand_icon = tk.PhotoImage(file=icon_files[f'expand_icon{light}'])
-collapse_icon = tk.PhotoImage(file=icon_files[f'collapse_icon{light}'])
-
-app_icon = tk.PhotoImage(file=icon_files['app_icon'])
-root.iconphoto(False, app_icon)
+get_icons()
 
 # Variables to collect stream info
 # and settings value to show info for all streamers:
