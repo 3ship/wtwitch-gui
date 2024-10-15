@@ -149,7 +149,8 @@ def close_vod_panel():
 
 def streamer_buttons():
     global stream_info_visible, stream_info_content
-    global weblink_status, weblink_content
+    global weblink_visible, weblink_content
+    global extra_buttons_visible, extra_buttons_content
 
     online_streamers = streamer_status[0]
     offline_streamers = streamer_status[1]
@@ -158,8 +159,10 @@ def streamer_buttons():
     # Initialize or clear dictionaries
     stream_info_visible = {}
     stream_info_content = {}
-    weblink_status = {}
+    weblink_visible = {}
     weblink_content = {}
+    extra_buttons_visible = {}
+    extra_buttons_content = {}
 
     for package in online_streamers:
         watch_button = default_button(
@@ -168,41 +171,31 @@ def streamer_buttons():
         )
         watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=6, ipady=8)
         stream_info_visible[count_rows] = False
-        weblink_status[count_rows] = False
+        weblink_visible[count_rows] = False
+        extra_buttons_visible[count_rows] = False
 
-        if current_expand_setting == 'all' or current_expand_setting == 'online':
+        if current_expand_setting in ['all', 'online']:
             watch_button.grid_configure(rowspan=2)
             info_button = default_button(
                 main_frame, text=package[1], anchor='w', font=cantarell_13_bold,
                 state='disabled'
             )
+            extra_buttons(package[0], count_rows)
             online_info(
                 count_rows, package[1], package[2], package[3], package[4]
             )
         else:
+            if extra_buttons_always_visible.get() == 'yes':
+                extra_buttons(package[0], count_rows)
             info_button = default_button(
                 main_frame, text=package[1], anchor='w', font=cantarell_13_bold,
-                command=lambda cr=count_rows, s=package[1], c=package[2],
-                t=package[3], v=package[4]: online_info(cr, s, c, t, v)
+                command=lambda cr=count_rows, s=package[0], l=package[1], c=package[2],
+                t=package[3], v=package[4]: [online_info(cr, l, c, t, v),
+                extra_buttons(s, cr)]
             )
             
         info_button.grid(column=1, row=count_rows, sticky='nsew')
-        unfollow_b = default_button(
-            main_frame, image=unfollow_icon,
-            command=lambda s=package[0], c=count_rows+3: [unfollow_dialog(s, c)]
-        )
-        unfollow_b.grid(column=2, row=count_rows, sticky='nsew', ipadx=4)
-        web_b = default_button(
-            main_frame, image=link_icon,
-            command=lambda s=package[0], c=count_rows: website_dialog(c, s)
-        )
-        web_b.grid(column=3, row=count_rows, sticky='nsew', ipadx=4)
-        vod_b = default_button(
-            main_frame, image=vod_icon,
-            command=lambda s=package[0]: vod_panel(s)
-        )
-        vod_b.grid(column=4, row=count_rows, sticky='nsew', ipadx=6)
-        
+
         separator = default_separator(main_frame)
         separator[0].grid(row=count_rows + 4)
         separator[1].grid(row=count_rows + 5)
@@ -212,7 +205,8 @@ def streamer_buttons():
         watch_button = default_label(main_frame, image=offline_icon)
         watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=6, ipady=6)
         stream_info_visible[count_rows] = False
-        weblink_status[count_rows] = False
+        weblink_visible[count_rows] = False
+        extra_buttons_visible[count_rows] = False
 
         if current_expand_setting == 'all':
             watch_button.grid_configure(rowspan=2)
@@ -220,36 +214,54 @@ def streamer_buttons():
                 main_frame, text=streamer, anchor='w', font=cantarell_13_bold,
                 state='disabled'
             )
+            extra_buttons(streamer, count_rows)
             offline_info(count_rows, streamer)
         else:
+            if extra_buttons_always_visible.get() == 'yes':
+                extra_buttons(streamer, count_rows)
             info_button = default_button(
                 main_frame, text=streamer, anchor='w', font=cantarell_13_bold,
                 compound='left', command=lambda s=streamer, c=count_rows:
-                offline_info(c, s)
+                [offline_info(c, s), extra_buttons(s, c)]
             )
             
         info_button.grid(column=1, row=count_rows, sticky='nsew')
-        unfollow_b = default_button(
-            main_frame, image=unfollow_icon,
-            command=lambda s=streamer, c=count_rows + 3: [unfollow_dialog(s, c)]
-        )
-        unfollow_b.grid(column=2, row=count_rows, sticky='nsew', ipadx=4)
-        web_b = default_button(
-            main_frame, image=link_icon,
-            command=lambda s=streamer, c=count_rows: website_dialog(c, s)
-        )
-        web_b.grid(column=3, row=count_rows, sticky='nsew', ipadx=4)
-        vod_b = default_button(
-            main_frame, image=vod_icon,
-            command=lambda s=streamer: vod_panel(s)
-        )
-        vod_b.grid(column=4, row=count_rows, sticky='nsew', ipadx=6)
         
         if count_rows != (len(online_streamers) + len(offline_streamers)) * 6 - 6:
             separator = default_separator(main_frame)
             separator[0].grid(row=count_rows + 4)
             separator[1].grid(row=count_rows + 5)
         count_rows += 6
+
+
+def extra_buttons(streamer, count_rows):
+    if not extra_buttons_visible[count_rows]:
+        extra_buttons_content[count_rows] = {}
+        extra_buttons_content[count_rows]['unfollow'] = default_button(
+            main_frame, image=unfollow_icon,
+            command=lambda s=streamer, c=count_rows+3: [unfollow_dialog(s, c)]
+        )
+        extra_buttons_content[count_rows]['unfollow'].grid(column=2, row=count_rows, sticky='nsew', ipadx=4)
+        extra_buttons_content[count_rows]['web'] = default_button(
+            main_frame, image=link_icon,
+            command=lambda s=streamer, c=count_rows: website_dialog(c, s)
+        )
+        extra_buttons_content[count_rows]['web'].grid(column=3, row=count_rows, sticky='nsew', ipadx=4)
+        extra_buttons_content[count_rows]['vods'] = default_button(
+            main_frame, image=vod_icon,
+            command=lambda s=streamer: vod_panel(s)
+        )
+        extra_buttons_content[count_rows]['vods'].grid(column=4, row=count_rows, sticky='nsew', ipadx=6)
+        extra_buttons_visible[count_rows] = True
+    else:
+        if extra_buttons_always_visible.get() == 'yes':
+            return
+        else:
+            extra_buttons_content[count_rows]['unfollow'].grid_remove()
+            extra_buttons_content[count_rows]['web'].grid_remove()
+            extra_buttons_content[count_rows]['vods'].grid_remove()
+            extra_buttons_visible[count_rows] = False
+            
 
 
 def online_info(c, streamer, category, title, viewercount):
@@ -499,6 +511,12 @@ def change_info_preset(value):
         current_expand_setting = preset_info_setting
         refresh_main_quiet()
 
+def change_extrabuttons_preset(value):
+    if twitchapi.get_setting('extra_buttons') != value:
+        twitchapi.change_settings_file('extra_buttons', value)
+        global extra_buttons_always_visible
+        extra_buttons_always_visible.set(twitchapi.get_setting('extra_buttons'))
+        refresh_main_quiet()
 
 
 def refresh_settings_window():
@@ -523,7 +541,7 @@ def settings_dialog():
     # Global variables
     global settings_window, settings_frame
 
-    global selected_player, selected_quality, settings_expand_setting
+    global selected_player, selected_quality, settings_expand_setting, extra_buttons_always_visible, theme_setting
     selected_player = tk.StringVar()
     selected_quality = tk.StringVar()
     settings_expand_setting = tk.StringVar()
@@ -611,7 +629,7 @@ def settings_dialog():
 
     # Info settings frame
     info_frame = default_frame(settings_frame)
-    info_frame.grid(row=4, column=0, sticky='nesw', padx=20, pady=20)
+    info_frame.grid(row=4, column=1, sticky='nesw', padx=20, pady=20)
     info_label = default_label(info_frame, text='Expand info:')
     info_label.grid(row=0, column=0, sticky='nsw', ipady=10)
     
@@ -630,7 +648,7 @@ def settings_dialog():
 
     # Theme settings frame
     theme_frame = default_frame(settings_frame)
-    theme_frame.grid(row=4, column=1, sticky='nesw', padx=20, pady=20)
+    theme_frame.grid(row=4, column=0, sticky='nesw', padx=20, pady=20)
     theme_label = default_label(theme_frame, text='Theme:')
     theme_label.grid(row=0, column=0, sticky='nsw', ipady=10)
     
@@ -651,6 +669,25 @@ def settings_dialog():
         command=lambda: [twitchapi.change_settings_file('theme', 'system'), refresh_theme(), custom_menu_bar(), draw_main(), refresh_settings_window()]
     )
     gnome_mode.grid(row=3, column=0, sticky='nesw')
+
+    # Always show unfollow/web/VOD buttons?
+    extra_frame = default_frame(settings_frame)
+    extra_frame.grid(row=5, column=0, sticky='nesw', padx=20, pady=20)
+    extra_label = default_label(extra_frame, text=  'Alwaya show\n'
+                                                    'special buttons')
+    extra_label.grid(row=0, column=0, sticky='nsw', ipady=10)
+    
+    show_e_yes = default_radiobutton(
+        extra_frame, text='Yes', value='yes', variable=extra_buttons_always_visible,
+        command=lambda: [change_extrabuttons_preset('yes')]
+    )
+    show_e_yes.grid(row=1, column=0, sticky='nesw')
+    
+    show_e_no = default_radiobutton(
+        extra_frame, text='No', value='no', variable=extra_buttons_always_visible,
+        command=lambda: [change_extrabuttons_preset('no')]
+    )
+    show_e_no.grid(row=2, column=0, sticky='nesw')
 
 
 def set_quick_toggle_icon(n):
@@ -1109,6 +1146,11 @@ current_expand_setting = twitchapi.get_setting('show_info')
 # Store whether the weblink buttons are currently displayed:
 weblink_visible = {}
 weblink_content = {}
+
+extra_buttons_visible = {}
+extra_buttons_content = {}
+extra_buttons_always_visible = tk.StringVar()
+extra_buttons_always_visible.set(twitchapi.get_setting('extra_buttons'))
 
 # Saves the name of the stream, whose VOD panel is currently shown, if present
 current_vod_panel = ''

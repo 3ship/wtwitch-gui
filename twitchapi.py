@@ -216,6 +216,7 @@ def create_settings_file():
         "show_info": "no",
         "show_info_preset": "online",
         "theme": "system",
+        "extra_buttons": "yes",
         "window_size": "285x450"
     }
     settings_path = f'{sys.path[0]}/settings.json'
