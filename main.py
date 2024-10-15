@@ -654,19 +654,19 @@ def settings_dialog():
     
     dark_mode = default_radiobutton(
         theme_frame, text='Dark', value='dark', variable=theme_setting,
-        command=lambda: [twitchapi.change_settings_file('theme', 'dark'), refresh_theme(), custom_menu_bar(), draw_main(), refresh_settings_window()]
+        command=lambda: [settings_theme_switch('dark')]
     )
     dark_mode.grid(row=1, column=0, sticky='nesw')
     
     light_mode = default_radiobutton(
         theme_frame, text='Light', value='light', variable=theme_setting,
-        command=lambda: [twitchapi.change_settings_file('theme', 'light'), refresh_theme(), custom_menu_bar(), draw_main(), refresh_settings_window()]
+        command=lambda: [settings_theme_switch('light')]
     )
     light_mode.grid(row=2, column=0, sticky='nesw')
     
     gnome_mode = default_radiobutton(
         theme_frame, text='System (GNOME only)', value='system', variable=theme_setting,
-        command=lambda: [twitchapi.change_settings_file('theme', 'system'), refresh_theme(), custom_menu_bar(), draw_main(), refresh_settings_window()]
+        command=lambda: [settings_theme_switch('system')]
     )
     gnome_mode.grid(row=3, column=0, sticky='nesw')
 
@@ -688,6 +688,14 @@ def settings_dialog():
         command=lambda: [change_extrabuttons_preset('no')]
     )
     show_e_no.grid(row=2, column=0, sticky='nesw')
+
+
+def settings_theme_switch(value):
+    twitchapi.change_settings_file('theme', value)
+    refresh_theme()
+    custom_menu_bar()
+    draw_main()
+    refresh_settings_window()
 
 
 def set_quick_toggle_icon(n):
