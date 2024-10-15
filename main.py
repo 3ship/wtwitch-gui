@@ -300,7 +300,7 @@ def offline_info(c, streamer):
     update_meta_canvas()
 
 def website_dialog(c, streamer):
-    if not weblink_status[c]:
+    if not weblink_visible[c]:
         if c not in weblink_content:
             weblink_content[c] = default_frame(main_frame)
             weblink_content[c].grid(row=c+2, column=1, columnspan=4)
@@ -317,10 +317,10 @@ def website_dialog(c, streamer):
             webplayer_button.grid(row=0, column=1, sticky='ew')
         else:
             weblink_content[c].grid()
-        weblink_status[c] = True
+        weblink_visible[c] = True
     else:
         weblink_content[c].grid_remove()
-        weblink_status[c] = False
+        weblink_visible[c] = False
     update_meta_canvas()
 
 
@@ -1081,7 +1081,7 @@ preset_info_setting = twitchapi.get_setting('show_info_preset')
 current_expand_setting = twitchapi.get_setting('show_info')
 
 # Store whether the weblink buttons are currently displayed:
-weblink_status = {}
+weblink_visible = {}
 weblink_content = {}
 
 # Saves the name of the stream, whose VOD panel is currently shown, if present
