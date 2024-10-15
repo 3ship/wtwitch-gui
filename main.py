@@ -541,11 +541,11 @@ def settings_dialog():
     # Global variables
     global settings_window, settings_frame
 
-    global selected_player, selected_quality, settings_expand_setting, extra_buttons_always_visible, theme_setting
+    global preset_info_setting, extra_buttons_always_visible, theme_setting
+    
+    global selected_player, selected_quality
     selected_player = tk.StringVar()
     selected_quality = tk.StringVar()
-    settings_expand_setting = tk.StringVar()
-    settings_expand_setting = preset_info_setting
 
     # Check configurations and set default values
     if twitchapi.check_config()[0] in ['mpv', 'vlc']:
