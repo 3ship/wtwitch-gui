@@ -692,10 +692,16 @@ def settings_dialog():
 
 def settings_theme_switch(value):
     twitchapi.change_settings_file('theme', value)
-    refresh_theme()
+    global is_dark_theme, theme_setting
+    is_dark_theme = twitchapi.detect_dark_theme()
+    theme_setting = tk.StringVar()
+    theme_setting.set(twitchapi.get_setting('theme'))
+    scrollbar_presets()
+    get_icons()
+    for widget in root.winfo_children():
+        widget.destroy()
     custom_menu_bar()
     draw_main()
-    refresh_settings_window()
 
 
 def set_quick_toggle_icon(n):
@@ -1067,13 +1073,6 @@ def get_icons():
     app_icon = tk.PhotoImage(file=icon_files['app_icon'])
     root.iconphoto(False, app_icon)
 
-def refresh_theme():
-    global is_dark_theme, theme_setting
-    is_dark_theme = twitchapi.detect_dark_theme()
-    theme_setting = tk.StringVar()
-    theme_setting.set(twitchapi.get_setting('theme'))
-    scrollbar_presets()
-    get_icons()
 
 def save_window_size():
     if is_gnome:
