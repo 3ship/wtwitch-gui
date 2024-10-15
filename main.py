@@ -639,19 +639,19 @@ def settings_dialog():
     
     dark_mode = default_radiobutton(
         theme_frame, text='Dark', value='dark', variable=theme_setting,
-        command=lambda: [twitchapi.change_settings_file('theme', 'dark')]
+        command=lambda: [twitchapi.change_settings_file('theme', 'dark'), refresh_theme(), custom_menu_bar(), draw_main(), refresh_settings_window()]
     )
     dark_mode.grid(row=1, column=0, sticky='nesw')
     
     light_mode = default_radiobutton(
         theme_frame, text='Light', value='light', variable=theme_setting,
-        command=lambda: [twitchapi.change_settings_file('theme', 'light')]
+        command=lambda: [twitchapi.change_settings_file('theme', 'light'), refresh_theme(), custom_menu_bar(), draw_main(), refresh_settings_window()]
     )
     light_mode.grid(row=2, column=0, sticky='nesw')
     
     gnome_mode = default_radiobutton(
         theme_frame, text='System (GNOME only)', value='system', variable=theme_setting,
-        command=lambda: [twitchapi.change_settings_file('theme', 'system')]
+        command=lambda: [twitchapi.change_settings_file('theme', 'system'), refresh_theme(), custom_menu_bar(), draw_main(), refresh_settings_window()]
     )
     gnome_mode.grid(row=3, column=0, sticky='nesw')
 
