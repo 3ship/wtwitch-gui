@@ -348,7 +348,7 @@ def unfollow_dialog(streamer, row):
     answer = add_askyesno_row(main_frame, f'\nUnfollow {streamer}?', row)
     if answer:
         twitchapi.unfollow_streamer(streamer)
-        refresh_main()
+        refresh_main_quiet()
 
 def follow_dialog():
     '''Opens a text dialog and adds the entered string to the follow list.
@@ -358,7 +358,7 @@ def follow_dialog():
         return
     else:
         twitchapi.follow_streamer(answer)
-        refresh_main()
+        refresh_main_quiet()
 
 def play_dialog():
     '''Opens a text dialog to play a custom stream
