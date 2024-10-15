@@ -673,8 +673,8 @@ def settings_dialog():
     # Always show unfollow/web/VOD buttons?
     extra_frame = default_frame(settings_frame)
     extra_frame.grid(row=5, column=0, sticky='nesw', padx=20, pady=20)
-    extra_label = default_label(extra_frame, text=  'Alwaya show\n'
-                                                    'special buttons')
+    extra_label = default_label(extra_frame, text=  'Always show\n'
+                                                    'all buttons')
     extra_label.grid(row=0, column=0, sticky='nsw', ipady=10)
     
     show_e_yes = default_radiobutton(
