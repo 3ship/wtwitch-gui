@@ -817,31 +817,31 @@ def custom_menu_bar():
                     font=cantarell_12_bold,
                     command=lambda: refresh_main()
                     )
-    refresh_b.grid(row=0, column=0)
+    refresh_b.grid(row=0, column=0, sticky='nsw')
     follow_b = default_button(menu_frame,
                     text='Follow',
                     font=cantarell_12,
                     command=lambda: follow_dialog()
                     )
-    follow_b.grid(row=0, column=1)
+    follow_b.grid(row=0, column=1, sticky='nsw')
     play_b = default_button(menu_frame,
                     text='Play',
                     font=cantarell_12,
                     command=lambda: play_dialog()
                     )
-    play_b.grid(row=0, column=2, sticky='w')
+    play_b.grid(row=0, column=2, sticky='nsw')
     settings_b = default_button(menu_frame,
                     image=settings_icon,
                     font=cantarell_12,
                     command=lambda: open_settings_window()
                     )
-    settings_b.grid(row=0, column=3, sticky='e')
+    settings_b.grid(row=0, column=3, sticky='nsw', ipady=8, ipadx=4)
     global expand_b
     expand_b = default_button(menu_frame,
                     image=current_quick_toggle_icon,
                     font=cantarell_12
                     )
-    expand_b.grid(row=0, column=4, sticky='e')
+    expand_b.grid(row=0, column=4, sticky='nsw', ipady=8, ipadx=4)
     expand_b.configure(command=lambda: [
                                         info_quick_toggle(),
                                         set_quick_toggle_icon(1)
