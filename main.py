@@ -6,7 +6,6 @@ from tkinter import ttk
 from tkinter import messagebox
 import twitchapi
 
-current_vod_panel = ''
 
 def vod_panel(streamer):
     '''Draw 2 columns for the watch buttons and timestamps/stream length of 
@@ -149,7 +148,7 @@ def close_vod_panel():
     update_meta_canvas()
 
 def streamer_buttons():
-    global stream_info_status, stream_info_content
+    global stream_info_visible, stream_info_content
     global weblink_status, weblink_content
 
     online_streamers = streamer_status[0]
@@ -157,7 +156,7 @@ def streamer_buttons():
     count_rows = 0
 
     # Initialize or clear dictionaries
-    stream_info_status = {}
+    stream_info_visible = {}
     stream_info_content = {}
     weblink_status = {}
     weblink_content = {}
@@ -168,7 +167,7 @@ def streamer_buttons():
             command=lambda s=package[0]: [twitchapi.start_stream(s)]
         )
         watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=6, ipady=8)
-        stream_info_status[count_rows] = False
+        stream_info_visible[count_rows] = False
         weblink_status[count_rows] = False
 
         if current_expand_setting == 'all' or current_expand_setting == 'online':
@@ -212,7 +211,7 @@ def streamer_buttons():
     for streamer in offline_streamers:
         watch_button = default_label(main_frame, image=offline_icon)
         watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=6, ipady=6)
-        stream_info_status[count_rows] = False
+        stream_info_visible[count_rows] = False
         weblink_status[count_rows] = False
 
         if current_expand_setting == 'all':
@@ -254,7 +253,7 @@ def streamer_buttons():
 
 
 def online_info(c, streamer, category, title, viewercount):
-    if not stream_info_status[c]:
+    if not stream_info_visible[c]:
         if c not in stream_info_content:
             stream_info_content[c] = default_label(
                 main_frame, text=   f'Title: {title}\n'
@@ -271,15 +270,15 @@ def online_info(c, streamer, category, title, viewercount):
                         f'Viewer count: {viewercount}'
             )
             stream_info_content[c].grid()
-        stream_info_status[c] = True
+        stream_info_visible[c] = True
     else:
         stream_info_content[c].grid_remove()
-        stream_info_status[c] = False
+        stream_info_visible[c] = False
     update_meta_canvas()
 
 
 def offline_info(c, streamer):
-    if not stream_info_status[c]:
+    if not stream_info_visible[c]:
         last_seen_text = f'Last seen: {twitchapi.last_seen(streamer)}'
         if c not in stream_info_content:
             stream_info_content[c] = default_label(main_frame,
@@ -294,10 +293,10 @@ def offline_info(c, streamer):
         else:
             stream_info_content[c].config(text=last_seen_text)
             stream_info_content[c].grid()
-        stream_info_status[c] = True
+        stream_info_visible[c] = True
     else:
         stream_info_content[c].grid_remove()
-        stream_info_status[c] = False
+        stream_info_visible[c] = False
     update_meta_canvas()
 
 def website_dialog(c, streamer):
@@ -465,7 +464,7 @@ def draw_main():
 def custom_player():
     '''Opens a dialog to set a custom media player.
     '''
-    new_player = add_askstring_row(settings_top_frame,
+    new_player = add_askstring_row(settings_frame,
                                 'Enter your media player:',
                                 initial_value=twitchapi.check_config()[0]
                                 )
@@ -477,7 +476,7 @@ def custom_player():
 def custom_quality():
     '''Opens a dialog to set a custom stream quality.
     '''
-    new_quality = add_askstring_row(settings_top_frame,
+    new_quality = add_askstring_row(settings_frame,
                                 '\n Options: 1080p60, 720p60, 720p, 480p, \n'
                                 ' 360p, 160p, best, worst, and audio_only \n'
                                 '\n'
@@ -506,15 +505,21 @@ def change_info_preset(value):
 def settings_dialog():
     '''Opens a toplevel window with four settings options.'''
 
-    global selected_player
+    # Global variables
+    global settings_window, settings_frame
+
+    global selected_player, selected_quality, settings_expand_setting
     selected_player = tk.StringVar()
+    selected_quality = tk.StringVar()
+    settings_expand_setting = tk.StringVar()
+    settings_expand_setting = preset_info_setting
+
+    # Check configurations and set default values
     if twitchapi.check_config()[0] in ['mpv', 'vlc']:
         selected_player.set(twitchapi.check_config()[0])
     else:
         selected_player.set('custom')
 
-    global selected_quality
-    selected_quality = tk.StringVar()
     if twitchapi.check_config()[1] in [
         'best', '720p,720p60,480p,best', '480p,worst'
     ]:
@@ -522,7 +527,6 @@ def settings_dialog():
     else:
         selected_quality.set('custom')
 
-    global settings_window
     settings_window = tk.Toplevel(master=root)
     settings_window.grid_rowconfigure(0, weight=1)
     settings_window.grid_columnconfigure(0, weight=1)
@@ -530,121 +534,115 @@ def settings_dialog():
     settings_window.transient(root)
     settings_window.grab_set()
 
-    meta_frame = default_frame(settings_window)
-    meta_frame.grid(sticky='nesw', ipady=10)
+    settings_frame = default_frame(settings_window)
+    settings_frame.grid(sticky='nesw', ipady=10, ipadx=10)
+    settings_frame.grid_rowconfigure(0, weight=1)
+    settings_frame.grid_columnconfigure(0, weight=1)
 
-    global settings_top_frame
-    settings_top_frame = default_frame(meta_frame)
-    settings_top_frame.grid(row=0, column=0, sticky='nesw')
-    settings_top_frame.grid_rowconfigure(0, weight=1)
-    settings_top_frame.grid_columnconfigure(0, weight=1)
-
-    qual_f = default_frame(settings_top_frame)
-    qual_f.grid(row=0, column=0, sticky='nesw', ipadx=10, ipady=10)
-    quality_label = default_label(qual_f, text='Video quality:')
-    quality_label.grid(row=0, column=0, sticky='nesw', ipadx=10, ipady=10)
-    
-    high_quality = default_radiobutton(
-        qual_f, text='High', value='best', variable=selected_quality,
-        command=lambda: twitchapi.adjust_config('quality', 'best')
-    )
-    high_quality.grid(row=1, column=0, sticky='nesw', ipadx=10)
-    
-    mid_quality = default_radiobutton(
-        qual_f, text='Medium', value='720p,720p60,480p,best',
-        variable=selected_quality,
-        command=lambda: twitchapi.adjust_config(
-            'quality', '720p,720p60,480p,best'
-        )
-    )
-    mid_quality.grid(row=2, column=0, sticky='nesw', ipadx=10)
-    
-    low_quality = default_radiobutton(
-        qual_f, text='Low', value='480p,worst', variable=selected_quality,
-        command=lambda: twitchapi.adjust_config('quality', '480p,worst')
-    )
-    low_quality.grid(row=3, column=0, sticky='nesw', ipadx=10)
-    
-    pick_custom_quality = default_radiobutton(
-        qual_f, text='Custom', value='custom', variable=selected_quality,
-        command=lambda: custom_quality()
-    )
-    pick_custom_quality.grid(row=4, column=0, sticky='nesw', ipadx=10)
-
-    play_frame = default_frame(settings_top_frame)
-    play_frame.grid(row=0, column=1, sticky='nesw', ipadx=10, ipady=10)
+    # Play settings frame
+    play_frame = default_frame(settings_frame)
+    play_frame.grid(row=0, column=0, sticky='nesw', padx=20, pady=10)
     play_label = default_label(play_frame, text='Media player:')
-    play_label.grid(row=0, column=0, sticky='nesw', ipadx=10, ipady=10)
+    play_label.grid(row=0, column=0, sticky='nsw', ipady=10)
     
     pick_mpv = default_radiobutton(
         play_frame, text='mpv', value='mpv', variable=selected_player,
         command=lambda: twitchapi.adjust_config('player', 'mpv')
     )
-    pick_mpv.grid(row=1, column=0, sticky='nesw', ipadx=10)
+    pick_mpv.grid(row=1, column=0, sticky='nesw')
     
     pick_vlc = default_radiobutton(
         play_frame, text='VLC', value='vlc', variable=selected_player,
         command=lambda: twitchapi.adjust_config('player', 'vlc')
     )
-    pick_vlc.grid(row=2, column=0, sticky='nesw', ipadx=10)
+    pick_vlc.grid(row=2, column=0, sticky='nesw')
     
     pick_custom_player = default_radiobutton(
         play_frame, text='Custom', value='custom', variable=selected_player,
         command=lambda: custom_player()
     )
-    pick_custom_player.grid(row=3, column=0, sticky='nesw', ipadx=10)
-    
-    separator = default_separator(settings_top_frame)
-    separator[0].grid(row=10)
-    separator[1].grid(row=11)
+    pick_custom_player.grid(row=3, column=0, sticky='nesw')
 
-    settings_bottom_frame = default_frame(meta_frame)
-    settings_bottom_frame.grid(row=1, column=0, sticky='nesw')
-
-    global expand_info_setting
-    expand_info_setting = tk.StringVar()
-    expand_info_setting.set(preset_info_setting)
+    # Quality settings frame
+    quality_frame = default_frame(settings_frame)
+    quality_frame.grid(row=0, column=1, sticky='nesw', padx=20, pady=10)
+    quality_label = default_label(quality_frame, text='Video quality:')
+    quality_label.grid(row=0, column=0, sticky='nsw', ipady=10)
     
-    info_frame = default_frame(settings_bottom_frame, borderwidth=1)
-    info_frame.grid(row=0, column=0, sticky='nesw', ipadx=10)
+    high_quality = default_radiobutton(
+        quality_frame, text='High', value='best', variable=selected_quality,
+        command=lambda: twitchapi.adjust_config('quality', 'best')
+    )
+    high_quality.grid(row=1, column=0, sticky='nesw')
+    
+    mid_quality = default_radiobutton(
+        quality_frame, text='Medium', value='720p,720p60,480p,best',
+        variable=selected_quality,
+        command=lambda: twitchapi.adjust_config(
+            'quality', '720p,720p60,480p,best'
+        )
+    )
+    mid_quality.grid(row=2, column=0, sticky='nesw')
+    
+    low_quality = default_radiobutton(
+        quality_frame, text='Low', value='480p,worst', variable=selected_quality,
+        command=lambda: twitchapi.adjust_config('quality', '480p,worst')
+    )
+    low_quality.grid(row=3, column=0, sticky='nesw')
+    
+    pick_custom_quality = default_radiobutton(
+        quality_frame, text='Custom', value='custom', variable=selected_quality,
+        command=lambda: custom_quality()
+    )
+    pick_custom_quality.grid(row=4, column=0, sticky='nesw')
+
+    # Separator to separate top and bottom frames
+    separator = default_separator(settings_frame)
+    separator[0].grid(row=2, columnspan=2)
+    separator[1].grid(row=3, columnspan=2)
+
+    # Info settings frame
+    info_frame = default_frame(settings_frame)
+    info_frame.grid(row=4, column=0, sticky='nesw', padx=20, pady=20)
     info_label = default_label(info_frame, text='Expand info:')
-    info_label.grid(row=0, column=0, sticky='nesw', ipadx=10, ipady=10)
+    info_label.grid(row=0, column=0, sticky='nsw', ipady=10)
     
     all_info = default_radiobutton(
-        info_frame, text='All', value='all', variable=expand_info_setting,
+        info_frame, text='All', value='all', variable=settings_expand_setting,
         command=lambda: [change_info_preset('all')]
     )
-    all_info.grid(row=1, column=0, sticky='nesw', ipadx=10)
+    all_info.grid(row=1, column=0, sticky='nesw')
     
     only_online_info = default_radiobutton(
         info_frame, text='Only online', value='online',
-        variable=expand_info_setting,
+        variable=settings_expand_setting,
         command=lambda: [change_info_preset('online')]
     )
-    only_online_info.grid(row=2, column=0, sticky='nesw', ipadx=10)
+    only_online_info.grid(row=2, column=0, sticky='nesw')
 
-    theme_frame = default_frame(settings_bottom_frame, borderwidth=1)
-    theme_frame.grid(row=0, column=1, sticky='nesw', ipadx=10)
+    # Theme settings frame
+    theme_frame = default_frame(settings_frame)
+    theme_frame.grid(row=4, column=1, sticky='nesw', padx=20, pady=20)
     theme_label = default_label(theme_frame, text='Theme:')
-    theme_label.grid(row=0, column=0, sticky='nesw', ipadx=10, ipady=10)
+    theme_label.grid(row=0, column=0, sticky='nsw', ipady=10)
     
     dark_mode = default_radiobutton(
-        theme_frame, text='Dark', value='dark', variable=is_gnome_darkmode,
+        theme_frame, text='Dark', value='dark', variable=theme_setting,
         command=lambda: [twitchapi.change_settings_file('theme', 'dark')]
     )
-    dark_mode.grid(row=1, column=0, sticky='nesw', ipadx=10)
+    dark_mode.grid(row=1, column=0, sticky='nesw')
     
     light_mode = default_radiobutton(
-        theme_frame, text='Light', value='light', variable=is_gnome_darkmode,
+        theme_frame, text='Light', value='light', variable=theme_setting,
         command=lambda: [twitchapi.change_settings_file('theme', 'light')]
     )
-    light_mode.grid(row=2, column=0, sticky='nesw', ipadx=10)
+    light_mode.grid(row=2, column=0, sticky='nesw')
     
     gnome_mode = default_radiobutton(
-        theme_frame, text='GNOME', value='gnome', variable=is_gnome_darkmode,
-        command=lambda: [twitchapi.change_settings_file('theme', 'gnome')]
+        theme_frame, text='System (GNOME only)', value='system', variable=theme_setting,
+        command=lambda: [twitchapi.change_settings_file('theme', 'system')]
     )
-    gnome_mode.grid(row=3, column=0, sticky='nesw', ipadx=10)
+    gnome_mode.grid(row=3, column=0, sticky='nesw')
 
 
 def set_quick_toggle_icon(n):
@@ -795,7 +793,7 @@ def custom_menu_bar():
     sep[1].grid(row=6)
 
 def default_radiobutton(master, *args, **kwargs):
-    if is_darkmode:
+    if is_dark_theme:
         info_font = '#BDBDBD'
         button = tk.Radiobutton(
             master,
@@ -828,7 +826,7 @@ def default_radiobutton(master, *args, **kwargs):
     return button
 
 def default_separator(master, **kwargs):
-    if is_darkmode:
+    if is_dark_theme:
         sep1 = tk.Frame(
             master,
             bg='#252525',
@@ -866,7 +864,7 @@ def default_separator(master, **kwargs):
     return sep1, sep2
 
 def default_canvas(master, **kwargs):
-    if is_darkmode:
+    if is_dark_theme:
         canvas = tk.Canvas(
             master,
             bg='#333333',
@@ -883,7 +881,7 @@ def default_canvas(master, **kwargs):
     return canvas
 
 def default_frame(master, **kwargs):
-    if is_darkmode:
+    if is_dark_theme:
         frame = tk.Frame(
             master,
             bg='#333333',
@@ -898,7 +896,7 @@ def default_frame(master, **kwargs):
     return frame
 
 def default_label(master, *args, **kwargs):
-    if is_darkmode:
+    if is_dark_theme:
         if 'offline' in args:
             info_font = '#A4A4A4'
         else:
@@ -925,7 +923,7 @@ def default_label(master, *args, **kwargs):
     return label
 
 def default_button(master, *args, **kwargs):
-    if is_darkmode:
+    if is_dark_theme:
         if 'offline' in args:
             info_font = '#A4A4A4'
         else:
@@ -962,7 +960,7 @@ def default_button(master, *args, **kwargs):
 
 def scrollbar_presets():
     scrollbar_width = 16
-    if is_darkmode:
+    if is_dark_theme:
         style = ttk.Style(root)
         style.configure('Vertical.TScrollbar',
                         gripcount=0,
@@ -1046,16 +1044,16 @@ cantarell_12 = ('Cantarell', 12)
 cantarell_12_bold = ('Cantarell', 12, 'bold')
 cantarell_13_bold = ('Cantarell', 13, 'bold')
 
-# Detect Dark mode:
-is_darkmode = twitchapi.detect_darkmode_gnome()
-is_gnome_darkmode = tk.StringVar()
-is_gnome_darkmode.set(twitchapi.get_setting('theme'))
+# Dark/light/system theme preference:
+is_dark_theme = twitchapi.detect_dark_theme()
+theme_setting = tk.StringVar()
+theme_setting.set(twitchapi.get_setting('theme'))
 
 scrollbar_presets()
 
 # Import icons:
 icon_files = twitchapi.icon_paths()
-if is_darkmode:
+if is_dark_theme:
     light = '_light'
 else:
     light = ''
@@ -1076,7 +1074,7 @@ root.iconphoto(False, app_icon)
 
 # Variables to collect stream info
 # and settings value to show info for all streamers:
-stream_info_status = {}
+stream_info_visible = {}
 stream_info_content = {}
 preset_info_setting = tk.StringVar()
 preset_info_setting = twitchapi.get_setting('show_info_preset')
@@ -1086,6 +1084,8 @@ current_expand_setting = twitchapi.get_setting('show_info')
 weblink_status = {}
 weblink_content = {}
 
+# Saves the name of the stream, whose VOD panel is currently shown, if present
+current_vod_panel = ''
 
 current_yesno_frame = None
 current_query_frame = None

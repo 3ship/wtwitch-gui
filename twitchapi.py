@@ -215,7 +215,7 @@ def create_settings_file():
     default_settings = {
         "show_info": "no",
         "show_info_preset": "online",
-        "theme": "gnome",
+        "theme": "system",
         "window_size": "285x450"
     }
     settings_path = f'{sys.path[0]}/settings.json'
@@ -240,16 +240,16 @@ def get_setting(k):
 def gnome_check():
     return os.environ.get('XDG_CURRENT_DESKTOP') == 'GNOME'
 
-def detect_darkmode_gnome():
+def detect_dark_theme():
     """
-    Detects dark mode in GNOME, with the option to manually override and
-    default to dark if not in GNOME.
+    Returns true, if user has activated dark theme or if user has activated
+    system theme and it returns dark preference
     """
     theme_setting = get_setting('theme')
     
     if theme_setting in ['dark', 'light']:
         return theme_setting == 'dark'
-    elif theme_setting == 'gnome':
+    elif theme_setting == 'system':
         if gnome_check():
             getArgs = ['gsettings', 'get', 'org.gnome.desktop.interface', 'color-scheme']
             currentTheme = subprocess.run(
