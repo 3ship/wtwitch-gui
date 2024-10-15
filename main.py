@@ -993,6 +993,13 @@ def scrollbar_presets():
                         troughrelief='flat',
                         width=scrollbar_width,
                         groovewidth=scrollbar_width,
+                        arrowsize=scrollbar_width,
+                        background="#EFEFEF",
+                        troughcolor="#DBDBDB",
+                        arrowcolor="#2c2c2c"
+                        )
+        style.map("Vertical.TScrollbar", background=[("active", "#FFFFFF")])
+
 def get_icons():
     global unfollow_icon, vod_icon, streaming_icon, offline_icon, play_icon
     global close_icon, settings_icon, link_icon, expand_icon, collapse_icon
