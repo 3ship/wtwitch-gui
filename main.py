@@ -218,7 +218,7 @@ def stream_buttons():
         if current_expand_setting == 'all':
             watch_button.grid_configure(rowspan=2)
             info_button = default_button(
-                stream_frame, text=streamer, anchor='w', font=cantarell_13_bold,
+                stream_frame, 'offline', text=streamer, anchor='w', font=cantarell_13_bold,
                 state='disabled'
             )
             stream_extra_buttons(streamer, count_rows)
@@ -227,7 +227,7 @@ def stream_buttons():
             if extra_buttons_always_visible.get() == 'yes':
                 stream_extra_buttons(streamer, count_rows)
             info_button = default_button(
-                stream_frame, text=streamer, anchor='w', font=cantarell_13_bold,
+                stream_frame, 'offline', text=streamer, anchor='w', font=cantarell_13_bold,
                 compound='left', command=lambda s=streamer, c=count_rows:
                 [stream_offline_info(c, s), stream_extra_buttons(s, c)]
             )
@@ -303,7 +303,7 @@ def stream_offline_info(c, streamer):
     if not stream_info_visible[c]:
         last_seen_text = f'Last seen: {twitchapi.last_seen(streamer)}'
         if c not in stream_info_content:
-            stream_info_content[c] = default_label(stream_frame,
+            stream_info_content[c] = default_label(stream_frame, 'offline',
                                                    text=last_seen_text,
                                                    justify='left',
                                                    anchor='w')
@@ -949,7 +949,7 @@ def default_button(master, *args, **kwargs):
         fg=fg_color,
         activebackground=theme['activebackground'],
         activeforeground=theme['fg'],
-        disabledforeground=theme['fg'],
+        disabledforeground=fg_color,
         **base_widget_attributes,
         **kwargs
     )
@@ -1082,9 +1082,9 @@ theme_properties = {
     },
     'gnome_light': {
         'bg': '#FAFAFA',
-        'fg': '#000000',
+        'fg': '#101010',
         'offline_fg': '#333333',
-        'activebackground': '#FAFAFA',
+        'activebackground': '#EAEAEA',
         'selectcolor': '#FAFAFA',
         'separator_bg1': '#E3E3E3',
         'separator_bg2': '#FFFFFF',
