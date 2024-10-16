@@ -215,7 +215,7 @@ def create_settings_file():
     default_settings = {
         "show_info": "no",
         "show_info_preset": "online",
-        "theme": "system",
+        "theme": "gnome_light",
         "extra_buttons": "yes",
         "window_size": "285x450"
     }
