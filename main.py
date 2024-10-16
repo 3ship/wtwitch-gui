@@ -700,10 +700,12 @@ def settings_window_content():
 
 def settings_theme_switch(value):
     twitchapi.change_settings_file('theme', value)
-    global is_dark_theme, theme_setting
+    global is_dark_theme, theme_setting, current_theme, theme
     is_dark_theme = twitchapi.detect_dark_theme()
     theme_setting = tk.StringVar()
     theme_setting.set(twitchapi.get_setting('theme'))
+    current_theme = 'dark' if is_dark_theme else 'light'
+    theme = theme_properties[current_theme]
     scrollbar_presets()
     get_icons()
     for widget in root.winfo_children():
@@ -860,201 +862,67 @@ def custom_menu_bar():
     sep[1].grid(row=6)
 
 def default_radiobutton(master, *args, **kwargs):
-    if is_dark_theme:
-        info_font = '#BDBDBD'
-        button = tk.Radiobutton(
-            master,
-            bg='#333333',
-            fg=info_font,
-            activebackground='#3F3F3F',
-            selectcolor='#242424',
-            activeforeground=info_font,
-            disabledforeground=info_font,
-            highlightthickness=0,
-            relief='flat',
-            anchor='w',
-            border=0,
-            **kwargs
-        )
-    else:
-        info_font = '#000000'
-        button = tk.Radiobutton(
-            master,
-            bg='#FAFAFA',
-            highlightthickness=0,
-            fg=info_font,
-            activeforeground=info_font,
-            disabledforeground=info_font,
-            relief='flat',
-            anchor='w',
-            border=0,
-            **kwargs
-        )
-    return button
+    return tk.Radiobutton(
+        master,
+        bg=theme['bg'],
+        fg=theme['fg'],
+        activebackground=theme['activebackground'],
+        selectcolor=theme['selectcolor'],
+        activeforeground=theme['fg'],
+        disabledforeground=theme['fg'],
+        anchor='w',
+        **base_widget_attributes,
+        **kwargs
+    )
 
-def default_separator(master, **kwargs):
-    if is_dark_theme:
-        sep1 = tk.Frame(
-            master,
-            bg='#252525',
-            height=1,
-            border=0,
-            **kwargs
-        )
-        sep2 = tk.Frame(
-            master,
-            bg='#484848',
-            height=1,
-            border=0,
-            **kwargs
-        )
-        sep1.grid(columnspan=5, sticky='ew')
-        sep2.grid(columnspan=5, sticky='ew')
-        separator = sep1, sep2
-    else:
-        sep1 = tk.Frame(
-            master,
-            bg='#E3E3E3',
-            height=1,
-            border=0,
-            **kwargs
-        )
-        sep2 = tk.Frame(
-            master,
-            bg='#FFFFFF',
-            height=1,
-            border=0,
-            **kwargs
-        )
-        sep1.grid(columnspan=5, sticky='ew')
-        sep2.grid(columnspan=5, sticky='ew')
+def default_separator(master, span=5, **kwargs):
+    sep1 = tk.Frame(master, bg=theme['separator_bg1'], height=1, borderwidth=1, relief="flat")
+    sep2 = tk.Frame(master, bg=theme['separator_bg2'], height=1, borderwidth=1, relief="flat")
+    
+    sep1.grid(row=0, column=0, sticky='ew', columnspan=span)
+    sep2.grid(row=1, column=0, sticky='ew', columnspan=span)
+    
     return sep1, sep2
 
 def default_canvas(master, **kwargs):
-    if is_dark_theme:
-        canvas = tk.Canvas(
-            master,
-            bg='#333333',
-            highlightthickness='0',
-            **kwargs
-        )
-    else:
-        canvas = tk.Canvas(
-            master,
-            bg='#FAFAFA',
-            highlightthickness='0',
-            **kwargs
-        )
-    return canvas
+    return tk.Canvas(master, bg=theme['bg'], **base_widget_attributes, **kwargs)
 
 def default_frame(master, **kwargs):
-    if is_dark_theme:
-        frame = tk.Frame(
-            master,
-            bg='#333333',
-            **kwargs
-        )
-    else:
-        frame = tk.Frame(
-            master,
-            bg='#FAFAFA',
-            **kwargs
-        )
-    return frame
+    return tk.Frame(master, bg=theme['bg'], **base_widget_attributes, **kwargs)
 
 def default_label(master, *args, **kwargs):
-    if is_dark_theme:
-        if 'offline' in args:
-            info_font = '#A4A4A4'
-        else:
-            info_font = '#BDBDBD'
-        label = tk.Label(
-            master,
-            bg='#333333',
-            fg=info_font,
-            highlightthickness=0,
-            **kwargs
-        )
-    else:
-        if 'offline' in args:
-            info_font = '#333333'
-        else:
-            info_font = '#000000'
-        label = tk.Label(
-            master,
-            bg='#FAFAFA',
-            fg=info_font,
-            highlightthickness=0,
-            **kwargs
-        )
-    return label
+    fg_color = theme['offline_fg'] if 'offline' in args else theme['fg']
+    return tk.Label(master, bg=theme['bg'], fg=fg_color, **base_widget_attributes, **kwargs)
 
 def default_button(master, *args, **kwargs):
-    if is_dark_theme:
-        if 'offline' in args:
-            info_font = '#A4A4A4'
-        else:
-            info_font = '#BDBDBD'
-        button = tk.Button(
-            master,
-            bg='#333333',
-            fg=info_font,
-            activebackground='#3F3F3F',
-            activeforeground=info_font,
-            disabledforeground=info_font,
-            highlightthickness=0,
-            relief='flat',
-            border=0,
-            **kwargs
-        )
-    else:
-        if 'offline' in args:
-            info_font = '#333333'
-        else:
-            info_font = '#000000'
-        button = tk.Button(
-            master,
-            bg='#FAFAFA',
-            fg=info_font,
-            activeforeground=info_font,
-            disabledforeground=info_font,
-            highlightthickness=0,
-            relief='flat',
-            border=0,
-            **kwargs
-        )
-    return button
+    fg_color = theme['offline_fg'] if 'offline' in args else theme['fg']
+    return tk.Button(
+        master,
+        bg=theme['bg'],
+        fg=fg_color,
+        activebackground=theme['activebackground'],
+        activeforeground=theme['fg'],
+        disabledforeground=theme['fg'],
+        **base_widget_attributes,
+        **kwargs
+    )
 
 def scrollbar_presets():
     scrollbar_width = 16
-    if is_dark_theme:
-        style = ttk.Style(root)
-        style.configure('Vertical.TScrollbar',
-                        gripcount=0,
-                        relief='flat',
-                        troughrelief='flat',
-                        width=scrollbar_width,
-                        groovewidth=scrollbar_width,
-                        arrowsize=scrollbar_width,
-                        background="#2c2c2c",
-                        troughcolor="#363636",
-                        arrowcolor="#BDBDBD"
-                        )
-        style.map("Vertical.TScrollbar", background=[("active", "#222222")])
-    else:
-        style = ttk.Style(root)
-        style.configure('Vertical.TScrollbar',
-                        gripcount=0,
-                        relief='flat',
-                        troughrelief='flat',
-                        width=scrollbar_width,
-                        groovewidth=scrollbar_width,
-                        arrowsize=scrollbar_width,
-                        background="#EFEFEF",
-                        troughcolor="#DBDBDB",
-                        arrowcolor="#2c2c2c"
-                        )
-        style.map("Vertical.TScrollbar", background=[("active", "#FFFFFF")])
+    style = ttk.Style(root)
+    scrollbar_theme = theme['scrollbar']
+    style.configure('Vertical.TScrollbar',
+                    gripcount=0,
+                    relief='flat',
+                    troughrelief='flat',
+                    width=scrollbar_width,
+                    groovewidth=scrollbar_width,
+                    arrowsize=scrollbar_width,
+                    background=scrollbar_theme['bg'],
+                    troughcolor=scrollbar_theme['trough'],
+                    arrowcolor=scrollbar_theme['arrow']
+                    )
+    style.map("Vertical.TScrollbar", background=[("active", scrollbar_theme['active'])])
 
 def get_icons():
     global unfollow_icon, vod_icon, streaming_icon, offline_icon, play_icon
@@ -1141,10 +1009,116 @@ cantarell_12 = ('Cantarell', 12)
 cantarell_12_bold = ('Cantarell', 12, 'bold')
 cantarell_13_bold = ('Cantarell', 13, 'bold')
 
-# Dark/light/system theme preference:
+theme_properties = {
+    'dark': {
+        'bg': '#333333',
+        'fg': '#BDBDBD',
+        'offline_fg': '#A4A4A4',
+        'activebackground': '#3F3F3F',
+        'selectcolor': '#242424',
+        'separator_bg1': '#252525',
+        'separator_bg2': '#484848',
+        'scrollbar': {
+            'bg': '#2c2c2c',
+            'trough': '#363636',
+            'arrow': '#BDBDBD',
+            'active': '#222222'
+        }
+    },
+    'light': {
+        'bg': '#FAFAFA',
+        'fg': '#000000',
+        'offline_fg': '#333333',
+        'activebackground': '#FAFAFA',
+        'selectcolor': '#FAFAFA',
+        'separator_bg1': '#E3E3E3',
+        'separator_bg2': '#FFFFFF',
+        'scrollbar': {
+            'bg': '#EFEFEF',
+            'trough': '#DBDBDB',
+            'arrow': '#2c2c2c',
+            'active': '#FFFFFF'
+        }
+    },
+    'ocean_breeze': {
+        'bg': '#e0f7fa',
+        'fg': '#00796b',
+        'offline_fg': '#004d40',
+        'activebackground': '#b2dfdb',
+        'selectcolor': '#004d40',
+        'separator_bg1': '#00897b',
+        'separator_bg2': '#004d40',
+        'scrollbar': {
+            'bg': '#004d40',
+            'trough': '#b2dfdb',
+            'arrow': '#00796b',
+            'active': '#004d40'
+        }
+    },
+    'night_sky': {
+        'bg': '#eceff1',
+        'fg': '#263238',
+        'offline_fg': '#37474f',
+        'activebackground': '#cfd8dc',
+        'selectcolor': '#37474f',
+        'separator_bg1': '#546e7a',
+        'separator_bg2': '#455a64',
+        'scrollbar': {
+            'bg': '#37474f',
+            'trough': '#cfd8dc',
+            'arrow': '#546e7a',
+            'active': '#455a64'
+        }
+    },
+    'twilight_shadows': {
+        'bg': '#1c1c1c',
+        'fg': '#cccccc',
+        'offline_fg': '#666666',
+        'activebackground': '#333333',
+        'selectcolor': '#666666',
+        'separator_bg1': '#444444',
+        'separator_bg2': '#555555',
+        'scrollbar': {
+            'bg': '#666666',
+            'trough': '#333333',
+            'arrow': '#444444',
+            'active': '#555555'
+        }
+    },
+    'midnight_sky': {
+        'bg': '#121212',
+        'fg': '#bbbbbb',
+        'offline_fg': '#555555',
+        'activebackground': '#1d1d1d',
+        'selectcolor': '#555555',
+        'separator_bg1': '#252525',
+        'separator_bg2': '#353535',
+        'scrollbar': {
+            'bg': '#555555',
+            'trough': '#1d1d1d',
+            'arrow': '#252525',
+            'active': '#353535'
+        }
+    },
+}
+
+# Base attributes for all widgets
+base_widget_attributes = {
+    'highlightthickness': 0,
+    'relief': 'flat',
+    'border': 0
+}
+
+# Return True/False for dark theme:
 is_dark_theme = twitchapi.detect_dark_theme()
+# Set to 'dark', 'light' or 'system':
 theme_setting = tk.StringVar()
 theme_setting.set(twitchapi.get_setting('theme'))
+# Only use dark/light for the time being:
+current_theme = 'dark' if is_dark_theme else 'light'
+# current_theme = 'faded_elegance'
+# Retrieves colors from dictionary:
+theme = theme_properties[current_theme]
 
 scrollbar_presets()
 
