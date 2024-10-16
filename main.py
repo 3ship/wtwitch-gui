@@ -22,6 +22,7 @@ def vod_panel(streamer):
 
     vod_info_status = {}
     vod_info_content = {}
+
     vw_frame = default_frame(root)
     vw_frame.grid(column=0, row=1, sticky='nsew')
     vw_frame.columnconfigure(0, weight=1)
@@ -59,6 +60,7 @@ def vod_panel(streamer):
 
     vod_number = 1
     count_vod_rows = 3
+    count_vod_rows_increment = 4
     for timestamp, title, length in zip(vods[0], vods[1], vods[2]):
         vod_info_status[count_vod_rows] = False
         watch_button = default_button(
@@ -82,13 +84,14 @@ def vod_panel(streamer):
             )
         timestamp_button.grid(column=1, row=count_vod_rows, sticky='nesw')
 
+        # Don't add a separator after the last item
         if vod_number != len(vods[0]):
             separator = default_separator(vod_frame)
             separator[0].grid(row=count_vod_rows + 2)
             separator[1].grid(row=count_vod_rows + 3)
 
         vod_number += 1
-        count_vod_rows += 4
+        count_vod_rows += count_vod_rows_increment
 
     global vw_canvas_window
     vw_canvas_window = vw_canvas.create_window(
@@ -155,6 +158,7 @@ def streamer_buttons():
     online_streamers = streamer_status[0]
     offline_streamers = streamer_status[1]
     count_rows = 0
+    count_rows_increment = 6
 
     # Initialize or clear dictionaries
     stream_info_visible = {}
@@ -199,7 +203,7 @@ def streamer_buttons():
         separator = default_separator(main_frame)
         separator[0].grid(row=count_rows + 4)
         separator[1].grid(row=count_rows + 5)
-        count_rows += 6
+        count_rows += count_rows_increment
 
     for streamer in offline_streamers:
         watch_button = default_label(main_frame, image=offline_icon)
@@ -227,11 +231,15 @@ def streamer_buttons():
             
         info_button.grid(column=1, row=count_rows, sticky='nsew')
         
-        if count_rows != (len(online_streamers) + len(offline_streamers)) * 6 - 6:
+        # Don't add separator after the last item
+        total_streamers = len(online_streamers) + len(offline_streamers)
+        total_items = total_streamers * count_rows_increment
+        if count_rows != total_items - count_rows_increment:
             separator = default_separator(main_frame)
             separator[0].grid(row=count_rows + 4)
             separator[1].grid(row=count_rows + 5)
-        count_rows += 6
+
+        count_rows += count_rows_increment
 
 
 def extra_buttons(streamer, count_rows):
