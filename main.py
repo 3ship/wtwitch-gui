@@ -862,37 +862,37 @@ def create_menu_frame():
     global menu_frame
     menu_frame = default_frame(root)
     menu_frame.grid(row=0, column=0, sticky='nesw')
-    menu_frame.columnconfigure(2, weight=1)
+    menu_frame.columnconfigure(3, weight=1)
     refresh_b = default_button(menu_frame,
-                    text='Refresh',
+                    image=refresh_icon,
                     font=cantarell_12_bold,
                     command=lambda: refresh_stream_frame()
                     )
-    refresh_b.grid(row=0, column=0, sticky='nsw')
+    refresh_b.grid(row=0, column=0, sticky='nsw', ipadx=18, ipady=6)
     follow_b = default_button(menu_frame,
-                    text='Follow',
+                    image=follow_icon,
                     font=cantarell_12,
                     command=lambda: menu_follow_dialog()
                     )
-    follow_b.grid(row=0, column=1, sticky='nsw')
+    follow_b.grid(row=0, column=1, sticky='nsw', ipadx=18, ipady=6)
     play_b = default_button(menu_frame,
-                    text='Play',
+                    image=play_stream_icon,
                     font=cantarell_12,
                     command=lambda: menu_play_dialog()
                     )
-    play_b.grid(row=0, column=2, sticky='nsw')
+    play_b.grid(row=0, column=2, sticky='nsw', ipadx=18, ipady=6)
     settings_b = default_button(menu_frame,
                     image=settings_icon,
                     font=cantarell_12,
                     command=lambda: open_settings_window()
                     )
-    settings_b.grid(row=0, column=3, sticky='nsw', ipady=8, ipadx=4)
+    settings_b.grid(row=0, column=3, sticky='nsw', ipadx=18, ipady=6)
     global expand_b
     expand_b = default_button(menu_frame,
                     image=current_quick_toggle_icon,
                     font=cantarell_12
                     )
-    expand_b.grid(row=0, column=4, sticky='nsw', ipady=8, ipadx=4)
+    expand_b.grid(row=0, column=4, sticky='nsw', ipadx=4)
     expand_b.configure(command=lambda: [
                                         menu_info_toggle(),
                                         switch_info_toggle_icon(1)
@@ -976,6 +976,7 @@ def scrollbar_presets():
 def get_icons():
     global unfollow_icon, vod_icon, streaming_icon, offline_icon, play_icon
     global close_icon, settings_icon, link_icon, expand_icon, collapse_icon
+    global follow_icon, play_stream_icon, refresh_icon
     global app_icon
     # Import icons:
     icon_files = twitchapi.icon_paths()
@@ -991,6 +992,9 @@ def get_icons():
     close_icon = tk.PhotoImage(file=icon_files[f'close_icon{light}'])
     settings_icon = tk.PhotoImage(file=icon_files[f'settings_icon{light}'])
     link_icon = tk.PhotoImage(file=icon_files[f'link_icon{light}'])
+    follow_icon = tk.PhotoImage(file=icon_files[f'follow_icon{light}'])
+    play_stream_icon = tk.PhotoImage(file=icon_files[f'play_stream_icon{light}'])
+    refresh_icon = tk.PhotoImage(file=icon_files[f'refresh_icon{light}'])
 
     expand_icon = tk.PhotoImage(file=icon_files[f'expand_icon{light}'])
     collapse_icon = tk.PhotoImage(file=icon_files[f'collapse_icon{light}'])
