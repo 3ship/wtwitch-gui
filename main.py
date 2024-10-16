@@ -201,7 +201,7 @@ def stream_buttons():
                 stream_extra_buttons(s, cr)]
             )
             
-        info_button.grid(column=1, row=count_rows, sticky='nsew', columnspan=4)
+        info_button.grid(column=1, row=count_rows, sticky='nsew')
 
         separator = default_separator(stream_frame)
         separator[0].grid(row=count_rows + 4)
@@ -232,7 +232,7 @@ def stream_buttons():
                 [stream_offline_info(c, s), stream_extra_buttons(s, c)]
             )
             
-        info_button.grid(column=1, row=count_rows, sticky='nsew', columnspan=4)
+        info_button.grid(column=1, row=count_rows, sticky='nsew')
         
         # Don't add separator after the last item
         total_streamers = len(online_streamers) + len(offline_streamers)
@@ -328,7 +328,7 @@ def stream_website_dialog(c, streamer):
             weblink_content[c] = default_frame(stream_frame)
             weblink_content[c].grid(row=c+2, column=1, columnspan=4)
             website_button = default_button(
-                weblink_content[c], text='Website',
+                weblink_content[c], text='Twitch',
                 command=lambda s=streamer: webbrowser.open(f'http://www.twitch.tv/{s}')
             )
             website_button.grid(row=0, column=0, sticky='ew')
