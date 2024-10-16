@@ -201,7 +201,7 @@ def stream_buttons():
                 stream_extra_buttons(s, cr)]
             )
             
-        info_button.grid(column=1, row=count_rows, sticky='nsew')
+        info_button.grid(column=1, row=count_rows, sticky='nsew', columnspan=4)
 
         separator = default_separator(stream_frame)
         separator[0].grid(row=count_rows + 4)
@@ -232,7 +232,7 @@ def stream_buttons():
                 [stream_offline_info(c, s), stream_extra_buttons(s, c)]
             )
             
-        info_button.grid(column=1, row=count_rows, sticky='nsew')
+        info_button.grid(column=1, row=count_rows, sticky='nsew', columnspan=4)
         
         # Don't add separator after the last item
         total_streamers = len(online_streamers) + len(offline_streamers)
