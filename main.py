@@ -654,33 +654,9 @@ def settings_window_content():
     )
     only_online_info.grid(row=2, column=0, sticky='nesw')
 
-    # Theme settings frame
-    theme_frame = default_frame(settings_frame)
-    theme_frame.grid(row=4, column=0, sticky='nesw', padx=20, pady=4)
-    theme_label = default_label(theme_frame, text='Theme:')
-    theme_label.grid(row=0, column=0, sticky='nsw', ipady=10)
-    
-    set_dark_theme = default_radiobutton(
-        theme_frame, text='Dark', value='dark', variable=theme_setting,
-        command=lambda: [settings_theme_switch('dark')]
-    )
-    set_dark_theme.grid(row=1, column=0, sticky='nesw')
-    
-    set_light_theme = default_radiobutton(
-        theme_frame, text='Light', value='light', variable=theme_setting,
-        command=lambda: [settings_theme_switch('light')]
-    )
-    set_light_theme.grid(row=2, column=0, sticky='nesw')
-    
-    set_system_theme = default_radiobutton(
-        theme_frame, text='System\n(GNOME only)', value='system', variable=theme_setting,
-        command=lambda: [settings_theme_switch('system')], justify='left'
-    )
-    set_system_theme.grid(row=3, column=0, sticky='nesw')
-
     # Always show unfollow/web/VOD buttons?
     extra_frame = default_frame(settings_frame)
-    extra_frame.grid(row=5, column=0, sticky='nesw', padx=20, pady=4)
+    extra_frame.grid(row=4, column=0, sticky='nesw', padx=20, pady=4)
     extra_label = default_label(extra_frame, text=  'Always show\n'
                                                     'all buttons')
     extra_label.grid(row=0, column=0, sticky='nsw', ipady=10)
@@ -697,6 +673,48 @@ def settings_window_content():
     )
     show_extra_no.grid(row=2, column=0, sticky='nesw')
 
+    # Theme settings frame
+    theme_frame = default_frame(settings_frame)
+    theme_frame.grid(row=5, column=0, sticky='nesw', padx=20, pady=4)
+    theme_label = default_label(theme_frame, text='Theme:')
+    theme_label.grid(row=0, column=0, sticky='nsw', ipady=10)
+    
+    set_gnome_dark = default_radiobutton(
+        theme_frame, text='GNOME Dark', value='gnome_dark', variable=theme_setting,
+        command=lambda: [settings_theme_switch('gnome_dark')]
+    )
+    set_gnome_dark.grid(row=1, column=0, sticky='nesw')
+    
+    set_gnome_light = default_radiobutton(
+        theme_frame, text='GNOME Light', value='gnome_light', variable=theme_setting,
+        command=lambda: [settings_theme_switch('gnome_light')]
+    )
+    set_gnome_light.grid(row=2, column=0, sticky='nesw')
+    
+    set_ocean_breeze = default_radiobutton(
+        theme_frame, text='Ocean breeze)', value='ocean_breeze', variable=theme_setting,
+        command=lambda: [settings_theme_switch('ocean_breeze')], justify='left'
+    )
+    set_ocean_breeze.grid(row=3, column=0, sticky='nesw')
+
+    set_night_sky = default_radiobutton(
+        theme_frame, text='Night Sky', value='night_sky', variable=theme_setting,
+        command=lambda: [settings_theme_switch('night_sky')]
+    )
+    set_night_sky.grid(row=4, column=0, sticky='nesw')
+
+    set_twilight_shadows = default_radiobutton(
+        theme_frame, text='Twilight Shadows', value='twilight_shadows', variable=theme_setting,
+        command=lambda: [settings_theme_switch('twilight_shadows')]
+    )
+    set_twilight_shadows.grid(row=5, column=0, sticky='nesw')
+
+    set_midnight_sky = default_radiobutton(
+        theme_frame, text='Midnight Sky', value='midnight_sky', variable=theme_setting,
+        command=lambda: [settings_theme_switch('midnight_sky')]
+    )
+    set_midnight_sky.grid(row=6, column=0, sticky='nesw')
+
 
 def settings_theme_switch(value):
     twitchapi.change_settings_file('theme', value)
@@ -704,7 +722,7 @@ def settings_theme_switch(value):
     is_dark_theme = twitchapi.detect_dark_theme()
     theme_setting = tk.StringVar()
     theme_setting.set(twitchapi.get_setting('theme'))
-    current_theme = 'dark' if is_dark_theme else 'light'
+    current_theme = value
     theme = theme_properties[current_theme]
     scrollbar_presets()
     get_icons()
@@ -1010,7 +1028,7 @@ cantarell_12_bold = ('Cantarell', 12, 'bold')
 cantarell_13_bold = ('Cantarell', 13, 'bold')
 
 theme_properties = {
-    'dark': {
+    'gnome_dark': {
         'bg': '#333333',
         'fg': '#BDBDBD',
         'offline_fg': '#A4A4A4',
@@ -1025,7 +1043,7 @@ theme_properties = {
             'active': '#222222'
         }
     },
-    'light': {
+    'gnome_light': {
         'bg': '#FAFAFA',
         'fg': '#000000',
         'offline_fg': '#333333',
@@ -1115,8 +1133,7 @@ is_dark_theme = twitchapi.detect_dark_theme()
 theme_setting = tk.StringVar()
 theme_setting.set(twitchapi.get_setting('theme'))
 # Only use dark/light for the time being:
-current_theme = 'dark' if is_dark_theme else 'light'
-# current_theme = 'faded_elegance'
+current_theme = twitchapi.get_setting('theme')
 # Retrieves colors from dictionary:
 theme = theme_properties[current_theme]
 

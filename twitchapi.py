@@ -248,15 +248,7 @@ def detect_dark_theme():
     """
     theme_setting = get_setting('theme')
     
-    if theme_setting in ['dark', 'light']:
-        return theme_setting == 'dark'
-    elif theme_setting == 'system':
-        if gnome_check():
-            getArgs = ['gsettings', 'get', 'org.gnome.desktop.interface', 'color-scheme']
-            currentTheme = subprocess.run(
-                getArgs, capture_output=True
-            ).stdout.decode("utf-8").strip()
-            return currentTheme == "'prefer-dark'"
-        return True  # Default to dark if GNOME check fails
+    if theme_setting in ['gnome_dark', 'midnight_sky', 'twilight_shadows']:
+        return True
 
-    return True
+    return False
