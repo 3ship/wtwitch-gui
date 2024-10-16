@@ -1046,7 +1046,7 @@ twitchapi.create_settings_file()
 root = tk.Tk(className='Wince')
 root.title("Wince")
 root.geometry(initiate_window_dimensions())
-root.minsize(285, 360)
+root.minsize(210, 360)
 root.columnconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)
 
