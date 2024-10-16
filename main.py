@@ -125,12 +125,14 @@ def vod_info(c, title):
         vod_info_content[c].grid_remove()
         vod_info_status[c] = False
 
+
 def refresh_vod_panel(streamer):
-    global vw_frame, meta_canvas
+    global vw_frame, stream_canvas
     if 'vw_frame' in globals() and vw_frame.winfo_exists():
         for widget in vw_frame.winfo_children():
             widget.destroy()
         vod_panel(streamer)
+
 
 def close_vod_panel():
     global vw_frame, vw_canvas, current_vod_panel
@@ -146,11 +148,12 @@ def close_vod_panel():
         print("Error while closing VOD panel:", e)
     
     current_vod_panel = None  # Reset current_vod_panel
-    meta_canvas.destroy()
-    draw_main()
+    stream_canvas.destroy()
+    create_meta_frame()
     update_meta_canvas()
 
-def streamer_buttons():
+
+def stream_buttons():
     global stream_info_visible, stream_info_content
     global weblink_visible, weblink_content
     global extra_buttons_visible, extra_buttons_content
@@ -170,7 +173,7 @@ def streamer_buttons():
 
     for package in online_streamers:
         watch_button = default_button(
-            main_frame, image=streaming_icon,
+            stream_frame, image=streaming_icon,
             command=lambda s=package[0]: [twitchapi.start_stream(s)]
         )
         watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=6, ipady=8)
@@ -181,32 +184,32 @@ def streamer_buttons():
         if current_expand_setting in ['all', 'online']:
             watch_button.grid_configure(rowspan=2)
             info_button = default_button(
-                main_frame, text=package[1], anchor='w', font=cantarell_13_bold,
+                stream_frame, text=package[1], anchor='w', font=cantarell_13_bold,
                 state='disabled'
             )
-            extra_buttons(package[0], count_rows)
-            online_info(
+            stream_extra_buttons(package[0], count_rows)
+            stream_online_info(
                 count_rows, package[1], package[2], package[3], package[4]
             )
         else:
             if extra_buttons_always_visible.get() == 'yes':
-                extra_buttons(package[0], count_rows)
+                stream_extra_buttons(package[0], count_rows)
             info_button = default_button(
-                main_frame, text=package[1], anchor='w', font=cantarell_13_bold,
+                stream_frame, text=package[1], anchor='w', font=cantarell_13_bold,
                 command=lambda cr=count_rows, s=package[0], l=package[1], c=package[2],
-                t=package[3], v=package[4]: [online_info(cr, l, c, t, v),
-                extra_buttons(s, cr)]
+                t=package[3], v=package[4]: [stream_online_info(cr, l, c, t, v),
+                stream_extra_buttons(s, cr)]
             )
             
         info_button.grid(column=1, row=count_rows, sticky='nsew')
 
-        separator = default_separator(main_frame)
+        separator = default_separator(stream_frame)
         separator[0].grid(row=count_rows + 4)
         separator[1].grid(row=count_rows + 5)
         count_rows += count_rows_increment
 
     for streamer in offline_streamers:
-        watch_button = default_label(main_frame, image=offline_icon)
+        watch_button = default_label(stream_frame, image=offline_icon)
         watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=6, ipady=6)
         stream_info_visible[count_rows] = False
         weblink_visible[count_rows] = False
@@ -215,18 +218,18 @@ def streamer_buttons():
         if current_expand_setting == 'all':
             watch_button.grid_configure(rowspan=2)
             info_button = default_button(
-                main_frame, text=streamer, anchor='w', font=cantarell_13_bold,
+                stream_frame, text=streamer, anchor='w', font=cantarell_13_bold,
                 state='disabled'
             )
-            extra_buttons(streamer, count_rows)
-            offline_info(count_rows, streamer)
+            stream_extra_buttons(streamer, count_rows)
+            stream_offline_info(count_rows, streamer)
         else:
             if extra_buttons_always_visible.get() == 'yes':
-                extra_buttons(streamer, count_rows)
+                stream_extra_buttons(streamer, count_rows)
             info_button = default_button(
-                main_frame, text=streamer, anchor='w', font=cantarell_13_bold,
+                stream_frame, text=streamer, anchor='w', font=cantarell_13_bold,
                 compound='left', command=lambda s=streamer, c=count_rows:
-                [offline_info(c, s), extra_buttons(s, c)]
+                [stream_offline_info(c, s), stream_extra_buttons(s, c)]
             )
             
         info_button.grid(column=1, row=count_rows, sticky='nsew')
@@ -235,28 +238,28 @@ def streamer_buttons():
         total_streamers = len(online_streamers) + len(offline_streamers)
         total_items = total_streamers * count_rows_increment
         if count_rows != total_items - count_rows_increment:
-            separator = default_separator(main_frame)
+            separator = default_separator(stream_frame)
             separator[0].grid(row=count_rows + 4)
             separator[1].grid(row=count_rows + 5)
 
         count_rows += count_rows_increment
 
 
-def extra_buttons(streamer, count_rows):
+def stream_extra_buttons(streamer, count_rows):
     if not extra_buttons_visible[count_rows]:
         extra_buttons_content[count_rows] = {}
         extra_buttons_content[count_rows]['unfollow'] = default_button(
-            main_frame, image=unfollow_icon,
-            command=lambda s=streamer, c=count_rows+3: [unfollow_dialog(s, c)]
+            stream_frame, image=unfollow_icon,
+            command=lambda s=streamer, c=count_rows+3: [stream_unfollow_dialog(s, c)]
         )
         extra_buttons_content[count_rows]['unfollow'].grid(column=2, row=count_rows, sticky='nsew', ipadx=4)
         extra_buttons_content[count_rows]['web'] = default_button(
-            main_frame, image=link_icon,
-            command=lambda s=streamer, c=count_rows: website_dialog(c, s)
+            stream_frame, image=link_icon,
+            command=lambda s=streamer, c=count_rows: stream_website_dialog(c, s)
         )
         extra_buttons_content[count_rows]['web'].grid(column=3, row=count_rows, sticky='nsew', ipadx=4)
         extra_buttons_content[count_rows]['vods'] = default_button(
-            main_frame, image=vod_icon,
+            stream_frame, image=vod_icon,
             command=lambda s=streamer: vod_panel(s)
         )
         extra_buttons_content[count_rows]['vods'].grid(column=4, row=count_rows, sticky='nsew', ipadx=6)
@@ -271,12 +274,11 @@ def extra_buttons(streamer, count_rows):
             extra_buttons_visible[count_rows] = False
             
 
-
-def online_info(c, streamer, category, title, viewercount):
+def stream_online_info(c, streamer, category, title, viewercount):
     if not stream_info_visible[c]:
         if c not in stream_info_content:
             stream_info_content[c] = default_label(
-                main_frame, text=   f'Title: {title}\n'
+                stream_frame, text=   f'Title: {title}\n'
                                     f'Category: {category}\n'
                                     f'Viewer count: {viewercount}', 
                 justify='left', anchor='w'
@@ -297,11 +299,11 @@ def online_info(c, streamer, category, title, viewercount):
     update_meta_canvas()
 
 
-def offline_info(c, streamer):
+def stream_offline_info(c, streamer):
     if not stream_info_visible[c]:
         last_seen_text = f'Last seen: {twitchapi.last_seen(streamer)}'
         if c not in stream_info_content:
-            stream_info_content[c] = default_label(main_frame,
+            stream_info_content[c] = default_label(stream_frame,
                                                    text=last_seen_text,
                                                    justify='left',
                                                    anchor='w')
@@ -319,10 +321,11 @@ def offline_info(c, streamer):
         stream_info_visible[c] = False
     update_meta_canvas()
 
-def website_dialog(c, streamer):
+
+def stream_website_dialog(c, streamer):
     if not weblink_visible[c]:
         if c not in weblink_content:
-            weblink_content[c] = default_frame(main_frame)
+            weblink_content[c] = default_frame(stream_frame)
             weblink_content[c].grid(row=c+2, column=1, columnspan=4)
             website_button = default_button(
                 weblink_content[c], text='Website',
@@ -349,16 +352,18 @@ def error_dialog(e):
                         message=f'{e}\n\n Check your internet connection!',
                         )
 
-def unfollow_dialog(streamer, row):
+
+def stream_unfollow_dialog(streamer, row):
     '''Asks for confirmation, if the unfollow button is pressed. Rebuild the
     main panel, if confirmed.
     '''
-    answer = add_askyesno_row(main_frame, f'\nUnfollow {streamer}?', row)
+    answer = add_askyesno_row(stream_frame, f'\nUnfollow {streamer}?', row)
     if answer:
         twitchapi.unfollow_streamer(streamer)
-        refresh_main_quiet()
+        refresh_stream_frame_quiet()
 
-def follow_dialog():
+
+def menu_follow_dialog():
     '''Opens a text dialog and adds the entered string to the follow list.
     '''
     answer = add_askstring_row(menu_frame, 'Add streamer:')
@@ -366,9 +371,10 @@ def follow_dialog():
         return
     else:
         twitchapi.follow_streamer(answer)
-        refresh_main_quiet()
+        refresh_stream_frame_quiet()
 
-def play_dialog():
+
+def menu_play_dialog():
     '''Opens a text dialog to play a custom stream
     '''
     streamer = add_askstring_row(menu_frame, 'Play a custom stream:')
@@ -377,23 +383,24 @@ def play_dialog():
     else:
         update = twitchapi.start_stream(streamer)
 
-def refresh_main_quiet():
+
+def refresh_stream_frame_quiet():
     global streamer_status, current_vod_panel
     try:
         streamer_status = twitchapi.extract_streamer_status()
     except Exception as e:
         error_dialog(e)
 
-    meta_canvas.update_idletasks()  # Flush the event queue
-    meta_canvas.configure(yscrollcommand=None)  # Temporarily disable scroll command
+    stream_canvas.update_idletasks()  # Flush the event queue
+    stream_canvas.configure(yscrollcommand=None)  # Temporarily disable scroll command
 
     # Clear and repopulate main_frame
-    for widget in main_frame.winfo_children():
+    for widget in stream_frame.winfo_children():
         widget.destroy()
-    streamer_buttons()  # Re-populate the main_frame
+    stream_buttons()  # Re-populate the main_frame
 
-    meta_canvas.update_idletasks()  # Flush the event queue
-    meta_canvas.configure(yscrollcommand=scrollbar.set)  # Re-enable scroll command
+    stream_canvas.update_idletasks()  # Flush the event queue
+    stream_canvas.configure(yscrollcommand=stream_scrollbar.set)  # Re-enable scroll command
     update_meta_canvas()  # Update the canvas region
 
     # If a VOD panel is active, refresh it
@@ -401,7 +408,7 @@ def refresh_main_quiet():
         refresh_vod_panel(current_vod_panel)
 
 
-def refresh_main():
+def refresh_stream_frame():
     '''Runs wtwitch c and then rebuilds the main panel.'''
     twitchapi.check_status()
     global streamer_status, streamer_buttons_dict
@@ -413,21 +420,23 @@ def refresh_main():
     # Clear the dictionary before updating
     streamer_buttons_dict = {}
 
-    for widget in main_frame.winfo_children():
+    for widget in stream_frame.winfo_children():
         widget.destroy()
-    streamer_buttons()
+    stream_buttons()
     update_meta_canvas()
 
 
 def update_meta_canvas(force_update=False):
-    if force_update or meta_canvas.bbox("all") != meta_canvas.bbox("view"):
-        meta_canvas.update_idletasks()
-        meta_canvas.configure(scrollregion=meta_canvas.bbox("all"))
+    if force_update or stream_canvas.bbox("all") != stream_canvas.bbox("view"):
+        stream_canvas.update_idletasks()
+        stream_canvas.configure(scrollregion=stream_canvas.bbox("all"))
+
 
 def resize_canvas(event, canvas, window):
     if canvas.winfo_exists():
         canvas.itemconfig(window, width=event.width)
         canvas.configure(scrollregion=canvas.bbox("all"))
+
 
 def on_mouse_wheel(event, canvas):
     if event.num == 4 or event.delta > 0:
@@ -435,53 +444,56 @@ def on_mouse_wheel(event, canvas):
     elif event.num == 5 or event.delta < 0:
         canvas.yview_scroll(1, "units")
 
+
 def on_mouse_wheel_windows(event, canvas):
     canvas.yview_scroll(int(-1*(event.delta/120)), "units")
 
-def draw_main():
+
+def create_meta_frame():
     '''The main window. Calls streamer_buttons() twice, to draw buttons for 
     online and offline streamers.'''
     
-    meta_frame = default_frame(root)
-    meta_frame.grid(row=1, column=0, sticky='nsew')
-    meta_frame.columnconfigure(0, weight=1)
-    meta_frame.rowconfigure(0, weight=1)
+    global stream_meta_frame
+    stream_meta_frame = default_frame(root)
+    stream_meta_frame.grid(row=1, column=0, sticky='nsew')
+    stream_meta_frame.columnconfigure(0, weight=1)
+    stream_meta_frame.rowconfigure(0, weight=1)
     
-    global meta_canvas
-    meta_canvas = default_canvas(meta_frame)
-    meta_canvas.grid(row=0, column=0, sticky="nsew")
-    meta_canvas.columnconfigure(0, weight=1)
-    meta_canvas.rowconfigure(0, weight=1)
+    global stream_canvas
+    stream_canvas = default_canvas(stream_meta_frame)
+    stream_canvas.grid(row=0, column=0, sticky="nsew")
+    stream_canvas.columnconfigure(0, weight=1)
+    stream_canvas.rowconfigure(0, weight=1)
     
-    global scrollbar
-    scrollbar = ttk.Scrollbar(
-        meta_frame, orient="vertical", command=meta_canvas.yview
+    global stream_scrollbar
+    stream_scrollbar = ttk.Scrollbar(
+        stream_meta_frame, orient="vertical", command=stream_canvas.yview
     )
-    scrollbar.grid(row=0, column=1, sticky="ns")
-    meta_canvas.configure(yscrollcommand=scrollbar.set)
+    stream_scrollbar.grid(row=0, column=1, sticky="ns")
+    stream_canvas.configure(yscrollcommand=stream_scrollbar.set)
     
-    global main_frame
-    main_frame = default_frame(meta_canvas)
-    main_frame.grid(row=0, column=0, sticky='nsew')
-    main_frame.columnconfigure(1, weight=1)
+    global stream_frame
+    stream_frame = default_frame(stream_canvas)
+    stream_frame.grid(row=0, column=0, sticky='nsew')
+    stream_frame.columnconfigure(1, weight=1)
     
     global meta_canvas_window
-    meta_canvas_window = meta_canvas.create_window(
-        (0, 0), window=main_frame, anchor="nw"
+    meta_canvas_window = stream_canvas.create_window(
+        (0, 0), window=stream_frame, anchor="nw"
     )
-    meta_canvas.bind(
-        "<Configure>", lambda e: resize_canvas(e, meta_canvas, meta_canvas_window)
+    stream_canvas.bind(
+        "<Configure>", lambda e: resize_canvas(e, stream_canvas, meta_canvas_window)
     )
-    meta_canvas.bind_all("<Button-4>", lambda e: on_mouse_wheel(e, meta_canvas))
-    meta_canvas.bind_all("<Button-5>", lambda e: on_mouse_wheel(e, meta_canvas))
-    meta_canvas.bind_all("<MouseWheel>", lambda e: on_mouse_wheel_windows(e, 
-                                                                         meta_canvas))
+    stream_canvas.bind_all("<Button-4>", lambda e: on_mouse_wheel(e, stream_canvas))
+    stream_canvas.bind_all("<Button-5>", lambda e: on_mouse_wheel(e, stream_canvas))
+    stream_canvas.bind_all("<MouseWheel>", lambda e: on_mouse_wheel_windows(e, 
+                                                                         stream_canvas))
     # Draw main content:
-    streamer_buttons()
+    stream_buttons()
     update_meta_canvas(True)  # Force update the canvas scroll region
 
 
-def custom_player():
+def settings_custom_player():
     '''Opens a dialog to set a custom media player.
     '''
     new_player = add_askstring_row(settings_frame,
@@ -493,7 +505,8 @@ def custom_player():
     else:
         twitchapi.adjust_config('player', new_player)
 
-def custom_quality():
+
+def settings_custom_quality():
     '''Opens a dialog to set a custom stream quality.
     '''
     new_quality = add_askstring_row(settings_frame,
@@ -509,7 +522,8 @@ def custom_quality():
     else:
         twitchapi.adjust_config('quality', new_quality)
 
-def change_info_preset(value):
+
+def settings_info_preset(value):
     twitchapi.change_settings_file('show_info_preset', value)
     global current_expand_setting
     preset_info_setting = twitchapi.get_setting('show_info_preset')
@@ -517,21 +531,23 @@ def change_info_preset(value):
     if preset_info_setting != current_expand_setting and current_expand_setting != 'no':
         twitchapi.change_settings_file('show_info', value)
         current_expand_setting = preset_info_setting
-        refresh_main_quiet()
+        refresh_stream_frame_quiet()
 
-def change_extrabuttons_preset(value):
+
+def settings_extrabuttons_preset(value):
     if twitchapi.get_setting('extra_buttons') != value:
         twitchapi.change_settings_file('extra_buttons', value)
         global extra_buttons_always_visible
         extra_buttons_always_visible.set(twitchapi.get_setting('extra_buttons'))
-        refresh_main_quiet()
+        refresh_stream_frame_quiet()
 
 
 def refresh_settings_window():
     global settings_window
     for widget in settings_window.winfo_children():
         widget.destroy()
-    settings_window_content()
+    create_settings_frame()
+
 
 def open_settings_window():
     global settings_window
@@ -541,9 +557,10 @@ def open_settings_window():
     settings_window.title('Settings')
     settings_window.transient(root)
     settings_window.grab_set()
-    settings_window_content()
+    create_settings_frame()
 
-def settings_window_content():
+
+def create_settings_frame():
     '''Opens a toplevel window with four settings options.'''
 
     # Global variables
@@ -593,7 +610,7 @@ def settings_window_content():
     
     pick_custom_player = default_radiobutton(
         player_frame, text='Custom', value='custom', variable=selected_player,
-        command=lambda: custom_player()
+        command=lambda: settings_custom_player()
     )
     pick_custom_player.grid(row=3, column=0, sticky='nesw')
 
@@ -626,7 +643,7 @@ def settings_window_content():
     
     pick_custom_quality = default_radiobutton(
         quality_frame, text='Custom', value='custom', variable=selected_quality,
-        command=lambda: custom_quality()
+        command=lambda: settings_custom_quality()
     )
     pick_custom_quality.grid(row=4, column=0, sticky='nesw')
 
@@ -643,14 +660,14 @@ def settings_window_content():
     
     all_info = default_radiobutton(
         info_frame, text='All', value='all', variable=preset_expand_setting,
-        command=lambda: [change_info_preset('all')]
+        command=lambda: [settings_info_preset('all')]
     )
     all_info.grid(row=1, column=0, sticky='nesw')
     
     only_online_info = default_radiobutton(
         info_frame, text='Only online', value='online',
         variable=preset_expand_setting,
-        command=lambda: [change_info_preset('online')]
+        command=lambda: [settings_info_preset('online')]
     )
     only_online_info.grid(row=2, column=0, sticky='nesw')
 
@@ -663,13 +680,13 @@ def settings_window_content():
     
     show_extra_yes = default_radiobutton(
         extra_frame, text='Yes', value='yes', variable=extra_buttons_always_visible,
-        command=lambda: [change_extrabuttons_preset('yes')]
+        command=lambda: [settings_extrabuttons_preset('yes')]
     )
     show_extra_yes.grid(row=1, column=0, sticky='nesw')
     
     show_extra_no = default_radiobutton(
         extra_frame, text='No', value='no', variable=extra_buttons_always_visible,
-        command=lambda: [change_extrabuttons_preset('no')]
+        command=lambda: [settings_extrabuttons_preset('no')]
     )
     show_extra_no.grid(row=2, column=0, sticky='nesw')
 
@@ -734,7 +751,7 @@ def settings_theme_switch(value):
     create_settings_frame()
 
 
-def set_quick_toggle_icon(n):
+def switch_info_toggle_icon(n):
     global current_expand_setting
     global current_quick_toggle_icon
     global expand_b
@@ -746,18 +763,20 @@ def set_quick_toggle_icon(n):
         expand_b.config(image=current_quick_toggle_icon)
     return current_quick_toggle_icon
 
-def info_quick_toggle():
+
+def menu_info_toggle():
     global current_expand_setting, current_vod_panel
     if current_expand_setting == 'no':
         twitchapi.change_settings_file('show_info', preset_expand_setting.get())
     else:
         twitchapi.change_settings_file('show_info', 'no')
     current_expand_setting = twitchapi.get_setting('show_info')
-    refresh_main_quiet()
+    refresh_stream_frame_quiet()
 
     # Check if a VOD panel is active
     if current_vod_panel:
         refresh_vod_panel(current_vod_panel)
+
 
 def add_askyesno_row(frame, prompt, row):
     global current_yesno_frame
@@ -792,6 +811,7 @@ def add_askyesno_row(frame, prompt, row):
     askyesno_frame.wait_window()
     update_meta_canvas()
     return response
+
 
 def add_askstring_row(frame, prompt, initial_value=""):
     global current_query_frame
@@ -835,9 +855,10 @@ def add_askstring_row(frame, prompt, initial_value=""):
     update_meta_canvas()
     return response
 
-def custom_menu_bar():
+
+def create_menu_frame():
     global current_quick_toggle_icon
-    current_quick_toggle_icon = set_quick_toggle_icon(0)
+    current_quick_toggle_icon = switch_info_toggle_icon(0)
     global menu_frame
     menu_frame = default_frame(root)
     menu_frame.grid(row=0, column=0, sticky='nesw')
@@ -845,19 +866,19 @@ def custom_menu_bar():
     refresh_b = default_button(menu_frame,
                     text='Refresh',
                     font=cantarell_12_bold,
-                    command=lambda: refresh_main()
+                    command=lambda: refresh_stream_frame()
                     )
     refresh_b.grid(row=0, column=0, sticky='nsw')
     follow_b = default_button(menu_frame,
                     text='Follow',
                     font=cantarell_12,
-                    command=lambda: follow_dialog()
+                    command=lambda: menu_follow_dialog()
                     )
     follow_b.grid(row=0, column=1, sticky='nsw')
     play_b = default_button(menu_frame,
                     text='Play',
                     font=cantarell_12,
-                    command=lambda: play_dialog()
+                    command=lambda: menu_play_dialog()
                     )
     play_b.grid(row=0, column=2, sticky='nsw')
     settings_b = default_button(menu_frame,
@@ -873,13 +894,14 @@ def custom_menu_bar():
                     )
     expand_b.grid(row=0, column=4, sticky='nsw', ipady=8, ipadx=4)
     expand_b.configure(command=lambda: [
-                                        info_quick_toggle(),
-                                        set_quick_toggle_icon(1)
+                                        menu_info_toggle(),
+                                        switch_info_toggle_icon(1)
                                         ]
                         )
     sep = default_separator(menu_frame)
     sep[0].grid(row=5)
     sep[1].grid(row=6)
+
 
 def default_radiobutton(master, *args, **kwargs):
     return tk.Radiobutton(
@@ -895,6 +917,7 @@ def default_radiobutton(master, *args, **kwargs):
         **kwargs
     )
 
+
 def default_separator(master, span=5, **kwargs):
     sep1 = tk.Frame(master, bg=theme['separator_bg1'], height=1, borderwidth=1, relief="flat")
     sep2 = tk.Frame(master, bg=theme['separator_bg2'], height=1, borderwidth=1, relief="flat")
@@ -904,15 +927,19 @@ def default_separator(master, span=5, **kwargs):
     
     return sep1, sep2
 
+
 def default_canvas(master, **kwargs):
     return tk.Canvas(master, bg=theme['bg'], **base_widget_attributes, **kwargs)
+
 
 def default_frame(master, **kwargs):
     return tk.Frame(master, bg=theme['bg'], **base_widget_attributes, **kwargs)
 
+
 def default_label(master, *args, **kwargs):
     fg_color = theme['offline_fg'] if 'offline' in args else theme['fg']
     return tk.Label(master, bg=theme['bg'], fg=fg_color, **base_widget_attributes, **kwargs)
+
 
 def default_button(master, *args, **kwargs):
     fg_color = theme['offline_fg'] if 'offline' in args else theme['fg']
@@ -926,6 +953,7 @@ def default_button(master, *args, **kwargs):
         **base_widget_attributes,
         **kwargs
     )
+
 
 def scrollbar_presets():
     scrollbar_width = 16
@@ -943,6 +971,7 @@ def scrollbar_presets():
                     arrowcolor=scrollbar_theme['arrow']
                     )
     style.map("Vertical.TScrollbar", background=[("active", scrollbar_theme['active'])])
+
 
 def get_icons():
     global unfollow_icon, vod_icon, streaming_icon, offline_icon, play_icon
@@ -982,10 +1011,12 @@ def save_window_size():
     geometry = f"{width}x{height}+{x}+{y}"
     twitchapi.change_settings_file('window_size', geometry)
 
+
 def initiate_window_dimensions():
     """Returns a default window size or user-adjusted window size and position
     """
     return twitchapi.get_setting('window_size')
+
 
 def toggle_settings():
     """Checks if wtwitch prints offline streamers and color output. Latter is
@@ -995,6 +1026,10 @@ def toggle_settings():
         twitchapi.adjust_config('colors', 'true')
     if twitchapi.check_config()[3] == 'false':
         twitchapi.adjust_config('printOfflineSubscriptions', 'true')
+
+
+
+
 
 # Check the online/offline status once before window initialization:
 twitchapi.check_status()
@@ -1129,19 +1164,7 @@ base_widget_attributes = {
     'border': 0
 }
 
-# Return True/False for dark theme:
-is_dark_theme = twitchapi.detect_dark_theme()
-# Set to 'dark', 'light' or 'system':
-theme_setting = tk.StringVar()
-theme_setting.set(twitchapi.get_setting('theme'))
-# Only use dark/light for the time being:
-current_theme = twitchapi.get_setting('theme')
-# Retrieves colors from dictionary:
-theme = theme_properties[current_theme]
 
-scrollbar_presets()
-
-get_icons()
 
 # Variables to collect stream info
 # and settings value to show info for all streamers:
@@ -1166,6 +1189,21 @@ current_vod_panel = ''
 current_yesno_frame = None
 current_query_frame = None
 
-custom_menu_bar()
-draw_main()
+
+# Return True/False for dark theme:
+is_dark_theme = twitchapi.detect_dark_theme()
+# Set to 'dark', 'light' or 'system':
+theme_setting = tk.StringVar()
+theme_setting.set(twitchapi.get_setting('theme'))
+# Only use dark/light for the time being:
+current_theme = twitchapi.get_setting('theme')
+# Retrieves colors from dictionary:
+theme = theme_properties[current_theme]
+
+scrollbar_presets()
+get_icons()
+
+
+create_menu_frame()
+create_meta_frame()
 root.mainloop()
