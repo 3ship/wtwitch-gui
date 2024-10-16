@@ -726,10 +726,12 @@ def settings_theme_switch(value):
     theme = theme_properties[current_theme]
     scrollbar_presets()
     get_icons()
-    for widget in root.winfo_children():
-        widget.destroy()
-    custom_menu_bar()
-    draw_main()
+    menu_frame.destroy()
+    create_menu_frame()
+    stream_meta_frame.destroy()
+    create_meta_frame()
+    settings_frame.destroy()
+    create_settings_frame()
 
 
 def set_quick_toggle_icon(n):
