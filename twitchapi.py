@@ -243,12 +243,11 @@ def gnome_check():
 
 def detect_dark_theme():
     """
-    Returns true, if user has activated dark theme or if user has activated
-    system theme and it returns dark preference
+    Returns true, if user has activated dark theme
     """
     theme_setting = get_setting('theme')
     
-    if theme_setting in ['gnome_dark', 'midnight_sky', 'twilight_shadows']:
+    if theme_setting in ['gnome_dark', 'blues_dark', 'reds_dark', 'midnight']:
         return True
 
     return False

@@ -696,41 +696,24 @@ def create_settings_frame():
     theme_label = default_label(theme_frame, text='Theme:')
     theme_label.grid(row=0, column=0, sticky='nsw', ipady=10)
     
-    set_gnome_dark = default_radiobutton(
-        theme_frame, text='GNOME Dark', value='gnome_dark', variable=theme_setting,
-        command=lambda: [settings_theme_switch('gnome_dark')]
-    )
-    set_gnome_dark.grid(row=1, column=0, sticky='nesw')
-    
-    set_gnome_light = default_radiobutton(
-        theme_frame, text='GNOME Light', value='gnome_light', variable=theme_setting,
-        command=lambda: [settings_theme_switch('gnome_light')]
-    )
-    set_gnome_light.grid(row=2, column=0, sticky='nesw')
-    
-    set_ocean_breeze = default_radiobutton(
-        theme_frame, text='Ocean breeze)', value='ocean_breeze', variable=theme_setting,
-        command=lambda: [settings_theme_switch('ocean_breeze')], justify='left'
-    )
-    set_ocean_breeze.grid(row=3, column=0, sticky='nesw')
+    themes = {
+        'GNOME Dark': 'gnome_dark',
+        'GNOME Light': 'gnome_light',
+        'Blues Dark': 'blues_dark',
+        'Blues Light': 'blues_light',
+        'Reds Dark': 'reds_dark',
+        'Reds Light': 'reds_light',
+        'Midnight': 'midnight'
+    }
 
-    set_night_sky = default_radiobutton(
-        theme_frame, text='Night Sky', value='night_sky', variable=theme_setting,
-        command=lambda: [settings_theme_switch('night_sky')]
-    )
-    set_night_sky.grid(row=4, column=0, sticky='nesw')
-
-    set_twilight_shadows = default_radiobutton(
-        theme_frame, text='Twilight Shadows', value='twilight_shadows', variable=theme_setting,
-        command=lambda: [settings_theme_switch('twilight_shadows')]
-    )
-    set_twilight_shadows.grid(row=5, column=0, sticky='nesw')
-
-    set_midnight_sky = default_radiobutton(
-        theme_frame, text='Midnight Sky', value='midnight_sky', variable=theme_setting,
-        command=lambda: [settings_theme_switch('midnight_sky')]
-    )
-    set_midnight_sky.grid(row=6, column=0, sticky='nesw')
+    row = 1
+    for theme, value in themes.items():
+        rb = default_radiobutton(theme_frame,
+                            text=theme, value=value, variable=theme_setting,
+                            command=lambda v=value: settings_theme_switch(v)
+                            )
+        rb.grid(row=row, column=0, sticky='nesw')
+        row += 1
 
 
 def settings_theme_switch(value):
@@ -1099,52 +1082,67 @@ theme_properties = {
             'active': '#FFFFFF'
         }
     },
-    'ocean_breeze': {
-        'bg': '#e0f7fa',
-        'fg': '#00796b',
-        'offline_fg': '#004d40',
-        'activebackground': '#b2dfdb',
-        'selectcolor': '#004d40',
-        'separator_bg1': '#00897b',
-        'separator_bg2': '#004d40',
+    'blues_dark': {
+        'bg': '#30343F',
+        'fg': '#B0B7BF',
+        'offline_fg': '#9CA3AF',
+        'activebackground': '#39404F',
+        'selectcolor': '#24292F',
+        'separator_bg1': '#262A34',
+        'separator_bg2': '#4B515F',
         'scrollbar': {
-            'bg': '#004d40',
-            'trough': '#b2dfdb',
-            'arrow': '#00796b',
-            'active': '#004d40'
+            'bg': '#2F3441',
+            'trough': '#3A3F4C',
+            'arrow': '#D27F7F',
+            'active': '#5A6E73'
         }
     },
-    'night_sky': {
-        'bg': '#eceff1',
-        'fg': '#263238',
-        'offline_fg': '#37474f',
-        'activebackground': '#cfd8dc',
-        'selectcolor': '#37474f',
-        'separator_bg1': '#546e7a',
-        'separator_bg2': '#455a64',
+    'blues_light': {
+        'bg': '#EAF5FB',
+        'fg': '#0D1B2A',
+        'offline_fg': '#2B3B52',
+        'activebackground': '#D9E8EF',
+        'selectcolor': '#C1D3DA',
+        'separator_bg1': '#C4DDE9',
+        'separator_bg2': '#E3F4FA',
         'scrollbar': {
-            'bg': '#37474f',
-            'trough': '#cfd8dc',
-            'arrow': '#546e7a',
-            'active': '#455a64'
+            'bg': '#D4E8F1',
+            'trough': '#BED5DC',
+            'arrow': '#8A9BAA',
+            'active': '#487A8B'
         }
     },
-    'twilight_shadows': {
-        'bg': '#1c1c1c',
-        'fg': '#cccccc',
-        'offline_fg': '#666666',
-        'activebackground': '#333333',
-        'selectcolor': '#666666',
-        'separator_bg1': '#444444',
-        'separator_bg2': '#555555',
+    'reds_dark': {
+        'bg': '#402D2D',
+        'fg': '#BDBDBD',
+        'offline_fg': '#A4A4A4',
+        'activebackground': '#4B3535',
+        'selectcolor': '#7D2A2A',
+        'separator_bg1': '#362525',
+        'separator_bg2': '#5A3F3F',
         'scrollbar': {
-            'bg': '#666666',
-            'trough': '#333333',
-            'arrow': '#444444',
-            'active': '#555555'
+            'bg': '#3A2C2C',
+            'trough': '#4A2C2C',
+            'arrow': '#D15656',
+            'active': '#8A3F3F'
         }
     },
-    'midnight_sky': {
+    'reds_light': {
+        'bg': '#FFEDED',
+        'fg': '#101010',
+        'offline_fg': '#3B2B2B',
+        'activebackground': '#F7DCDC',
+        'selectcolor': '#FFA8A8',
+        'separator_bg1': '#F4CFCF',
+        'separator_bg2': '#FFE0E0',
+        'scrollbar': {
+            'bg': '#FDD5D5',
+            'trough': '#F4BFBF',
+            'arrow': '#BF3030',
+            'active': '#E57373'
+        }
+    },
+    'midnight': {
         'bg': '#121212',
         'fg': '#bbbbbb',
         'offline_fg': '#555555',
@@ -1158,7 +1156,7 @@ theme_properties = {
             'arrow': '#252525',
             'active': '#353535'
         }
-    },
+    }
 }
 
 # Base attributes for all widgets
