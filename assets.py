@@ -4,13 +4,13 @@ import twitchapi
 
 
 def detect_dark_theme():
-    """
-    Returns true, if user has activated dark theme
-    """
-    # Create a Wince-specific settings file:
+    """Returns true, if user has activated a dark theme"""
+
+    # Create the settings file, because is_dark_theme is the 1st var:
     twitchapi.create_settings_file()
+
     theme_setting = twitchapi.get_setting('theme')
-    
+    # Add any new dark theme here to give them default light-gray icons:
     if theme_setting in ['gnome_dark', 'blues_dark', 'reds_dark', 'midnight']:
         return True
 
@@ -33,8 +33,10 @@ def default_radiobutton(master, *args, **kwargs):
 
 
 def default_separator(master, span=5, **kwargs):
-    sep1 = tk.Frame(master, bg=theme['separator_bg1'], height=1, borderwidth=1, relief="flat")
-    sep2 = tk.Frame(master, bg=theme['separator_bg2'], height=1, borderwidth=1, relief="flat")
+    sep1 = tk.Frame(master, bg=theme['separator_bg1'],
+                    height=1, borderwidth=1, relief="flat")
+    sep2 = tk.Frame(master, bg=theme['separator_bg2'],
+                    height=1, borderwidth=1, relief="flat")
     
     sep1.grid(row=0, column=0, sticky='ew', columnspan=span)
     sep2.grid(row=1, column=0, sticky='ew', columnspan=span)
@@ -43,19 +45,24 @@ def default_separator(master, span=5, **kwargs):
 
 
 def default_canvas(master, **kwargs):
-    return tk.Canvas(master, bg=theme['bg'], **base_widget_attributes, **kwargs)
+    return tk.Canvas(master, bg=theme['bg'],
+                    **base_widget_attributes, **kwargs)
 
 
 def default_frame(master, **kwargs):
-    return tk.Frame(master, bg=theme['bg'], **base_widget_attributes, **kwargs)
+    return tk.Frame(master, bg=theme['bg'],
+                    **base_widget_attributes, **kwargs)
 
 
 def default_label(master, *args, **kwargs):
+    # Accepts 'offline' as a custom argument to mute the text color
     fg_color = theme['offline_fg'] if 'offline' in args else theme['fg']
-    return tk.Label(master, bg=theme['bg'], fg=fg_color, **base_widget_attributes, **kwargs)
+    return tk.Label(master, bg=theme['bg'], fg=fg_color,
+                    **base_widget_attributes, **kwargs)
 
 
 def default_button(master, *args, **kwargs):
+    # Accepts 'offline' as a custom argument to mute the text color
     fg_color = theme['offline_fg'] if 'offline' in args else theme['fg']
     return tk.Button(
         master,
@@ -84,9 +91,9 @@ def default_entry(master, *args, **kwargs):
 
 
 def scrollbar_presets(master):
+    scrollbar_theme = theme['scrollbar']
     scrollbar_width = 16
     style = ttk.Style(master)
-    scrollbar_theme = theme['scrollbar']
     style.configure('Vertical.TScrollbar',
                     gripcount=0,
                     relief='flat',
@@ -98,9 +105,21 @@ def scrollbar_presets(master):
                     troughcolor=scrollbar_theme['trough'],
                     arrowcolor=scrollbar_theme['arrow']
                     )
-    style.map("Vertical.TScrollbar", background=[("active", scrollbar_theme['active'])])
+    # Mouse hover:
+    style.map("Vertical.TScrollbar",
+                    background=[("active", scrollbar_theme['active'])]
+                    )
 
 
+# Base attributes for all color themes:
+base_widget_attributes = {
+    'highlightthickness': 0,
+    'relief': 'flat',
+    'border': 0
+}
+
+
+# Add and edit color schemes here:
 properties = {
     'gnome_dark': {
         'bg': '#333333',
@@ -249,14 +268,6 @@ properties = {
             'active': '#353535'
         }
     }
-}
-
-
-# Base attributes for all widgets
-base_widget_attributes = {
-    'highlightthickness': 0,
-    'relief': 'flat',
-    'border': 0
 }
 
 # Return True/False for dark theme:
