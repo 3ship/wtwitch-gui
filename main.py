@@ -710,23 +710,15 @@ def create_settings_frame():
     theme_label = assets.default_label(theme_frame, text='Theme:')
     theme_label.grid(row=0, column=0, sticky='nsw', ipady=10)
     
-    themes = {
-        'GNOME Dark': 'gnome_dark',
-        'GNOME Light': 'gnome_light',
-        'Blues Dark': 'blues_dark',
-        'Blues Light': 'blues_light',
-        'Reds Dark': 'reds_dark',
-        'Reds Light': 'reds_light',
-        'Midnight': 'midnight'
-    }
+    # Extract themes from properties dictionary and edit their names
+    themes = {k.replace('_', ' ').title(): k for k in assets.properties.keys()}
 
     row_col_tracker = [1, 1]  # Row counters for columns 0 and 1
 
     for i, (theme, value) in enumerate(themes.items()):
-        col = i % 2  # Distribute themes between two columns
+        col = i % 2  # Distribute themes, alternating between two columns
         row = row_col_tracker[col]
         row_col_tracker[col] += 1
-
         rb = assets.default_radiobutton(
             theme_frame,
             text=theme,
