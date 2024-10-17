@@ -264,6 +264,11 @@ properties = {
 }
 
 
+# Fonts:
+font_10 = ('', 10)
+font_12 = ('Cantarell', 12)
+font_12_b = ('Cantarell', 12, 'bold')
+font_13_b = ('Cantarell', 13, 'bold')
 # Retrieves the user setting:
 current_theme = twitchapi.get_setting('theme')
 # Retrieves colors from dictionary:

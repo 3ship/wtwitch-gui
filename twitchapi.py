@@ -268,5 +268,5 @@ def get_setting(k):
         raise KeyError(f"The setting '{k}' does not exist in the settings file.")
 
 
-def gnome_check():
+def is_gnome():
     return os.environ.get('XDG_CURRENT_DESKTOP') == 'GNOME'

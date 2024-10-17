@@ -75,14 +75,14 @@ def vod_panel(streamer):
         if current_expand_setting == 'all' or current_expand_setting == 'online':
             timestamp_button = assets.default_button(
                 vod_frame, text=f"{timestamp} {length}", anchor='w', 
-                state='disabled', font=font_10
+                state='disabled', font=assets.font_10
             )
             vod_info(count_vod_rows, title)
         else:
             timestamp_button = assets.default_button(
                 vod_frame, text=f"{timestamp} {length}", 
                 command=lambda c=count_vod_rows, t=title: vod_info(c, t), 
-                font=font_10, anchor='w'
+                font=assets.font_10, anchor='w'
             )
         timestamp_button.grid(column=1, row=count_vod_rows, sticky='nesw')
 
@@ -184,7 +184,7 @@ def stream_buttons():
         extra_buttons_visible[count_rows] = False
 
         info_button = assets.default_button(
-            stream_frame, text=package[1], anchor='w', font=font_13_b,
+            stream_frame, text=package[1], anchor='w', font=assets.font_13_b,
             command=lambda cr=count_rows, s=package[0], l=package[1], c=package[2],
             t=package[3], v=package[4]:
             [stream_online_info(cr, l, c, t, v), stream_extra_buttons(s, cr)]
@@ -216,7 +216,7 @@ def stream_buttons():
 
         info_button = assets.default_button(
             stream_frame, 'offline', text=streamer, anchor='w',
-            font=font_13_b, compound='left',
+            font=assets.font_13_b, compound='left',
             command=lambda s=streamer, c=count_rows:
             [stream_offline_info(c, s), stream_extra_buttons(s, c)]
         )
@@ -861,32 +861,32 @@ def create_menu_frame():
     menu_frame.columnconfigure(3, weight=1)
     refresh_b = assets.default_button(menu_frame,
                     image=refresh_icon,
-                    font=font_12_b,
+                    font=assets.font_12_b,
                     command=lambda: refresh_stream_frame()
                     )
     refresh_b.grid(row=0, column=0, sticky='nsw', ipadx=18, ipady=6)
     follow_b = assets.default_button(menu_frame,
                     image=follow_icon,
-                    font=font_12,
+                    font=assets.font_12,
                     command=lambda: menu_follow_dialog()
                     )
     follow_b.grid(row=0, column=1, sticky='nsw', ipadx=18, ipady=6)
     play_b = assets.default_button(menu_frame,
                     image=play_stream_icon,
-                    font=font_12,
+                    font=assets.font_12,
                     command=lambda: menu_play_dialog()
                     )
     play_b.grid(row=0, column=2, sticky='nsw', ipadx=18, ipady=6)
     settings_b = assets.default_button(menu_frame,
                     image=settings_icon,
-                    font=font_12,
+                    font=assets.font_12,
                     command=lambda: open_settings_window()
                     )
     settings_b.grid(row=0, column=3, sticky='nsw', ipadx=18, ipady=6)
     global expand_b
     expand_b = assets.default_button(menu_frame,
                     image=current_quick_toggle_icon,
-                    font=font_12
+                    font=assets.font_12
                     )
     expand_b.grid(row=0, column=4, sticky='nsw', ipadx=4)
     expand_b.configure(command=lambda: [
@@ -900,7 +900,7 @@ def create_menu_frame():
 
 
 def save_window_size():
-    if is_gnome:
+    if twitchapi.is_gnome:
         top_bar_height = 37
     else:
         top_bar_height = 0
@@ -970,20 +970,11 @@ root.geometry(initiate_window_dimensions())
 root.minsize(210, 360)
 root.columnconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)
-
-# Detect GNOME to account for top bar in window position:
-is_gnome = twitchapi.gnome_check
 root.protocol("WM_DELETE_WINDOW", lambda: (
                                             save_window_size(),
                                             root.destroy()
                                             )
                 )
-
-# Fonts:
-font_10 = ('', 10)
-font_12 = ('Cantarell', 12)
-font_12_b = ('Cantarell', 12, 'bold')
-font_13_b = ('Cantarell', 13, 'bold')
 
 
 # Variables to collect stream info
