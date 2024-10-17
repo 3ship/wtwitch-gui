@@ -219,23 +219,49 @@ def create_settings_file():
         "window_size": "285x450"
     }
     settings_path = f'{sys.path[0]}/settings.json'
+    
     if not os.path.isfile(settings_path):
         with open(settings_path, 'w') as settings:
             json.dump(default_settings, settings, indent=4)
+    else:
+        with open(settings_path, 'r') as settings:
+            current_settings = json.load(settings)
+        
+        # Update missing keys with default values
+        for key, value in default_settings.items():
+            if key not in current_settings:
+                current_settings[key] = value
+        
+        with open(settings_path, 'w') as settings:
+            json.dump(current_settings, settings, indent=4)
+
 
 def change_settings_file(setting, new_value):
     settings_path = f'{sys.path[0]}/settings.json'
     with open(settings_path, 'r') as settings:
-        settings = json.load(settings)
-    settings[setting] = new_value
-    with open(settings_path, 'w') as nsettings:
-        json.dump(settings, nsettings, indent=4)
+        current_settings = json.load(settings)
+    
+    # Check if the setting exists
+    if setting in current_settings:
+        current_settings[setting] = new_value
+    else:
+        raise KeyError(f"The setting '{setting}' does not exist in the settings file.")
+    
+    with open(settings_path, 'w') as settings:
+        json.dump(current_settings, settings, indent=4)
+
 
 def get_setting(k):
     settings_path = f'{sys.path[0]}/settings.json'
     with open(settings_path, 'r') as settings:
-        settings = json.load(settings)
-    return settings[k]
+        current_settings = json.load(settings)
+    
+    # Check if the setting exists
+    if k in current_settings:
+        return current_settings[k]
+    else:
+        raise KeyError(f"The setting '{k}' does not exist in the settings file.")
+
 
 def gnome_check():
     return os.environ.get('XDG_CURRENT_DESKTOP') == 'GNOME'
