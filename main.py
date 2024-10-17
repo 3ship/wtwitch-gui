@@ -977,8 +977,6 @@ except Exception as e:
     error_dialog(e)
 # Make sure that colors in the terminal output are activated:
 toggle_settings()
-# Create a Wince-specific settings file:
-twitchapi.create_settings_file()
 
 # Create the main window
 root = tk.Tk(className='Wince')

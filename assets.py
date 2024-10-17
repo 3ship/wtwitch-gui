@@ -7,6 +7,8 @@ def detect_dark_theme():
     """
     Returns true, if user has activated dark theme
     """
+    # Create a Wince-specific settings file:
+    twitchapi.create_settings_file()
     theme_setting = twitchapi.get_setting('theme')
     
     if theme_setting in ['gnome_dark', 'blues_dark', 'reds_dark', 'midnight']:
@@ -256,7 +258,6 @@ base_widget_attributes = {
     'relief': 'flat',
     'border': 0
 }
-
 
 # Return True/False for dark theme:
 is_dark_theme = detect_dark_theme()
