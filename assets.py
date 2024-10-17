@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-import twitchapi
+import settings
 
 
 def default_radiobutton(master, *args, **kwargs):
@@ -270,6 +270,6 @@ font_12 = ('Cantarell', 12)
 font_12_b = ('Cantarell', 12, 'bold')
 font_13_b = ('Cantarell', 13, 'bold')
 # Retrieves the user setting:
-current_theme = twitchapi.get_setting('theme')
+current_theme = settings.get_setting('theme')
 # Retrieves colors from dictionary:
 theme = properties[current_theme]
