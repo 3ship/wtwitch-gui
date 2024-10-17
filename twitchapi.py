@@ -268,14 +268,3 @@ def get_setting(k):
 
 def gnome_check():
     return os.environ.get('XDG_CURRENT_DESKTOP') == 'GNOME'
-
-def detect_dark_theme():
-    """
-    Returns true, if user has activated dark theme
-    """
-    theme_setting = get_setting('theme')
-    
-    if theme_setting in ['gnome_dark', 'blues_dark', 'reds_dark', 'midnight']:
-        return True
-
-    return False

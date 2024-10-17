@@ -5,6 +5,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 import twitchapi
+import assets
 
 
 def vod_panel(streamer):
@@ -23,29 +24,29 @@ def vod_panel(streamer):
     vod_info_status = {}
     vod_info_content = {}
 
-    vw_frame = default_frame(root)
+    vw_frame = assets.default_frame(root)
     vw_frame.grid(column=0, row=1, sticky='nsew')
     vw_frame.columnconfigure(0, weight=1)
     vw_frame.rowconfigure(1, weight=1)
 
-    header_frame = default_frame(vw_frame)
+    header_frame = assets.default_frame(vw_frame)
     header_frame.grid(column=0, row=0, sticky='nsew')
     header_frame.columnconfigure(1, weight=1)
-    default_button(
+    assets.default_button(
         header_frame, image=close_icon, command=lambda: close_vod_panel()
     ).grid(column=0, row=0, sticky='nw', ipady=12, ipadx=12)
-    default_label(header_frame, text=f"{streamer}'s VODs").grid(column=1, row=0)
-    separator = default_separator(header_frame)
+    assets.default_label(header_frame, text=f"{streamer}'s VODs").grid(column=1, row=0)
+    separator = assets.default_separator(header_frame)
     separator[0].grid(row=1, columnspan=2)
     separator[1].grid(row=2, columnspan=2)
 
-    met_frame = default_frame(vw_frame)
+    met_frame = assets.default_frame(vw_frame)
     met_frame.grid(column=0, row=1, sticky='nsew')
     met_frame.columnconfigure(0, weight=1)
     met_frame.rowconfigure(0, weight=1)
 
     global vw_canvas
-    vw_canvas = default_canvas(met_frame)
+    vw_canvas = assets.default_canvas(met_frame)
     vw_scrollbar = ttk.Scrollbar(
         met_frame, orient="vertical", command=vw_canvas.yview
     )
@@ -54,7 +55,7 @@ def vod_panel(streamer):
     vw_canvas.configure(yscrollcommand=vw_scrollbar.set)
 
     global vod_frame
-    vod_frame = default_frame(met_frame)
+    vod_frame = assets.default_frame(met_frame)
     vod_frame.grid(column=0, row=0, sticky='nsew')
     vod_frame.columnconfigure(1, weight=1)
 
@@ -63,7 +64,7 @@ def vod_panel(streamer):
     count_vod_rows_increment = 4
     for timestamp, title, length in zip(vods[0], vods[1], vods[2]):
         vod_info_status[count_vod_rows] = False
-        watch_button = default_button(
+        watch_button = assets.default_button(
             vod_frame, image=play_icon, 
             command=lambda s=streamer, v=vod_number: [twitchapi.start_vod(s, v)]
         )
@@ -71,22 +72,22 @@ def vod_panel(streamer):
                           ipadx=12, ipady=6)
 
         if current_expand_setting == 'all' or current_expand_setting == 'online':
-            timestamp_button = default_button(
+            timestamp_button = assets.default_button(
                 vod_frame, text=f"{timestamp} {length}", anchor='w', 
-                state='disabled', font=small_font
+                state='disabled', font=font_10
             )
             vod_info(count_vod_rows, title)
         else:
-            timestamp_button = default_button(
+            timestamp_button = assets.default_button(
                 vod_frame, text=f"{timestamp} {length}", 
                 command=lambda c=count_vod_rows, t=title: vod_info(c, t), 
-                font=small_font, anchor='w'
+                font=font_10, anchor='w'
             )
         timestamp_button.grid(column=1, row=count_vod_rows, sticky='nesw')
 
         # Don't add a separator after the last item
         if vod_number != len(vods[0]):
-            separator = default_separator(vod_frame)
+            separator = assets.default_separator(vod_frame)
             separator[0].grid(row=count_vod_rows + 2)
             separator[1].grid(row=count_vod_rows + 3)
 
@@ -108,7 +109,7 @@ def vod_panel(streamer):
 def vod_info(c, title):
     if not vod_info_status[c]:
         if c not in vod_info_content:
-            vod_info_content[c] = default_label(vod_frame,
+            vod_info_content[c] = assets.default_label(vod_frame,
                                                 text=f'{title}',
                                                 justify='left',
                                                 anchor='w')
@@ -172,7 +173,7 @@ def stream_buttons():
     extra_buttons_content = {}
 
     for package in online_streamers:
-        watch_button = default_button(
+        watch_button = assets.default_button(
             stream_frame, image=streaming_icon,
             command=lambda s=package[0]: [twitchapi.start_stream(s)]
         )
@@ -181,8 +182,8 @@ def stream_buttons():
         weblink_visible[count_rows] = False
         extra_buttons_visible[count_rows] = False
 
-        info_button = default_button(
-            stream_frame, text=package[1], anchor='w', font=cantarell_13_bold,
+        info_button = assets.default_button(
+            stream_frame, text=package[1], anchor='w', font=font_13_b,
             command=lambda cr=count_rows, s=package[0], l=package[1], c=package[2],
             t=package[3], v=package[4]:
             [stream_online_info(cr, l, c, t, v), stream_extra_buttons(s, cr)]
@@ -200,21 +201,21 @@ def stream_buttons():
             else:
                 info_button.grid_configure(columnspan=4)
 
-        separator = default_separator(stream_frame)
+        separator = assets.default_separator(stream_frame)
         separator[0].grid(row=count_rows + 4)
         separator[1].grid(row=count_rows + 5)
         count_rows += count_rows_increment
 
     for streamer in offline_streamers:
-        watch_button = default_label(stream_frame, image=offline_icon)
+        watch_button = assets.default_label(stream_frame, image=offline_icon)
         watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=6, ipady=6)
         stream_info_visible[count_rows] = False
         weblink_visible[count_rows] = False
         extra_buttons_visible[count_rows] = False
 
-        info_button = default_button(
+        info_button = assets.default_button(
             stream_frame, 'offline', text=streamer, anchor='w',
-            font=cantarell_13_bold, compound='left',
+            font=font_13_b, compound='left',
             command=lambda s=streamer, c=count_rows:
             [stream_offline_info(c, s), stream_extra_buttons(s, c)]
         )
@@ -236,7 +237,7 @@ def stream_buttons():
         total_streamers = len(online_streamers) + len(offline_streamers)
         total_items = total_streamers * count_rows_increment
         if count_rows != total_items - count_rows_increment:
-            separator = default_separator(stream_frame)
+            separator = assets.default_separator(stream_frame)
             separator[0].grid(row=count_rows + 4)
             separator[1].grid(row=count_rows + 5)
         count_rows += count_rows_increment
@@ -245,7 +246,7 @@ def stream_extra_buttons(streamer, count_rows):
     if not extra_buttons_visible[count_rows]:
         extra_buttons_content[count_rows] = {}
 
-        extra_buttons_content[count_rows]['unfollow'] = default_button(
+        extra_buttons_content[count_rows]['unfollow'] = assets.default_button(
             stream_frame, image=unfollow_icon,
             command=lambda s=streamer, c=count_rows+3: [stream_unfollow_dialog(s, c)]
         )
@@ -254,7 +255,7 @@ def stream_extra_buttons(streamer, count_rows):
                                                         sticky='nsew',
                                                         ipadx=4)
 
-        extra_buttons_content[count_rows]['web'] = default_button(
+        extra_buttons_content[count_rows]['web'] = assets.default_button(
             stream_frame, image=link_icon,
             command=lambda s=streamer, c=count_rows: stream_website_dialog(c, s)
         )
@@ -263,7 +264,7 @@ def stream_extra_buttons(streamer, count_rows):
                                                         sticky='nsew',
                                                         ipadx=4)
 
-        extra_buttons_content[count_rows]['vods'] = default_button(
+        extra_buttons_content[count_rows]['vods'] = assets.default_button(
             stream_frame, image=vod_icon,
             command=lambda s=streamer: vod_panel(s)
         )
@@ -286,7 +287,7 @@ def stream_extra_buttons(streamer, count_rows):
 def stream_online_info(c, streamer, category, title, viewercount):
     if not stream_info_visible[c]:
         if c not in stream_info_content:
-            stream_info_content[c] = default_label(
+            stream_info_content[c] = assets.default_label(
                 stream_frame, text=   f'Title: {title}\n'
                                     f'Category: {category}\n'
                                     f'Viewer count: {viewercount}', 
@@ -312,7 +313,7 @@ def stream_offline_info(c, streamer):
     if not stream_info_visible[c]:
         last_seen_text = f'Last seen: {twitchapi.last_seen(streamer)}'
         if c not in stream_info_content:
-            stream_info_content[c] = default_label(stream_frame, 'offline',
+            stream_info_content[c] = assets.default_label(stream_frame, 'offline',
                                                    text=last_seen_text,
                                                    justify='left',
                                                    anchor='w')
@@ -334,14 +335,14 @@ def stream_offline_info(c, streamer):
 def stream_website_dialog(c, streamer):
     if not weblink_visible[c]:
         if c not in weblink_content:
-            weblink_content[c] = default_frame(stream_frame)
+            weblink_content[c] = assets.default_frame(stream_frame)
             weblink_content[c].grid(row=c+2, column=1, columnspan=4)
-            website_button = default_button(
+            website_button = assets.default_button(
                 weblink_content[c], text='Twitch',
                 command=lambda s=streamer: webbrowser.open(f'http://www.twitch.tv/{s}')
             )
             website_button.grid(row=0, column=0, sticky='ew')
-            webplayer_button = default_button(
+            webplayer_button = assets.default_button(
                 weblink_content[c], text='Webplayer',
                 command=lambda s=streamer: webbrowser.open(
                     f'https://player.twitch.tv/?channel={s}&parent=twitch.tv')
@@ -463,13 +464,13 @@ def create_meta_frame():
     online and offline streamers.'''
     
     global stream_meta_frame
-    stream_meta_frame = default_frame(root)
+    stream_meta_frame = assets.default_frame(root)
     stream_meta_frame.grid(row=1, column=0, sticky='nsew')
     stream_meta_frame.columnconfigure(0, weight=1)
     stream_meta_frame.rowconfigure(0, weight=1)
     
     global stream_canvas
-    stream_canvas = default_canvas(stream_meta_frame)
+    stream_canvas = assets.default_canvas(stream_meta_frame)
     stream_canvas.grid(row=0, column=0, sticky="nsew")
     stream_canvas.columnconfigure(0, weight=1)
     stream_canvas.rowconfigure(0, weight=1)
@@ -482,7 +483,7 @@ def create_meta_frame():
     stream_canvas.configure(yscrollcommand=stream_scrollbar.set)
     
     global stream_frame
-    stream_frame = default_frame(stream_canvas)
+    stream_frame = assets.default_frame(stream_canvas)
     stream_frame.grid(row=0, column=0, sticky='nsew')
     stream_frame.columnconfigure(1, weight=1)
     
@@ -594,48 +595,48 @@ def create_settings_frame():
     else:
         selected_quality.set('custom')
 
-    settings_frame = default_frame(settings_window)
+    settings_frame = assets.default_frame(settings_window)
     settings_frame.grid(sticky='nesw', ipady=10, ipadx=10)
     settings_frame.grid_rowconfigure(0, weight=1)
     settings_frame.grid_columnconfigure(0, weight=1)
 
     # Play settings frame
-    player_frame = default_frame(settings_frame)
+    player_frame = assets.default_frame(settings_frame)
     player_frame.grid(row=0, column=0, sticky='nesw', padx=20, pady=4)
-    player_label = default_label(player_frame, text='Media player:')
+    player_label = assets.default_label(player_frame, text='Media player:')
     player_label.grid(row=0, column=0, sticky='nsw', ipady=10)
     
-    pick_mpv = default_radiobutton(
+    pick_mpv = assets.default_radiobutton(
         player_frame, text='mpv', value='mpv', variable=selected_player,
         command=lambda: twitchapi.adjust_config('player', 'mpv')
     )
     pick_mpv.grid(row=1, column=0, sticky='nesw')
     
-    pick_vlc = default_radiobutton(
+    pick_vlc = assets.default_radiobutton(
         player_frame, text='VLC', value='vlc', variable=selected_player,
         command=lambda: twitchapi.adjust_config('player', 'vlc')
     )
     pick_vlc.grid(row=2, column=0, sticky='nesw')
     
-    pick_custom_player = default_radiobutton(
+    pick_custom_player = assets.default_radiobutton(
         player_frame, text='Custom', value='custom', variable=selected_player,
         command=lambda: settings_custom_player()
     )
     pick_custom_player.grid(row=3, column=0, sticky='nesw')
 
     # Quality settings frame
-    quality_frame = default_frame(settings_frame)
+    quality_frame = assets.default_frame(settings_frame)
     quality_frame.grid(row=0, column=1, sticky='nesw', padx=20, pady=4)
-    quality_label = default_label(quality_frame, text='Video quality:')
+    quality_label = assets.default_label(quality_frame, text='Video quality:')
     quality_label.grid(row=0, column=0, sticky='nsw', ipady=10)
     
-    high_quality = default_radiobutton(
+    high_quality = assets.default_radiobutton(
         quality_frame, text='High', value='best', variable=selected_quality,
         command=lambda: twitchapi.adjust_config('quality', 'best')
     )
     high_quality.grid(row=1, column=0, sticky='nesw')
     
-    mid_quality = default_radiobutton(
+    mid_quality = assets.default_radiobutton(
         quality_frame, text='Medium', value='720p,720p60,480p,best',
         variable=selected_quality,
         command=lambda: twitchapi.adjust_config(
@@ -644,36 +645,36 @@ def create_settings_frame():
     )
     mid_quality.grid(row=2, column=0, sticky='nesw')
     
-    low_quality = default_radiobutton(
+    low_quality = assets.default_radiobutton(
         quality_frame, text='Low', value='480p,worst', variable=selected_quality,
         command=lambda: twitchapi.adjust_config('quality', '480p,worst')
     )
     low_quality.grid(row=3, column=0, sticky='nesw')
     
-    pick_custom_quality = default_radiobutton(
+    pick_custom_quality = assets.default_radiobutton(
         quality_frame, text='Custom', value='custom', variable=selected_quality,
         command=lambda: settings_custom_quality()
     )
     pick_custom_quality.grid(row=4, column=0, sticky='nesw')
 
     # Separator
-    separator1 = default_separator(settings_frame)
+    separator1 = assets.default_separator(settings_frame)
     separator1[0].grid(row=2, columnspan=2)
     separator1[1].grid(row=3, columnspan=2)
 
     # Info settings frame
-    info_frame = default_frame(settings_frame)
+    info_frame = assets.default_frame(settings_frame)
     info_frame.grid(row=4, column=1, sticky='nesw', padx=20, pady=4)
-    info_label = default_label(info_frame, text='Expand info:')
+    info_label = assets.default_label(info_frame, text='Expand info:')
     info_label.grid(row=0, column=0, sticky='nsw', ipady=10)
     
-    all_info = default_radiobutton(
+    all_info = assets.default_radiobutton(
         info_frame, text='All', value='all', variable=preset_expand_setting,
         command=lambda: [settings_info_preset('all')]
     )
     all_info.grid(row=1, column=0, sticky='nesw')
     
-    only_online_info = default_radiobutton(
+    only_online_info = assets.default_radiobutton(
         info_frame, text='Only online', value='online',
         variable=preset_expand_setting,
         command=lambda: [settings_info_preset('online')]
@@ -681,32 +682,32 @@ def create_settings_frame():
     only_online_info.grid(row=2, column=0, sticky='nesw')
 
     # Always show unfollow/web/VOD buttons?
-    extra_frame = default_frame(settings_frame)
+    extra_frame = assets.default_frame(settings_frame)
     extra_frame.grid(row=4, column=0, sticky='nesw', padx=20, pady=4)
-    extra_label = default_label(extra_frame, text=  'Always show\n'
+    extra_label = assets.default_label(extra_frame, text=  'Always show\n'
                                                     'all buttons:')
     extra_label.grid(row=0, column=0, sticky='nsw', ipady=10)
     
-    show_extra_yes = default_radiobutton(
+    show_extra_yes = assets.default_radiobutton(
         extra_frame, text='Yes', value='yes', variable=extra_buttons_always_visible,
         command=lambda: [settings_extrabuttons_preset('yes')]
     )
     show_extra_yes.grid(row=1, column=0, sticky='nesw')
     
-    show_extra_no = default_radiobutton(
+    show_extra_no = assets.default_radiobutton(
         extra_frame, text='No', value='no', variable=extra_buttons_always_visible,
         command=lambda: [settings_extrabuttons_preset('no')]
     )
     show_extra_no.grid(row=2, column=0, sticky='nesw')
 
-    separator2 = default_separator(settings_frame)
+    separator2 = assets.default_separator(settings_frame)
     separator2[0].grid(row=5, columnspan=2)
     separator2[1].grid(row=6, columnspan=2)
 
     # Theme settings frame
-    theme_frame = default_frame(settings_frame)
+    theme_frame = assets.default_frame(settings_frame)
     theme_frame.grid(row=7, column=0, sticky='nesw', padx=20, pady=4, columnspan=2)
-    theme_label = default_label(theme_frame, text='Theme:')
+    theme_label = assets.default_label(theme_frame, text='Theme:')
     theme_label.grid(row=0, column=0, sticky='nsw', ipady=10)
     
     themes = {
@@ -726,7 +727,7 @@ def create_settings_frame():
         row = row_col_tracker[col]
         row_col_tracker[col] += 1
 
-        rb = default_radiobutton(
+        rb = assets.default_radiobutton(
             theme_frame,
             text=theme,
             value=value,
@@ -738,13 +739,13 @@ def create_settings_frame():
 
 def settings_theme_switch(value):
     twitchapi.change_settings_file('theme', value)
-    global is_dark_theme, theme_setting, current_theme, theme
-    is_dark_theme = twitchapi.detect_dark_theme()
+    global is_dark_theme, theme_setting
+    assets.is_dark_theme = assets.detect_dark_theme()
     theme_setting = tk.StringVar()
     theme_setting.set(twitchapi.get_setting('theme'))
-    current_theme = value
-    theme = theme_properties[current_theme]
-    scrollbar_presets()
+    assets.current_theme = value
+    assets.theme = assets.properties[assets.current_theme]
+    assets.scrollbar_presets(root)
     get_icons()
     menu_frame.destroy()
     create_menu_frame()
@@ -797,17 +798,17 @@ def add_askyesno_row(frame, prompt, row):
         response = False
         askyesno_frame.destroy()
 
-    askyesno_frame = default_frame(frame)
+    askyesno_frame = assets.default_frame(frame)
     askyesno_frame.grid(row=row, column=0, columnspan=5)
     current_yesno_frame = askyesno_frame
 
-    label = default_label(askyesno_frame, text=prompt)
+    label = assets.default_label(askyesno_frame, text=prompt)
     label.grid(row=0, column=0, padx=6, sticky='ew', columnspan=2)
 
-    yes_button = default_button(askyesno_frame, text="Yes", command=on_yes)
+    yes_button = assets.default_button(askyesno_frame, text="Yes", command=on_yes)
     yes_button.grid(row=2, column=0, sticky='ew', pady=6)
 
-    no_button = default_button(askyesno_frame, text="No", command=on_no)
+    no_button = assets.default_button(askyesno_frame, text="No", command=on_no)
     no_button.grid(row=2, column=1, sticky='ew')
     update_meta_canvas()
     response = None
@@ -832,22 +833,22 @@ def add_askstring_row(frame, prompt, initial_value=""):
         response = None
         askstring_frame.destroy()
 
-    askstring_frame = default_frame(frame)
+    askstring_frame = assets.default_frame(frame)
     askstring_frame.grid(row=1, column=0, columnspan=5)
     current_query_frame = askstring_frame
-    label = default_label(askstring_frame, text=prompt)
+    label = assets.default_label(askstring_frame, text=prompt)
     label.grid(row=0, column=0, padx=6, sticky='ew', columnspan=2)
-    entry = tk.Entry(askstring_frame)
+    entry = assets.default_entry(askstring_frame)
     entry.grid(row=1, column=0, padx=6, pady=4, columnspan=2)
     entry.bind("<Return>", on_submit)
     entry.insert(0, initial_value)
     entry.focus_set()
-    cancel_button = default_button(askstring_frame,
+    cancel_button = assets.default_button(askstring_frame,
                                     text="Cancel",
                                     command=on_cancel
                                     )
     cancel_button.grid(row=2, column=0, sticky='ew', pady=6)
-    submit_button = default_button(askstring_frame,
+    submit_button = assets.default_button(askstring_frame,
                                     text="Enter",
                                     command=on_submit
                                     )
@@ -863,37 +864,37 @@ def create_menu_frame():
     global current_quick_toggle_icon
     current_quick_toggle_icon = switch_info_toggle_icon(0)
     global menu_frame
-    menu_frame = default_frame(root)
+    menu_frame = assets.default_frame(root)
     menu_frame.grid(row=0, column=0, sticky='nesw')
     menu_frame.columnconfigure(3, weight=1)
-    refresh_b = default_button(menu_frame,
+    refresh_b = assets.default_button(menu_frame,
                     image=refresh_icon,
-                    font=cantarell_12_bold,
+                    font=font_12_b,
                     command=lambda: refresh_stream_frame()
                     )
     refresh_b.grid(row=0, column=0, sticky='nsw', ipadx=18, ipady=6)
-    follow_b = default_button(menu_frame,
+    follow_b = assets.default_button(menu_frame,
                     image=follow_icon,
-                    font=cantarell_12,
+                    font=font_12,
                     command=lambda: menu_follow_dialog()
                     )
     follow_b.grid(row=0, column=1, sticky='nsw', ipadx=18, ipady=6)
-    play_b = default_button(menu_frame,
+    play_b = assets.default_button(menu_frame,
                     image=play_stream_icon,
-                    font=cantarell_12,
+                    font=font_12,
                     command=lambda: menu_play_dialog()
                     )
     play_b.grid(row=0, column=2, sticky='nsw', ipadx=18, ipady=6)
-    settings_b = default_button(menu_frame,
+    settings_b = assets.default_button(menu_frame,
                     image=settings_icon,
-                    font=cantarell_12,
+                    font=font_12,
                     command=lambda: open_settings_window()
                     )
     settings_b.grid(row=0, column=3, sticky='nsw', ipadx=18, ipady=6)
     global expand_b
-    expand_b = default_button(menu_frame,
+    expand_b = assets.default_button(menu_frame,
                     image=current_quick_toggle_icon,
-                    font=cantarell_12
+                    font=font_12
                     )
     expand_b.grid(row=0, column=4, sticky='nsw', ipadx=4)
     expand_b.configure(command=lambda: [
@@ -901,112 +902,9 @@ def create_menu_frame():
                                         switch_info_toggle_icon(1)
                                         ]
                         )
-    sep = default_separator(menu_frame)
+    sep = assets.default_separator(menu_frame)
     sep[0].grid(row=5)
     sep[1].grid(row=6)
-
-
-def default_radiobutton(master, *args, **kwargs):
-    return tk.Radiobutton(
-        master,
-        bg=theme['bg'],
-        fg=theme['fg'],
-        activebackground=theme['activebackground'],
-        selectcolor=theme['selectcolor'],
-        activeforeground=theme['fg'],
-        disabledforeground=theme['fg'],
-        anchor='w',
-        **base_widget_attributes,
-        **kwargs
-    )
-
-
-def default_separator(master, span=5, **kwargs):
-    sep1 = tk.Frame(master, bg=theme['separator_bg1'], height=1, borderwidth=1, relief="flat")
-    sep2 = tk.Frame(master, bg=theme['separator_bg2'], height=1, borderwidth=1, relief="flat")
-    
-    sep1.grid(row=0, column=0, sticky='ew', columnspan=span)
-    sep2.grid(row=1, column=0, sticky='ew', columnspan=span)
-    
-    return sep1, sep2
-
-
-def default_canvas(master, **kwargs):
-    return tk.Canvas(master, bg=theme['bg'], **base_widget_attributes, **kwargs)
-
-
-def default_frame(master, **kwargs):
-    return tk.Frame(master, bg=theme['bg'], **base_widget_attributes, **kwargs)
-
-
-def default_label(master, *args, **kwargs):
-    fg_color = theme['offline_fg'] if 'offline' in args else theme['fg']
-    return tk.Label(master, bg=theme['bg'], fg=fg_color, **base_widget_attributes, **kwargs)
-
-
-def default_button(master, *args, **kwargs):
-    fg_color = theme['offline_fg'] if 'offline' in args else theme['fg']
-    return tk.Button(
-        master,
-        bg=theme['bg'],
-        fg=fg_color,
-        activebackground=theme['activebackground'],
-        activeforeground=theme['fg'],
-        disabledforeground=fg_color,
-        **base_widget_attributes,
-        **kwargs
-    )
-
-
-def scrollbar_presets():
-    scrollbar_width = 16
-    style = ttk.Style(root)
-    scrollbar_theme = theme['scrollbar']
-    style.configure('Vertical.TScrollbar',
-                    gripcount=0,
-                    relief='flat',
-                    troughrelief='flat',
-                    width=scrollbar_width,
-                    groovewidth=scrollbar_width,
-                    arrowsize=scrollbar_width,
-                    background=scrollbar_theme['bg'],
-                    troughcolor=scrollbar_theme['trough'],
-                    arrowcolor=scrollbar_theme['arrow']
-                    )
-    style.map("Vertical.TScrollbar", background=[("active", scrollbar_theme['active'])])
-
-
-def get_icons():
-    global app_icon
-
-    # Import icons
-    icon_files = twitchapi.icon_paths()
-    if current_theme == 'blues_dark':
-        ending = '_yellow'
-    elif is_dark_theme:
-        ending = '_light' 
-    else:
-        ending = ''
-
-    icon_names = [
-        'unfollow_icon', 'vod_icon', 'play_icon', 'close_icon', 'settings_icon',
-        'link_icon', 'expand_icon', 'collapse_icon', 'follow_icon',
-        'play_stream_icon', 'refresh_icon'
-    ]
-
-    icons = {
-        name: tk.PhotoImage(file=icon_files[f'{name}{ending}']) for name in icon_names
-    }
-    
-    # Special cases without theme suffix
-    icons['streaming_icon'] = tk.PhotoImage(file=icon_files['streaming_icon'])
-    icons['offline_icon'] = tk.PhotoImage(file=icon_files['offline_icon'])
-    icons['app_icon'] = tk.PhotoImage(file=icon_files['app_icon'])
-
-    # Assign to globals
-    globals().update(icons)
-    
-    root.iconphoto(False, icons['app_icon'])
 
 
 def save_window_size():
@@ -1038,7 +936,37 @@ def toggle_settings():
         twitchapi.adjust_config('printOfflineSubscriptions', 'true')
 
 
+def get_icons():
+    global app_icon
 
+    # Import icons
+    icon_files = twitchapi.icon_paths()
+    if assets.current_theme == 'blues_dark':
+        ending = '_yellow'
+    elif assets.is_dark_theme:
+        ending = '_light' 
+    else:
+        ending = ''
+
+    icon_names = [
+        'unfollow_icon', 'vod_icon', 'play_icon', 'close_icon', 'settings_icon',
+        'link_icon', 'expand_icon', 'collapse_icon', 'follow_icon',
+        'play_stream_icon', 'refresh_icon'
+    ]
+
+    icons = {
+        name: tk.PhotoImage(file=icon_files[f'{name}{ending}']) for name in icon_names
+    }
+    
+    # Special cases without theme suffix
+    icons['streaming_icon'] = tk.PhotoImage(file=icon_files['streaming_icon'])
+    icons['offline_icon'] = tk.PhotoImage(file=icon_files['offline_icon'])
+    icons['app_icon'] = tk.PhotoImage(file=icon_files['app_icon'])
+
+    # Assign to globals
+    globals().update(icons)
+    
+    root.iconphoto(False, icons['app_icon'])
 
 
 # Check the online/offline status once before window initialization:
@@ -1069,126 +997,10 @@ root.protocol("WM_DELETE_WINDOW", lambda: (
                 )
 
 # Fonts:
-small_font = ('', 10)
-cantarell_12 = ('Cantarell', 12)
-cantarell_12_bold = ('Cantarell', 12, 'bold')
-cantarell_13_bold = ('Cantarell', 13, 'bold')
-
-theme_properties = {
-    'gnome_dark': {
-        'bg': '#333333',
-        'fg': '#BDBDBD',
-        'offline_fg': '#A4A4A4',
-        'activebackground': '#3F3F3F',
-        'selectcolor': '#242424',
-        'separator_bg1': '#252525',
-        'separator_bg2': '#484848',
-        'scrollbar': {
-            'bg': '#2c2c2c',
-            'trough': '#363636',
-            'arrow': '#BDBDBD',
-            'active': '#222222'
-        }
-    },
-    'gnome_light': {
-        'bg': '#FAFAFA',
-        'fg': '#101010',
-        'offline_fg': '#333333',
-        'activebackground': '#EAEAEA',
-        'selectcolor': '#FAFAFA',
-        'separator_bg1': '#E3E3E3',
-        'separator_bg2': '#FFFFFF',
-        'scrollbar': {
-            'bg': '#EFEFEF',
-            'trough': '#DBDBDB',
-            'arrow': '#2c2c2c',
-            'active': '#FFFFFF'
-        }
-    },
-    'blues_dark': {
-        'bg': '#30343F',
-        'fg': '#B0B7BF',
-        'offline_fg': '#9CA3AF',
-        'activebackground': '#39404F',
-        'selectcolor': '#24292F',
-        'separator_bg1': '#262A34',
-        'separator_bg2': '#4B515F',
-        'scrollbar': {
-            'bg': '#2F3441',
-            'trough': '#3A3F4C',
-            'arrow': '#D27F7F',
-            'active': '#5A6E73'
-        }
-    },
-    'blues_light': {
-        'bg': '#EAF5FB',
-        'fg': '#0D1B2A',
-        'offline_fg': '#2B3B52',
-        'activebackground': '#D9E8EF',
-        'selectcolor': '#C1D3DA',
-        'separator_bg1': '#C4DDE9',
-        'separator_bg2': '#E3F4FA',
-        'scrollbar': {
-            'bg': '#D4E8F1',
-            'trough': '#BED5DC',
-            'arrow': '#8A9BAA',
-            'active': '#487A8B'
-        }
-    },
-    'reds_dark': {
-        'bg': '#402D2D',
-        'fg': '#BDBDBD',
-        'offline_fg': '#A4A4A4',
-        'activebackground': '#4B3535',
-        'selectcolor': '#7D2A2A',
-        'separator_bg1': '#362525',
-        'separator_bg2': '#5A3F3F',
-        'scrollbar': {
-            'bg': '#3A2C2C',
-            'trough': '#4A2C2C',
-            'arrow': '#D15656',
-            'active': '#8A3F3F'
-        }
-    },
-    'reds_light': {
-        'bg': '#FFEDED',
-        'fg': '#101010',
-        'offline_fg': '#3B2B2B',
-        'activebackground': '#F7DCDC',
-        'selectcolor': '#FFA8A8',
-        'separator_bg1': '#F4CFCF',
-        'separator_bg2': '#FFE0E0',
-        'scrollbar': {
-            'bg': '#FDD5D5',
-            'trough': '#F4BFBF',
-            'arrow': '#BF3030',
-            'active': '#E57373'
-        }
-    },
-    'midnight': {
-        'bg': '#121212',
-        'fg': '#bbbbbb',
-        'offline_fg': '#555555',
-        'activebackground': '#1d1d1d',
-        'selectcolor': '#555555',
-        'separator_bg1': '#252525',
-        'separator_bg2': '#353535',
-        'scrollbar': {
-            'bg': '#555555',
-            'trough': '#1d1d1d',
-            'arrow': '#252525',
-            'active': '#353535'
-        }
-    }
-}
-
-# Base attributes for all widgets
-base_widget_attributes = {
-    'highlightthickness': 0,
-    'relief': 'flat',
-    'border': 0
-}
-
+font_10 = ('', 10)
+font_12 = ('Cantarell', 12)
+font_12_b = ('Cantarell', 12, 'bold')
+font_13_b = ('Cantarell', 13, 'bold')
 
 
 # Variables to collect stream info
@@ -1215,17 +1027,12 @@ current_yesno_frame = None
 current_query_frame = None
 
 
-# Return True/False for dark theme:
-is_dark_theme = twitchapi.detect_dark_theme()
 # Set to 'dark', 'light' or 'system':
 theme_setting = tk.StringVar()
 theme_setting.set(twitchapi.get_setting('theme'))
-# Only use dark/light for the time being:
-current_theme = twitchapi.get_setting('theme')
-# Retrieves colors from dictionary:
-theme = theme_properties[current_theme]
 
-scrollbar_presets()
+
+assets.scrollbar_presets(root)
 get_icons()
 
 
