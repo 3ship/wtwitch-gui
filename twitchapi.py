@@ -32,6 +32,8 @@ def wtwitch_subscription_cache():
         default_cache = {"data": [], "pagination": {}}
         with open(cachepath, 'w') as initcachepath:
             json.dump(default_cache, initcachepath, indent=4)
+    if not os.path.isfile(onlinesubs_path):
+        open(onlinesubs_path, 'a')
     return cachepath, onlinesubs_path, cachehome
 
 def read_config():
