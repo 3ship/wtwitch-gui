@@ -5,7 +5,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 import initialize
-import settings
+import conf
 import assets
 
 
@@ -14,7 +14,7 @@ def vod_panel(streamer):
     the last 20 VODs.'''
     global current_vod_panel, vod_info_status, vod_info_content, vw_frame
     current_vod_panel = streamer
-    vods = settings.fetch_vods(streamer)
+    vods = conf.fetch_vods(streamer)
 
     if len(vods[0]) == 0:
         messagebox.showinfo(
@@ -67,7 +67,7 @@ def vod_panel(streamer):
         vod_info_status[count_vod_rows] = False
         watch_button = assets.default_button(
             vod_frame, image=play_icon, 
-            command=lambda s=streamer, v=vod_number: [settings.start_vod(s, v)]
+            command=lambda s=streamer, v=vod_number: [conf.start_vod(s, v)]
         )
         watch_button.grid(column=0, row=count_vod_rows, sticky='nesw', 
                           ipadx=12, ipady=6)
@@ -176,7 +176,7 @@ def stream_buttons():
     for package in online_streamers:
         watch_button = assets.default_button(
             stream_frame, image=streaming_icon,
-            command=lambda s=package[0]: [settings.start_stream(s)]
+            command=lambda s=package[0]: [conf.start_stream(s)]
         )
         watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=6, ipady=8)
         stream_info_visible[count_rows] = False
@@ -312,7 +312,7 @@ def stream_online_info(c, streamer, category, title, viewercount):
 
 def stream_offline_info(c, streamer):
     if not stream_info_visible[c]:
-        last_seen_text = f'Last seen: {settings.last_seen(streamer)}'
+        last_seen_text = f'Last seen: {conf.last_seen(streamer)}'
         if c not in stream_info_content:
             stream_info_content[c] = assets.default_label(stream_frame, 'offline',
                                                    text=last_seen_text,
@@ -370,7 +370,7 @@ def stream_unfollow_dialog(streamer, row):
     '''
     answer = add_askyesno_row(stream_frame, f'\nUnfollow {streamer}?', row)
     if answer:
-        settings.unfollow_streamer(streamer)
+        conf.unfollow_streamer(streamer)
         refresh_stream_frame_quiet()
 
 
@@ -381,7 +381,7 @@ def menu_follow_dialog():
     if answer is None or len(answer) == 0:
         return
     else:
-        settings.follow_streamer(answer)
+        conf.follow_streamer(answer)
         refresh_stream_frame_quiet()
 
 
@@ -392,13 +392,13 @@ def menu_play_dialog():
     if streamer is None or len(streamer) == 0:
         return
     else:
-        update = settings.start_stream(streamer)
+        update = conf.start_stream(streamer)
 
 
 def refresh_stream_frame_quiet():
     global streamer_status, current_vod_panel
     try:
-        streamer_status = settings.extract_streamer_status()
+        streamer_status = conf.extract_streamer_status()
     except Exception as e:
         error_dialog(e)
 
@@ -421,10 +421,10 @@ def refresh_stream_frame_quiet():
 
 def refresh_stream_frame():
     '''Runs wtwitch c and then rebuilds the main panel.'''
-    settings.check_status()
+    conf.check_status()
     global streamer_status, streamer_buttons_dict
     try:
-        streamer_status = settings.extract_streamer_status()
+        streamer_status = conf.extract_streamer_status()
     except Exception as e:
         error_dialog(e)
     
@@ -509,12 +509,12 @@ def settings_custom_player():
     '''
     new_player = add_askstring_row(settings_frame,
                                 'Enter your media player:',
-                                initial_value=settings.check_config()[0]
+                                initial_value=conf.check_config()[0]
                                 )
     if new_player is None or len(new_player) == 0:
         return
     else:
-        settings.adjust_config('player', new_player)
+        conf.adjust_config('player', new_player)
 
 
 def settings_custom_quality():
@@ -526,30 +526,30 @@ def settings_custom_quality():
                                 '\n'
                                 ' Specify fallbacks separated by a comma: \n'
                                 ' E.g. "720p,480p,worst" \n',
-                                initial_value=settings.check_config()[1],
+                                initial_value=conf.check_config()[1],
                                 )
     if new_quality is None or len(new_quality) == 0:
         return
     else:
-        settings.adjust_config('quality', new_quality)
+        conf.adjust_config('quality', new_quality)
 
 
 def settings_info_preset(value):
-    settings.change_settings_file('show_info_preset', value)
+    conf.change_settings_file('show_info_preset', value)
     global current_expand_setting
-    preset_info_setting = settings.get_setting('show_info_preset')
+    preset_info_setting = conf.get_setting('show_info_preset')
     
     if preset_info_setting != current_expand_setting and current_expand_setting != 'no':
-        settings.change_settings_file('show_info', value)
+        conf.change_settings_file('show_info', value)
         current_expand_setting = preset_info_setting
         refresh_stream_frame_quiet()
 
 
 def settings_extrabuttons_preset(value):
-    if settings.get_setting('extra_buttons') != value:
-        settings.change_settings_file('extra_buttons', value)
+    if conf.get_setting('extra_buttons') != value:
+        conf.change_settings_file('extra_buttons', value)
         global extra_buttons_always_visible
-        extra_buttons_always_visible.set(settings.get_setting('extra_buttons'))
+        extra_buttons_always_visible.set(conf.get_setting('extra_buttons'))
         refresh_stream_frame_quiet()
 
 
@@ -584,15 +584,15 @@ def create_settings_frame():
     selected_quality = tk.StringVar()
 
     # Check configurations and set default values
-    if settings.check_config()[0] in ['mpv', 'vlc']:
-        selected_player.set(settings.check_config()[0])
+    if conf.check_config()[0] in ['mpv', 'vlc']:
+        selected_player.set(conf.check_config()[0])
     else:
         selected_player.set('custom')
 
-    if settings.check_config()[1] in [
+    if conf.check_config()[1] in [
         'best', '720p,720p60,480p,best', '480p,worst'
     ]:
-        selected_quality.set(settings.check_config()[1])
+        selected_quality.set(conf.check_config()[1])
     else:
         selected_quality.set('custom')
 
@@ -609,13 +609,13 @@ def create_settings_frame():
     
     pick_mpv = assets.default_radiobutton(
         player_frame, text='mpv', value='mpv', variable=selected_player,
-        command=lambda: settings.adjust_config('player', 'mpv')
+        command=lambda: conf.adjust_config('player', 'mpv')
     )
     pick_mpv.grid(row=1, column=0, sticky='nesw')
     
     pick_vlc = assets.default_radiobutton(
         player_frame, text='VLC', value='vlc', variable=selected_player,
-        command=lambda: settings.adjust_config('player', 'vlc')
+        command=lambda: conf.adjust_config('player', 'vlc')
     )
     pick_vlc.grid(row=2, column=0, sticky='nesw')
     
@@ -633,14 +633,14 @@ def create_settings_frame():
     
     high_quality = assets.default_radiobutton(
         quality_frame, text='High', value='best', variable=selected_quality,
-        command=lambda: settings.adjust_config('quality', 'best')
+        command=lambda: conf.adjust_config('quality', 'best')
     )
     high_quality.grid(row=1, column=0, sticky='nesw')
     
     mid_quality = assets.default_radiobutton(
         quality_frame, text='Medium', value='720p,720p60,480p,best',
         variable=selected_quality,
-        command=lambda: settings.adjust_config(
+        command=lambda: conf.adjust_config(
             'quality', '720p,720p60,480p,best'
         )
     )
@@ -648,7 +648,7 @@ def create_settings_frame():
     
     low_quality = assets.default_radiobutton(
         quality_frame, text='Low', value='480p,worst', variable=selected_quality,
-        command=lambda: settings.adjust_config('quality', '480p,worst')
+        command=lambda: conf.adjust_config('quality', '480p,worst')
     )
     low_quality.grid(row=3, column=0, sticky='nesw')
     
@@ -731,10 +731,10 @@ def create_settings_frame():
 
 
 def settings_theme_switch(value):
-    settings.change_settings_file('theme', value)
+    conf.change_settings_file('theme', value)
     global theme_setting
     theme_setting = tk.StringVar()
-    theme_setting.set(settings.get_setting('theme'))
+    theme_setting.set(conf.get_setting('theme'))
     assets.current_theme = value
     assets.theme = assets.properties[assets.current_theme]
     assets.scrollbar_presets(root)
@@ -763,10 +763,10 @@ def switch_info_toggle_icon(n):
 def menu_info_toggle():
     global current_expand_setting, current_vod_panel
     if current_expand_setting == 'no':
-        settings.change_settings_file('show_info', preset_expand_setting.get())
+        conf.change_settings_file('show_info', preset_expand_setting.get())
     else:
-        settings.change_settings_file('show_info', 'no')
-    current_expand_setting = settings.get_setting('show_info')
+        conf.change_settings_file('show_info', 'no')
+    current_expand_setting = conf.get_setting('show_info')
     refresh_stream_frame_quiet()
 
     # Check if a VOD panel is active
@@ -900,7 +900,7 @@ def create_menu_frame():
 
 
 def save_window_size():
-    if settings.is_gnome:
+    if conf.is_gnome:
         top_bar_height = 37
     else:
         top_bar_height = 0
@@ -909,30 +909,30 @@ def save_window_size():
     width = root.winfo_width()
     height = root.winfo_height()
     geometry = f"{width}x{height}+{x}+{y}"
-    settings.change_settings_file('window_size', geometry)
+    conf.change_settings_file('window_size', geometry)
 
 
 def initiate_window_dimensions():
     """Returns a default window size or user-adjusted window size and position
     """
-    return settings.get_setting('window_size')
+    return conf.get_setting('window_size')
 
 
 def toggle_settings():
     """Checks if wtwitch prints offline streamers and color output. Latter is
     needed to filter wtwitch output with regex.
     """
-    if settings.check_config()[2] == 'false':
-        settings.adjust_config('colors', 'true')
-    if settings.check_config()[3] == 'false':
-        settings.adjust_config('printOfflineSubscriptions', 'true')
+    if conf.check_config()[2] == 'false':
+        conf.adjust_config('colors', 'true')
+    if conf.check_config()[3] == 'false':
+        conf.adjust_config('printOfflineSubscriptions', 'true')
 
 
 def get_icons():
     global app_icon
     # Import icons
-    icon_files = settings.icon_paths()
-    theme = settings.get_setting('theme')
+    icon_files = conf.icon_paths()
+    theme = conf.get_setting('theme')
     ending = assets.properties.get(theme, {}).get('icon_ending', '')
     
     icon_names = [
@@ -955,9 +955,9 @@ def get_icons():
 
 
 # Check the online/offline status once before window initialization:
-settings.check_status()
+conf.check_status()
 try:
-    streamer_status = settings.extract_streamer_status()
+    streamer_status = conf.extract_streamer_status()
 except Exception as e:
     error_dialog(e)
 # Make sure that colors in the terminal output are activated:
@@ -979,8 +979,8 @@ root.protocol("WM_DELETE_WINDOW", lambda: (save_window_size(),
 stream_info_visible = {}
 stream_info_content = {}
 preset_expand_setting = tk.StringVar()
-preset_expand_setting.set(settings.get_setting('show_info_preset'))
-current_expand_setting = settings.get_setting('show_info')
+preset_expand_setting.set(conf.get_setting('show_info_preset'))
+current_expand_setting = conf.get_setting('show_info')
 
 # Store whether the weblink buttons are currently displayed:
 weblink_visible = {}
@@ -989,7 +989,7 @@ weblink_content = {}
 extra_buttons_visible = {}
 extra_buttons_content = {}
 extra_buttons_always_visible = tk.StringVar()
-extra_buttons_always_visible.set(settings.get_setting('extra_buttons'))
+extra_buttons_always_visible.set(conf.get_setting('extra_buttons'))
 
 # Saves the name of the stream, whose VOD panel is currently shown, if present
 current_vod_panel = ''
@@ -1000,12 +1000,11 @@ current_query_frame = None
 
 # Set to 'dark', 'light' or 'system':
 theme_setting = tk.StringVar()
-theme_setting.set(settings.get_setting('theme'))
+theme_setting.set(conf.get_setting('theme'))
 
 
 assets.scrollbar_presets(root)
 get_icons()
-
 
 create_menu_frame()
 create_meta_frame()
