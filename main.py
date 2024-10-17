@@ -656,10 +656,10 @@ def create_settings_frame():
     )
     pick_custom_quality.grid(row=4, column=0, sticky='nesw')
 
-    # Separator to separate top and bottom frames
-    separator = default_separator(settings_frame)
-    separator[0].grid(row=2, columnspan=2)
-    separator[1].grid(row=3, columnspan=2)
+    # Separator
+    separator1 = default_separator(settings_frame)
+    separator1[0].grid(row=2, columnspan=2)
+    separator1[1].grid(row=3, columnspan=2)
 
     # Info settings frame
     info_frame = default_frame(settings_frame)
@@ -684,7 +684,7 @@ def create_settings_frame():
     extra_frame = default_frame(settings_frame)
     extra_frame.grid(row=4, column=0, sticky='nesw', padx=20, pady=4)
     extra_label = default_label(extra_frame, text=  'Always show\n'
-                                                    'all buttons')
+                                                    'all buttons:')
     extra_label.grid(row=0, column=0, sticky='nsw', ipady=10)
     
     show_extra_yes = default_radiobutton(
@@ -699,9 +699,13 @@ def create_settings_frame():
     )
     show_extra_no.grid(row=2, column=0, sticky='nesw')
 
+    separator2 = default_separator(settings_frame)
+    separator2[0].grid(row=5, columnspan=2)
+    separator2[1].grid(row=6, columnspan=2)
+
     # Theme settings frame
     theme_frame = default_frame(settings_frame)
-    theme_frame.grid(row=5, column=0, sticky='nesw', padx=20, pady=4)
+    theme_frame.grid(row=7, column=0, sticky='nesw', padx=20, pady=4, columnspan=2)
     theme_label = default_label(theme_frame, text='Theme:')
     theme_label.grid(row=0, column=0, sticky='nsw', ipady=10)
     
@@ -715,14 +719,21 @@ def create_settings_frame():
         'Midnight': 'midnight'
     }
 
-    row = 1
-    for theme, value in themes.items():
-        rb = default_radiobutton(theme_frame,
-                            text=theme, value=value, variable=theme_setting,
-                            command=lambda v=value: settings_theme_switch(v)
-                            )
-        rb.grid(row=row, column=0, sticky='nesw')
-        row += 1
+    row_col_tracker = [1, 1]  # Row counters for columns 0 and 1
+
+    for i, (theme, value) in enumerate(themes.items()):
+        col = i % 2  # Distribute themes between two columns
+        row = row_col_tracker[col]
+        row_col_tracker[col] += 1
+
+        rb = default_radiobutton(
+            theme_frame,
+            text=theme,
+            value=value,
+            variable=theme_setting,
+            command=lambda v=value: settings_theme_switch(v)
+        )
+        rb.grid(row=row, column=col, sticky='nesw', padx=20 if col == 1 else 0)
 
 
 def settings_theme_switch(value):
