@@ -9,7 +9,6 @@ import time
 import locale
 import base64
 from datetime import datetime
-import encoded_images
 
 def wtwitch_config_file():
     if 'APPDATA' in os.environ:
@@ -197,19 +196,19 @@ def start_vod(s, v):
 def start_stream(s):
     subprocess.run(['wtwitch', 'w', s])
 
-def icon_paths():
-    if not os.path.isdir(f'{sys.path[0]}/icons'):
-        os.makedirs(f'{sys.path[0]}/icons')
-    icon_dir_path = f'{sys.path[0]}/icons'
 
-    icon_file_paths = {}
-    for name in encoded_images.images:
-        if not os.path.isfile(f'{icon_dir_path}/{name}.png'):
-            with open(f'{icon_dir_path}/{name}.png', "wb") as icon_file:
-                icon_data = base64.b64decode(encoded_images.images[name])
-                icon_file.write(icon_data)
-        icon_file_paths[name] = f'{icon_dir_path}/{name}.png'
+def icon_paths():
+    icon_dir_path = f'{sys.path[0]}/icons'
+    
+    # Gather all PNG files in the directory
+    icon_file_paths = {
+        os.path.splitext(name)[0]: f'{icon_dir_path}/{name}'
+        for name in os.listdir(icon_dir_path)
+        if name.endswith('.png')
+    }
+    
     return icon_file_paths
+
 
 def create_settings_file():
     default_settings = {

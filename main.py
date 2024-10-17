@@ -981,7 +981,12 @@ def get_icons():
 
     # Import icons
     icon_files = twitchapi.icon_paths()
-    light = '_light' if is_dark_theme else ''
+    if current_theme == 'blues_dark':
+        ending = '_yellow'
+    elif is_dark_theme:
+        ending = '_light' 
+    else:
+        ending = ''
 
     icon_names = [
         'unfollow_icon', 'vod_icon', 'play_icon', 'close_icon', 'settings_icon',
@@ -990,7 +995,7 @@ def get_icons():
     ]
 
     icons = {
-        name: tk.PhotoImage(file=icon_files[f'{name}{light}']) for name in icon_names
+        name: tk.PhotoImage(file=icon_files[f'{name}{ending}']) for name in icon_names
     }
     
     # Special cases without theme suffix
