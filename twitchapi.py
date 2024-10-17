@@ -123,6 +123,7 @@ def extract_streamer_status():
     offline_streamers.sort()
     return online_package, offline_streamers
 
+
 def last_seen(s):
     _, _, cachehome = wtwitch_subscription_cache()
     lastseen_dir = f'{cachehome}/wtwitch/lastSeen/{s}'
@@ -135,13 +136,6 @@ def last_seen(s):
     except Exception:
         return 'unknown'
 
-def check_status():
-    '''Call wtwitch c again when pressing the refresh button
-    '''
-    subprocess.run(['wtwitch', 'c'],
-                    capture_output=True,
-                    text=True
-                    )
 
 def ensure_vod_directory_and_file(vods_path: str, vods_file: str) -> float:
     if not os.path.isdir(vods_path):
@@ -152,6 +146,7 @@ def ensure_vod_directory_and_file(vods_path: str, vods_file: str) -> float:
     else:
         cache_modified = os.path.getmtime(vods_file)
         return time.time() - cache_modified
+
 
 def fetch_vods(streamer: str) -> tuple[list[str], list[str], list[str]]:
     """
@@ -189,6 +184,14 @@ def fetch_vods(streamer: str) -> tuple[list[str], list[str], list[str]]:
 
     return timestamps, titles, lengths
 
+
+def check_status():
+    '''Call wtwitch c again when pressing the refresh button
+    '''
+    subprocess.run(['wtwitch', 'c'],
+                    capture_output=True,
+                    text=True
+                    )
 
 def start_vod(s, v):
     subprocess.run(['wtwitch', 'v', s, str(v)])
