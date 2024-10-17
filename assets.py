@@ -3,20 +3,6 @@ from tkinter import ttk
 import twitchapi
 
 
-def detect_dark_theme():
-    """Returns true, if user has activated a dark theme"""
-
-    # Create the settings file, because is_dark_theme is the 1st var:
-    twitchapi.create_settings_file()
-
-    theme_setting = twitchapi.get_setting('theme')
-    # Add any new dark theme here to give them default light-gray icons:
-    if theme_setting in ['gnome_dark', 'blues_dark', 'reds_dark', 'midnight']:
-        return True
-
-    return False
-
-
 def default_radiobutton(master, *args, **kwargs):
     return tk.Radiobutton(
         master,
@@ -140,7 +126,8 @@ properties = {
             'trough': '#363636',
             'arrow': '#BDBDBD',
             'active': '#222222'
-        }
+        },
+        'icon_ending': '_light'
     },
     'gnome_light': {
         'bg': '#FAFAFA',
@@ -161,7 +148,8 @@ properties = {
             'trough': '#DBDBDB',
             'arrow': '#2c2c2c',
             'active': '#FFFFFF'
-        }
+        },
+        'icon_ending': ''
     },
     'blues_dark': {
         'bg': '#30343F',
@@ -182,7 +170,8 @@ properties = {
             'trough': '#3A3F4C',
             'arrow': '#D27F7F',
             'active': '#5A6E73'
-        }
+        },
+        'icon_ending': '_yellow'
     },
     'blues_light': {
         'bg': '#EAF5FB',
@@ -203,7 +192,8 @@ properties = {
             'trough': '#BED5DC',
             'arrow': '#8A9BAA',
             'active': '#487A8B'
-        }
+        },
+        'icon_ending': ''
     },
     'reds_dark': {
         'bg': '#402D2D',
@@ -224,7 +214,8 @@ properties = {
             'trough': '#4A2C2C',
             'arrow': '#D15656',
             'active': '#8A3F3F'
-        }
+        },
+        'icon_ending': '_light'
     },
     'reds_light': {
         'bg': '#FFEDED',
@@ -245,7 +236,8 @@ properties = {
             'trough': '#F4BFBF',
             'arrow': '#BF3030',
             'active': '#E57373'
-        }
+        },
+        'icon_ending': ''
     },
     'midnight': {
         'bg': '#121212',
@@ -266,12 +258,12 @@ properties = {
             'trough': '#1d1d1d',
             'arrow': '#252525',
             'active': '#353535'
-        }
+        },
+        'icon_ending': '_light'
     }
 }
 
-# Return True/False for dark theme:
-is_dark_theme = detect_dark_theme()
+
 # Retrieves the user setting:
 current_theme = twitchapi.get_setting('theme')
 # Retrieves colors from dictionary:

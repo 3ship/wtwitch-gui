@@ -731,8 +731,7 @@ def create_settings_frame():
 
 def settings_theme_switch(value):
     twitchapi.change_settings_file('theme', value)
-    global is_dark_theme, theme_setting
-    assets.is_dark_theme = assets.detect_dark_theme()
+    global theme_setting
     theme_setting = tk.StringVar()
     theme_setting.set(twitchapi.get_setting('theme'))
     assets.current_theme = value
@@ -930,31 +929,24 @@ def toggle_settings():
 
 def get_icons():
     global app_icon
-
     # Import icons
     icon_files = twitchapi.icon_paths()
-    if assets.current_theme == 'blues_dark':
-        ending = '_yellow'
-    elif assets.is_dark_theme:
-        ending = '_light' 
-    else:
-        ending = ''
-
+    theme = twitchapi.get_setting('theme')
+    ending = assets.properties.get(theme, {}).get('icon_ending', '')
+    
     icon_names = [
         'unfollow_icon', 'vod_icon', 'play_icon', 'close_icon', 'settings_icon',
         'link_icon', 'expand_icon', 'collapse_icon', 'follow_icon',
         'play_stream_icon', 'refresh_icon'
     ]
-
-    icons = {
-        name: tk.PhotoImage(file=icon_files[f'{name}{ending}']) for name in icon_names
-    }
+    
+    icons = {name: tk.PhotoImage(file=icon_files[f'{name}{ending}']) for name in icon_names}
     
     # Special cases without theme suffix
     icons['streaming_icon'] = tk.PhotoImage(file=icon_files['streaming_icon'])
     icons['offline_icon'] = tk.PhotoImage(file=icon_files['offline_icon'])
     icons['app_icon'] = tk.PhotoImage(file=icon_files['app_icon'])
-
+    
     # Assign to globals
     globals().update(icons)
     
