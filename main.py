@@ -957,33 +957,31 @@ def scrollbar_presets():
 
 
 def get_icons():
-    global unfollow_icon, vod_icon, streaming_icon, offline_icon, play_icon
-    global close_icon, settings_icon, link_icon, expand_icon, collapse_icon
-    global follow_icon, play_stream_icon, refresh_icon
     global app_icon
-    # Import icons:
+
+    # Import icons
     icon_files = twitchapi.icon_paths()
-    if is_dark_theme:
-        light = '_light'
-    else:
-        light = ''
-    unfollow_icon = tk.PhotoImage(file=icon_files[f'unfollow_icon{light}'])
-    vod_icon = tk.PhotoImage(file=icon_files[f'vod_icon{light}'])
-    streaming_icon = tk.PhotoImage(file=icon_files['streaming_icon'])
-    offline_icon = tk.PhotoImage(file=icon_files['offline_icon'])
-    play_icon = tk.PhotoImage(file=icon_files[f'play_icon{light}'])
-    close_icon = tk.PhotoImage(file=icon_files[f'close_icon{light}'])
-    settings_icon = tk.PhotoImage(file=icon_files[f'settings_icon{light}'])
-    link_icon = tk.PhotoImage(file=icon_files[f'link_icon{light}'])
-    follow_icon = tk.PhotoImage(file=icon_files[f'follow_icon{light}'])
-    play_stream_icon = tk.PhotoImage(file=icon_files[f'play_stream_icon{light}'])
-    refresh_icon = tk.PhotoImage(file=icon_files[f'refresh_icon{light}'])
+    light = '_light' if is_dark_theme else ''
 
-    expand_icon = tk.PhotoImage(file=icon_files[f'expand_icon{light}'])
-    collapse_icon = tk.PhotoImage(file=icon_files[f'collapse_icon{light}'])
+    icon_names = [
+        'unfollow_icon', 'vod_icon', 'play_icon', 'close_icon', 'settings_icon',
+        'link_icon', 'expand_icon', 'collapse_icon', 'follow_icon',
+        'play_stream_icon', 'refresh_icon'
+    ]
 
-    app_icon = tk.PhotoImage(file=icon_files['app_icon'])
-    root.iconphoto(False, app_icon)
+    icons = {
+        name: tk.PhotoImage(file=icon_files[f'{name}{light}']) for name in icon_names
+    }
+    
+    # Special cases without theme suffix
+    icons['streaming_icon'] = tk.PhotoImage(file=icon_files['streaming_icon'])
+    icons['offline_icon'] = tk.PhotoImage(file=icon_files['offline_icon'])
+    icons['app_icon'] = tk.PhotoImage(file=icon_files['app_icon'])
+
+    # Assign to globals
+    globals().update(icons)
+    
+    root.iconphoto(False, icons['app_icon'])
 
 
 def save_window_size():
