@@ -181,27 +181,24 @@ def stream_buttons():
         weblink_visible[count_rows] = False
         extra_buttons_visible[count_rows] = False
 
+        info_button = default_button(
+            stream_frame, text=package[1], anchor='w', font=cantarell_13_bold,
+            command=lambda cr=count_rows, s=package[0], l=package[1], c=package[2],
+            t=package[3], v=package[4]:
+            [stream_online_info(cr, l, c, t, v), stream_extra_buttons(s, cr)]
+        )
+        info_button.grid(column=1, row=count_rows, sticky='nsew')
+
         if current_expand_setting in ['all', 'online']:
             watch_button.grid_configure(rowspan=2)
-            info_button = default_button(
-                stream_frame, text=package[1], anchor='w', font=cantarell_13_bold,
-                state='disabled'
-            )
+            info_button.config(state='disabled')
             stream_extra_buttons(package[0], count_rows)
-            stream_online_info(
-                count_rows, package[1], package[2], package[3], package[4]
-            )
+            stream_online_info(count_rows, package[1], package[2], package[3], package[4])
         else:
             if extra_buttons_always_visible.get() == 'yes':
                 stream_extra_buttons(package[0], count_rows)
-            info_button = default_button(
-                stream_frame, text=package[1], anchor='w', font=cantarell_13_bold,
-                command=lambda cr=count_rows, s=package[0], l=package[1], c=package[2],
-                t=package[3], v=package[4]: [stream_online_info(cr, l, c, t, v),
-                stream_extra_buttons(s, cr)]
-            )
-            
-        info_button.grid(column=1, row=count_rows, sticky='nsew')
+            else:
+                info_button.grid_configure(columnspan=4)
 
         separator = default_separator(stream_frame)
         separator[0].grid(row=count_rows + 4)
@@ -215,25 +212,26 @@ def stream_buttons():
         weblink_visible[count_rows] = False
         extra_buttons_visible[count_rows] = False
 
+        info_button = default_button(
+            stream_frame, 'offline', text=streamer, anchor='w',
+            font=cantarell_13_bold, compound='left',
+            command=lambda s=streamer, c=count_rows:
+            [stream_offline_info(c, s), stream_extra_buttons(s, c)]
+        )
+
+        info_button.grid(column=1, row=count_rows, sticky='nsew')
+
         if current_expand_setting == 'all':
             watch_button.grid_configure(rowspan=2)
-            info_button = default_button(
-                stream_frame, 'offline', text=streamer, anchor='w', font=cantarell_13_bold,
-                state='disabled'
-            )
+            info_button.config(state='disabled')
             stream_extra_buttons(streamer, count_rows)
             stream_offline_info(count_rows, streamer)
         else:
             if extra_buttons_always_visible.get() == 'yes':
                 stream_extra_buttons(streamer, count_rows)
-            info_button = default_button(
-                stream_frame, 'offline', text=streamer, anchor='w', font=cantarell_13_bold,
-                compound='left', command=lambda s=streamer, c=count_rows:
-                [stream_offline_info(c, s), stream_extra_buttons(s, c)]
-            )
-            
-        info_button.grid(column=1, row=count_rows, sticky='nsew')
-        
+            else:
+                info_button.grid_configure(columnspan=4)
+
         # Don't add separator after the last item
         total_streamers = len(online_streamers) + len(offline_streamers)
         total_items = total_streamers * count_rows_increment
@@ -241,28 +239,39 @@ def stream_buttons():
             separator = default_separator(stream_frame)
             separator[0].grid(row=count_rows + 4)
             separator[1].grid(row=count_rows + 5)
-
         count_rows += count_rows_increment
-
 
 def stream_extra_buttons(streamer, count_rows):
     if not extra_buttons_visible[count_rows]:
         extra_buttons_content[count_rows] = {}
+
         extra_buttons_content[count_rows]['unfollow'] = default_button(
             stream_frame, image=unfollow_icon,
             command=lambda s=streamer, c=count_rows+3: [stream_unfollow_dialog(s, c)]
         )
-        extra_buttons_content[count_rows]['unfollow'].grid(column=2, row=count_rows, sticky='nsew', ipadx=4)
+        extra_buttons_content[count_rows]['unfollow'].grid(column=2,
+                                                        row=count_rows,
+                                                        sticky='nsew',
+                                                        ipadx=4)
+
         extra_buttons_content[count_rows]['web'] = default_button(
             stream_frame, image=link_icon,
             command=lambda s=streamer, c=count_rows: stream_website_dialog(c, s)
         )
-        extra_buttons_content[count_rows]['web'].grid(column=3, row=count_rows, sticky='nsew', ipadx=4)
+        extra_buttons_content[count_rows]['web'].grid(column=3,
+                                                        row=count_rows,
+                                                        sticky='nsew',
+                                                        ipadx=4)
+
         extra_buttons_content[count_rows]['vods'] = default_button(
             stream_frame, image=vod_icon,
             command=lambda s=streamer: vod_panel(s)
         )
-        extra_buttons_content[count_rows]['vods'].grid(column=4, row=count_rows, sticky='nsew', ipadx=6)
+        extra_buttons_content[count_rows]['vods'].grid(column=4,
+                                                        row=count_rows,
+                                                        sticky='nsew',
+                                                        ipadx=6)
+
         extra_buttons_visible[count_rows] = True
     else:
         if extra_buttons_always_visible.get() == 'yes':
