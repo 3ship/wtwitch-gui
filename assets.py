@@ -4,13 +4,14 @@ import conf
 
 
 def default_radiobutton(master, *args, **kwargs):
+    radio_theme = theme['radiobutton']
     return tk.Radiobutton(
         master,
         bg=theme['bg'],
         fg=theme['fg'],
-        activebackground=theme['activebackground'],
-        selectcolor=theme['selectcolor'],
         activeforeground=theme['fg'],
+        activebackground=theme['activebackground'],
+        selectcolor=radio_theme['selectcolor'],
         disabledforeground=theme['fg'],
         anchor='w',
         **base_widget_attributes,
@@ -64,12 +65,10 @@ def default_button(master, *args, **kwargs):
 
 def default_entry(master, *args, **kwargs):
     entry_theme = theme['entry']
-    fg_color = entry_theme['offline_fg'] if 'offline' in args else entry_theme['fg']
     return tk.Entry(
         master,
         bg=entry_theme['bg'],
-        fg=fg_color,
-        disabledforeground=fg_color,
+        fg=entry_theme['fg'],
         insertbackground=entry_theme['cursor_color'],
         **base_widget_attributes,
         **kwargs
@@ -118,7 +117,6 @@ properties = {
         'entry': {
             'bg': '#444444',
             'fg': '#BDBDBD',
-            'offline_fg': '#A4A4A4',
             'cursor_color': '#FFFFFF',
         },
         'scrollbar': {
@@ -126,6 +124,9 @@ properties = {
             'trough': '#363636',
             'arrow': '#BDBDBD',
             'active': '#222222'
+        },
+        'radiobutton': {
+            'selectcolor': '#333333'
         },
         'icon_ending': '_light'
     },
@@ -140,7 +141,6 @@ properties = {
         'entry': {
             'bg': '#E1E1E1',
             'fg': '#101010',
-            'offline_fg': '#333333',
             'cursor_color': '#000000',
         },
         'scrollbar': {
@@ -149,20 +149,22 @@ properties = {
             'arrow': '#2c2c2c',
             'active': '#FFFFFF'
         },
+        'radiobutton': {
+            'selectcolor': '#FAFAFA'
+        },
         'icon_ending': ''
     },
-    'blues_dark': {
+    'dusky_blue': {
         'bg': '#30343F',
-        'fg': '#B0B7BF',
-        'offline_fg': '#9CA3AF',
+        'fg': '#E3E3BD',
+        'offline_fg': '#B0B07D',
         'activebackground': '#39404F',
         'selectcolor': '#24292F',
         'separator_bg1': '#262A34',
         'separator_bg2': '#4B515F',
         'entry': {
             'bg': '#414550',
-            'fg': '#B0B7BF',
-            'offline_fg': '#9CA3AF',
+            'fg': '#E3E3BD',
             'cursor_color': '#E3E3BD',
         },
         'scrollbar': {
@@ -170,6 +172,9 @@ properties = {
             'trough': '#3A3F4C',
             'arrow': '#D27F7F',
             'active': '#5A6E73'
+        },
+        'radiobutton': {
+            'selectcolor': '#30343F'
         },
         'icon_ending': '_yellow'
     },
@@ -184,7 +189,6 @@ properties = {
         'entry': {
             'bg': '#DAEDF3',
             'fg': '#0D1B2A',
-            'offline_fg': '#2B3B52',
             'cursor_color': '#0D1B2A',
         },
         'scrollbar': {
@@ -192,6 +196,9 @@ properties = {
             'trough': '#BED5DC',
             'arrow': '#8A9BAA',
             'active': '#487A8B'
+        },
+        'radiobutton': {
+            'selectcolor': '#EAF5FB'
         },
         'icon_ending': ''
     },
@@ -206,7 +213,6 @@ properties = {
         'entry': {
             'bg': '#4A3636',
             'fg': '#BDBDBD',
-            'offline_fg': '#A4A4A4',
             'cursor_color': '#FFFFFF',
         },
         'scrollbar': {
@@ -215,29 +221,82 @@ properties = {
             'arrow': '#D15656',
             'active': '#8A3F3F'
         },
+        'radiobutton': {
+            'selectcolor': '#402D2D'
+        },
         'icon_ending': '_light'
     },
     'reds_light': {
-        'bg': '#FFEDED',
-        'fg': '#101010',
+        'bg': '#FFF5F5',
+        'fg': '#202020',
         'offline_fg': '#3B2B2B',
-        'activebackground': '#F7DCDC',
-        'selectcolor': '#FFA8A8',
-        'separator_bg1': '#F4CFCF',
-        'separator_bg2': '#FFE0E0',
+        'activebackground': '#FFE0E0',
+        'selectcolor': '#FFBBBB',
+        'separator_bg1': '#FFDADA',
+        'separator_bg2': '#FFF0F0',
         'entry': {
-            'bg': '#F8D8D8',
-            'fg': '#101010',
-            'offline_fg': '#3B2B2B',
-            'cursor_color': '#101010',
+            'bg': '#FFE8E8',
+            'fg': '#202020',
+            'cursor_color': '#202020',
         },
         'scrollbar': {
-            'bg': '#FDD5D5',
-            'trough': '#F4BFBF',
+            'bg': '#FFD5D5',
+            'trough': '#FFC0C0',
             'arrow': '#BF3030',
             'active': '#E57373'
         },
+        'radiobutton': {
+            'selectcolor': '#FFF5F5'
+        },
         'icon_ending': ''
+    },
+    'twitchy': {
+        'bg': '#2D1B3C',
+        'fg': '#E6E6FA',
+        'offline_fg': '#A299C0',
+        'activebackground': '#3C2B4D',
+        'selectcolor': '#541673',
+        'separator_bg1': '#35233B',
+        'separator_bg2': '#4A2F5A',
+        'entry': {
+            'bg': '#412753',
+            'fg': '#E6E6FA',
+            'cursor_color': '#F0E6FF',
+        },
+        'scrollbar': {
+            'bg': '#3A2945',
+            'trough': '#50375A',
+            'arrow': '#D1ACFF',
+            'active': '#622A8F'
+        },
+        'radiobutton': {
+            'selectcolor': '#2D1B3C'
+        },
+        'icon_ending': '_light'
+    },
+    'neon_city': {
+        'bg': '#1A1A2E',
+        'fg': '#0DF9FF',
+        'offline_fg': '#0BBABF',
+        'activebackground': '#16213E',
+        'selectcolor': '#08D9D6',
+        'separator_bg1': '#141425',
+        'separator_bg2': '#2B2B48',
+        'entry': {
+            'bg': '#0E153A',
+            'fg': '#0DF9FF',
+            'cursor_color': '#00FFFF',
+        },
+        'scrollbar': {
+            'bg': '#212F45',
+            'trough': '#1A1A2E',
+            'arrow': '#00FFFF',
+            'active': '#1282A2'
+        },
+        'radiobutton': {
+            'selectcolor': '#3A214F'
+        },
+        'icon_ending': '_yellow'
     },
     'midnight': {
         'bg': '#121212',
@@ -250,7 +309,6 @@ properties = {
         'entry': {
             'bg': '#1A1A1A',
             'fg': '#bbbbbb',
-            'offline_fg': '#555555',
             'cursor_color': '#FFFFFF',
         },
         'scrollbar': {
@@ -258,6 +316,9 @@ properties = {
             'trough': '#1d1d1d',
             'arrow': '#252525',
             'active': '#353535'
+        },
+        'radiobutton': {
+            'selectcolor': '#121212'
         },
         'icon_ending': '_light'
     }
