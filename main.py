@@ -129,11 +129,9 @@ def vod_info(c, title):
 
 
 def refresh_vod_panel(streamer):
-    global vw_frame, stream_canvas
-    if 'vw_frame' in globals() and vw_frame.winfo_exists():
-        for widget in vw_frame.winfo_children():
-            widget.destroy()
-        vod_panel(streamer)
+    for widget in vw_frame.winfo_children():
+        widget.destroy()
+    vod_panel(streamer)
 
 
 def close_vod_panel():
@@ -207,7 +205,7 @@ def stream_buttons():
         separator[1].grid(row=count_rows + 5)
         count_rows += count_rows_increment
 
-    for streamer in offline_streamers:
+    for stream in offline_streamers:
         watch_button = assets.default_label(stream_frame, image=offline_icon)
         watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=6, ipady=6)
         stream_info_visible[count_rows] = False
@@ -215,10 +213,10 @@ def stream_buttons():
         extra_buttons_visible[count_rows] = False
 
         info_button = assets.default_button(
-            stream_frame, 'offline', text=streamer, anchor='w',
+            stream_frame, 'offline', text=stream, anchor='w',
             font=assets.font_13_b, compound='left',
-            command=lambda s=streamer, c=count_rows:
-            [stream_offline_info(c, s), stream_extra_buttons(s, c)]
+            command=lambda s=stream, c=count_rows:
+            [stream_offline_info(s, c), stream_extra_buttons(s, c)]
         )
 
         info_button.grid(column=1, row=count_rows, sticky='nsew')
@@ -226,11 +224,11 @@ def stream_buttons():
         if current_expand_setting == 'all':
             watch_button.grid_configure(rowspan=2)
             info_button.config(state='disabled')
-            stream_extra_buttons(streamer, count_rows)
-            stream_offline_info(count_rows, streamer)
+            stream_extra_buttons(stream, count_rows)
+            stream_offline_info(stream, count_rows)
         else:
             if extra_buttons_always_visible.get() == 'yes':
-                stream_extra_buttons(streamer, count_rows)
+                stream_extra_buttons(stream, count_rows)
             else:
                 info_button.grid_configure(columnspan=4)
 
@@ -310,9 +308,9 @@ def stream_online_info(c, streamer, category, title, viewercount):
     update_meta_canvas()
 
 
-def stream_offline_info(c, streamer):
+def stream_offline_info(stream, c):
     if not stream_info_visible[c]:
-        last_seen_text = f'Last seen: {conf.last_seen(streamer)}'
+        last_seen_text = f'Last seen: {conf.last_seen(stream)}'
         if c not in stream_info_content:
             stream_info_content[c] = assets.default_label(stream_frame, 'offline',
                                                    text=last_seen_text,
