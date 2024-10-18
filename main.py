@@ -811,7 +811,7 @@ def add_askyesno_row(frame, prompt, row):
 
 def add_askstring_row(frame, prompt, initial_value=""):
     global current_query_frame
-    if current_query_frame is not None:
+    if current_query_frame is not None and current_query_frame.master == frame:
         current_query_frame.destroy()
         current_query_frame = None
 
@@ -848,7 +848,6 @@ def add_askstring_row(frame, prompt, initial_value=""):
     update_meta_canvas()
     response = None
     askstring_frame.wait_window()
-    update_meta_canvas()
     return response
 
 
