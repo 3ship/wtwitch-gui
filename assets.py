@@ -178,31 +178,7 @@ properties = {
         },
         'icon_ending': '_yellow'
     },
-    'blues_light': {
-        'bg': '#EAF5FB',
-        'fg': '#0D1B2A',
-        'offline_fg': '#2B3B52',
-        'activebackground': '#D9E8EF',
-        'selectcolor': '#C1D3DA',
-        'separator_bg1': '#C4DDE9',
-        'separator_bg2': '#E3F4FA',
-        'entry': {
-            'bg': '#DAEDF3',
-            'fg': '#0D1B2A',
-            'cursor_color': '#0D1B2A',
-        },
-        'scrollbar': {
-            'bg': '#D4E8F1',
-            'trough': '#BED5DC',
-            'arrow': '#8A9BAA',
-            'active': '#487A8B'
-        },
-        'radiobutton': {
-            'selectcolor': '#EAF5FB'
-        },
-        'icon_ending': ''
-    },
-    'reds_dark': {
+    'rusty_red': {
         'bg': '#402D2D',
         'fg': '#BDBDBD',
         'offline_fg': '#A4A4A4',
@@ -226,7 +202,31 @@ properties = {
         },
         'icon_ending': '_light'
     },
-    'reds_light': {
+    'light_blues': {
+        'bg': '#EAF5FB',
+        'fg': '#0D1B2A',
+        'offline_fg': '#2B3B52',
+        'activebackground': '#D9E8EF',
+        'selectcolor': '#C1D3DA',
+        'separator_bg1': '#C4DDE9',
+        'separator_bg2': '#E3F4FA',
+        'entry': {
+            'bg': '#DAEDF3',
+            'fg': '#0D1B2A',
+            'cursor_color': '#0D1B2A',
+        },
+        'scrollbar': {
+            'bg': '#D4E8F1',
+            'trough': '#BED5DC',
+            'arrow': '#8A9BAA',
+            'active': '#487A8B'
+        },
+        'radiobutton': {
+            'selectcolor': '#EAF5FB'
+        },
+        'icon_ending': ''
+    },
+    'light_reds': {
         'bg': '#FFF5F5',
         'fg': '#202020',
         'offline_fg': '#3B2B2B',
