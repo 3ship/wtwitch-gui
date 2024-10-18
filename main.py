@@ -394,14 +394,16 @@ def menu_play_dialog():
 
 
 def refresh_stream_frame_quiet():
+    '''Refreshes the frame without running wtwitch c. Used by everything that
+    only changes the layout.'''
     global streamer_status, current_vod_panel
     try:
         streamer_status = conf.extract_streamer_status()
     except Exception as e:
         error_dialog(e)
 
-    stream_canvas.update_idletasks()  # Flush the event queue
-    stream_canvas.configure(yscrollcommand=None)  # Temporarily disable scroll command
+    # Temporarily disable scroll command
+    stream_canvas.configure(yscrollcommand=None)
 
     # Clear and repopulate main_frame
     for widget in stream_frame.winfo_children():
@@ -409,7 +411,8 @@ def refresh_stream_frame_quiet():
     stream_buttons()  # Re-populate the main_frame
 
     stream_canvas.update_idletasks()  # Flush the event queue
-    stream_canvas.configure(yscrollcommand=stream_scrollbar.set)  # Re-enable scroll command
+    # Re-enable scroll command
+    stream_canvas.configure(yscrollcommand=stream_scrollbar.set)
     update_meta_canvas()  # Update the canvas region
 
     # If a VOD panel is active, refresh it
@@ -420,14 +423,11 @@ def refresh_stream_frame_quiet():
 def refresh_stream_frame():
     '''Runs wtwitch c and then rebuilds the main panel.'''
     conf.check_status()
-    global streamer_status, streamer_buttons_dict
+    global streamer_status
     try:
         streamer_status = conf.extract_streamer_status()
     except Exception as e:
         error_dialog(e)
-    
-    # Clear the dictionary before updating
-    streamer_buttons_dict = {}
 
     for widget in stream_frame.winfo_children():
         widget.destroy()
@@ -436,6 +436,7 @@ def refresh_stream_frame():
 
 
 def update_meta_canvas(force_update=False):
+    '''Update the scrollable area after its size changes.'''
     if force_update or stream_canvas.bbox("all") != stream_canvas.bbox("view"):
         stream_canvas.update_idletasks()
         stream_canvas.configure(scrollregion=stream_canvas.bbox("all"))
@@ -766,10 +767,6 @@ def menu_info_toggle():
         conf.change_settings_file('show_info', 'no')
     current_expand_setting = conf.get_setting('show_info')
     refresh_stream_frame_quiet()
-
-    # Check if a VOD panel is active
-    if current_vod_panel:
-        refresh_vod_panel(current_vod_panel)
 
 
 def add_askyesno_row(frame, prompt, row):
