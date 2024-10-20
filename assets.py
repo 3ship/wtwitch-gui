@@ -104,7 +104,9 @@ base_widget_attributes = {
 }
 
 
-# Add and edit color schemes here:
+# Add and edit color schemes here.
+# The name pattern 'lower_case' will be edited to 'Lower Case' in the settings
+# Available icon endings: '_light', '_yellow', '' (empty, for black theme)
 properties = {
     'gnome_dark': {
         'bg': '#333333',
@@ -151,6 +153,54 @@ properties = {
         },
         'radiobutton': {
             'selectcolor': '#FAFAFA'
+        },
+        'icon_ending': ''
+    },
+    'breeze_dark': {
+        'bg': '#232629',
+        'fg': '#eff0f1',
+        'offline_fg': '#939393',
+        'activebackground': '#31363b',
+        'selectcolor': '#2c2c2c',
+        'separator_bg1': '#17191B',
+        'separator_bg2': '#3a3a3a',
+        'entry': {
+            'bg': '#31363b',
+            'fg': '#eff0f1',
+            'cursor_color': '#ffffff',
+        },
+        'scrollbar': {
+            'bg': '#232629',
+            'trough': '#31363b',
+            'arrow': '#eff0f1',
+            'active': '#3a3a3a'
+        },
+        'radiobutton': {
+            'selectcolor': '#232629'
+        },
+        'icon_ending': '_light'
+    },
+    'breeze_light': {
+        'bg': '#eff0f1',
+        'fg': '#31363b',
+        'offline_fg': '#5f6368',
+        'activebackground': '#e5e5e5',
+        'selectcolor': '#eff0f1',
+        'separator_bg1': '#d5d5d5',
+        'separator_bg2': '#ffffff',
+        'entry': {
+            'bg': '#ffffff',
+            'fg': '#31363b',
+            'cursor_color': '#000000',
+        },
+        'scrollbar': {
+            'bg': '#f5f5f5',
+            'trough': '#e5e5e5',
+            'arrow': '#232629',
+            'active': '#ffffff'
+        },
+        'radiobutton': {
+            'selectcolor': '#eff0f1'
         },
         'icon_ending': ''
     },
