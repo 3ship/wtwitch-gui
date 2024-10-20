@@ -7,6 +7,8 @@ from tkinter import messagebox
 import initialize
 import conf
 import assets
+import dialogs
+import refresh
 
 
 def vod_panel(streamer):
@@ -150,8 +152,7 @@ def close_vod_panel():
     current_vod_panel = None  # Reset current_vod_panel
     stream_canvas.destroy()
     create_meta_frame()
-    update_meta_canvas()
-
+    refresh.update_canvas(stream_canvas)
 
 def stream_buttons():
     global stream_info_visible, stream_info_content
@@ -305,7 +306,7 @@ def stream_online_info(c, streamer, category, title, viewercount):
     else:
         stream_info_content[c].grid_remove()
         stream_info_visible[c] = False
-    update_meta_canvas()
+    refresh.update_canvas(stream_canvas)
 
 
 def stream_offline_info(stream, c):
@@ -328,7 +329,7 @@ def stream_offline_info(stream, c):
     else:
         stream_info_content[c].grid_remove()
         stream_info_visible[c] = False
-    update_meta_canvas()
+    refresh.update_canvas(stream_canvas)
 
 
 def stream_website_dialog(c, streamer):
@@ -353,20 +354,14 @@ def stream_website_dialog(c, streamer):
     else:
         weblink_content[c].grid_remove()
         weblink_visible[c] = False
-    update_meta_canvas()
-
-
-def error_dialog(e):
-    messagebox.showerror(title='Error',
-                        message=f'{e}\n\n Check your internet connection!',
-                        )
+    refresh.update_canvas(stream_canvas)
 
 
 def stream_unfollow_dialog(streamer, row):
     '''Asks for confirmation, if the unfollow button is pressed. Rebuild the
     main panel, if confirmed.
     '''
-    answer = add_askyesno_row(stream_frame, f'\nUnfollow {streamer}?', row)
+    answer = dialogs.askyesno(stream_frame, stream_canvas, f'\nUnfollow {streamer}?', row)
     if answer:
         conf.unfollow_streamer(streamer)
         refresh_stream_frame_quiet()
@@ -375,7 +370,7 @@ def stream_unfollow_dialog(streamer, row):
 def menu_follow_dialog():
     '''Opens a text dialog and adds the entered string to the follow list.
     '''
-    answer = add_askstring_row(menu_frame, 'Add streamer:')
+    answer = dialogs.askstring(menu_frame, stream_canvas, 'Add streamer:')
     if answer is None or len(answer) == 0:
         return
     else:
@@ -386,7 +381,7 @@ def menu_follow_dialog():
 def menu_play_dialog():
     '''Opens a text dialog to play a custom stream
     '''
-    streamer = add_askstring_row(menu_frame, 'Play a custom stream:')
+    streamer = dialogs.askstring(menu_frame, stream_canvas, 'Play a custom stream:')
     if streamer is None or len(streamer) == 0:
         return
     else:
@@ -400,7 +395,7 @@ def refresh_stream_frame_quiet():
     try:
         streamer_status = conf.extract_streamer_status()
     except Exception as e:
-        error_dialog(e)
+        dialogs.error_message(e)
 
     # Temporarily disable scroll command
     stream_canvas.configure(yscrollcommand=None)
@@ -413,7 +408,7 @@ def refresh_stream_frame_quiet():
     stream_canvas.update_idletasks()  # Flush the event queue
     # Re-enable scroll command
     stream_canvas.configure(yscrollcommand=stream_scrollbar.set)
-    update_meta_canvas()  # Update the canvas region
+    refresh.update_canvas(stream_canvas)  # Update the canvas region
 
     # If a VOD panel is active, refresh it
     if current_vod_panel:
@@ -427,19 +422,12 @@ def refresh_stream_frame():
     try:
         streamer_status = conf.extract_streamer_status()
     except Exception as e:
-        error_dialog(e)
+        dialogs.error_message(e)
 
     for widget in stream_frame.winfo_children():
         widget.destroy()
     stream_buttons()
-    update_meta_canvas()
-
-
-def update_meta_canvas(force_update=False):
-    '''Update the scrollable area after its size changes.'''
-    if force_update or stream_canvas.bbox("all") != stream_canvas.bbox("view"):
-        stream_canvas.update_idletasks()
-        stream_canvas.configure(scrollregion=stream_canvas.bbox("all"))
+    refresh.update_canvas(stream_canvas)
 
 
 def resize_canvas(event, canvas, window):
@@ -487,12 +475,12 @@ def create_meta_frame():
     stream_frame.grid(row=0, column=0, sticky='nsew')
     stream_frame.columnconfigure(1, weight=1)
     
-    global meta_canvas_window
-    meta_canvas_window = stream_canvas.create_window(
+    global stream_canvas_window
+    stream_canvas_window = stream_canvas.create_window(
         (0, 0), window=stream_frame, anchor="nw"
     )
     stream_canvas.bind(
-        "<Configure>", lambda e: resize_canvas(e, stream_canvas, meta_canvas_window)
+        "<Configure>", lambda e: resize_canvas(e, stream_canvas, stream_canvas_window)
     )
     stream_canvas.bind_all("<Button-4>", lambda e: on_mouse_wheel(e, stream_canvas))
     stream_canvas.bind_all("<Button-5>", lambda e: on_mouse_wheel(e, stream_canvas))
@@ -500,13 +488,13 @@ def create_meta_frame():
                                                                          stream_canvas))
     # Draw main content:
     stream_buttons()
-    update_meta_canvas(True)  # Force update the canvas scroll region
+    refresh.update_canvas(stream_canvas, True)  # Force update the canvas scroll region
 
 
 def settings_custom_player():
     '''Opens a dialog to set a custom media player.
     '''
-    new_player = add_askstring_row(settings_frame,
+    new_player = dialogs.askstring(settings_frame, stream_canvas,
                                 'Enter your media player:',
                                 initial_value=conf.check_config()[0]
                                 )
@@ -519,7 +507,7 @@ def settings_custom_player():
 def settings_custom_quality():
     '''Opens a dialog to set a custom stream quality.
     '''
-    new_quality = add_askstring_row(settings_frame,
+    new_quality = dialogs.askstring(settings_frame, stream_canvas,
                                 '\n Options: 1080p60, 720p60, 720p, 480p, \n'
                                 ' 360p, 160p, best, worst, and audio_only \n'
                                 '\n'
@@ -559,9 +547,9 @@ def refresh_settings_window():
     create_settings_frame()
 
 
-def open_settings_window():
+def open_settings_window(root):
     global settings_window
-    settings_window = tk.Toplevel(master=root)
+    settings_window = tk.Toplevel(root)
     settings_window.grid_rowconfigure(0, weight=1)
     settings_window.grid_columnconfigure(0, weight=1)
     settings_window.title('Settings')
@@ -769,83 +757,6 @@ def menu_info_toggle():
     refresh_stream_frame_quiet()
 
 
-def add_askyesno_row(frame, prompt, row):
-    global current_yesno_frame
-    if current_yesno_frame is not None:
-        current_yesno_frame.destroy()
-        current_yesno_frame = None
-
-    def on_yes(event=None):
-        nonlocal response
-        response = True
-        askyesno_frame.destroy()
-
-    def on_no():
-        nonlocal response
-        response = False
-        askyesno_frame.destroy()
-
-    askyesno_frame = assets.default_frame(frame)
-    askyesno_frame.grid(row=row, column=0, columnspan=5)
-    current_yesno_frame = askyesno_frame
-
-    label = assets.default_label(askyesno_frame, text=prompt)
-    label.grid(row=0, column=0, padx=6, sticky='ew', columnspan=2)
-
-    yes_button = assets.default_button(askyesno_frame, text="Yes", command=on_yes)
-    yes_button.grid(row=2, column=0, sticky='ew', pady=6)
-
-    no_button = assets.default_button(askyesno_frame, text="No", command=on_no)
-    no_button.grid(row=2, column=1, sticky='ew')
-    update_meta_canvas()
-    response = None
-    askyesno_frame.wait_window()
-    update_meta_canvas()
-    return response
-
-
-def add_askstring_row(frame, prompt, initial_value=""):
-    global current_query_frame
-    if current_query_frame is not None and current_query_frame.master == frame:
-        current_query_frame.destroy()
-        current_query_frame = None
-
-    def on_submit(event=None):
-        nonlocal response
-        response = entry.get()
-        askstring_frame.destroy()
-
-    def on_cancel():
-        nonlocal response
-        response = None
-        askstring_frame.destroy()
-
-    askstring_frame = assets.default_frame(frame)
-    askstring_frame.grid(row=1, column=0, columnspan=5)
-    current_query_frame = askstring_frame
-    label = assets.default_label(askstring_frame, text=prompt)
-    label.grid(row=0, column=0, padx=6, sticky='ew', columnspan=2)
-    entry = assets.default_entry(askstring_frame)
-    entry.grid(row=1, column=0, padx=6, pady=4, columnspan=2)
-    entry.bind("<Return>", on_submit)
-    entry.insert(0, initial_value)
-    entry.focus_set()
-    cancel_button = assets.default_button(askstring_frame,
-                                    text="Cancel",
-                                    command=on_cancel
-                                    )
-    cancel_button.grid(row=2, column=0, sticky='ew', pady=6)
-    submit_button = assets.default_button(askstring_frame,
-                                    text="Enter",
-                                    command=on_submit
-                                    )
-    submit_button.grid(row=2, column=1, sticky='ew')
-    update_meta_canvas()
-    response = None
-    askstring_frame.wait_window()
-    return response
-
-
 def create_menu_frame():
     global current_quick_toggle_icon
     current_quick_toggle_icon = switch_info_toggle_icon(0)
@@ -874,7 +785,7 @@ def create_menu_frame():
     settings_b = assets.default_button(menu_frame,
                     image=settings_icon,
                     font=assets.font_12,
-                    command=lambda: open_settings_window()
+                    command=lambda: open_settings_window(root)
                     )
     settings_b.grid(row=0, column=3, sticky='nsw', ipadx=18, ipady=6)
     global expand_b
@@ -953,7 +864,7 @@ conf.check_status()
 try:
     streamer_status = conf.extract_streamer_status()
 except Exception as e:
-    error_dialog(e)
+    dialogs.error_message(e)
 # Make sure that colors in the terminal output are activated:
 toggle_settings()
 
@@ -987,9 +898,6 @@ extra_buttons_always_visible.set(conf.get_setting('extra_buttons'))
 
 # Saves the name of the stream, whose VOD panel is currently shown, if present
 current_vod_panel = ''
-
-current_yesno_frame = None
-current_query_frame = None
 
 
 # Set to 'dark', 'light' or 'system':
