@@ -26,7 +26,7 @@ def vod_panel(streamer):
         )
         return
 
-    # Indicate that a vod panel is open, so titles can be expanded/collapsed
+    # Indicate which vod panel is open, so it can be refreshed
     current_vod_panel = streamer
 
     # Stores, which VOD titles are currently expanded:
@@ -767,7 +767,7 @@ def settings_theme_switch(value):
     assets.current_theme = value
     assets.theme = assets.properties[assets.current_theme]
     assets.scrollbar_presets(root)
-    icons.update(get_icons())
+    icons.update(assets.get_icons())
     menu_frame.destroy()
     create_menu_frame()
     stream_meta_frame.destroy()
@@ -861,29 +861,6 @@ def toggle_settings():
         conf.adjust_config('printOfflineSubscriptions', 'true')
 
 
-def get_icons():
-    '''Imports and assigns the icons to a dictionary. Sets the app icon for the window.'''
-    # Import icons
-    icon_files = conf.icon_paths()
-    theme = conf.get_setting('theme')
-    ending = assets.properties.get(theme, {}).get('icon_ending', '')
-    
-    icon_names = [
-        'unfollow_icon', 'vod_icon', 'play_icon', 'close_icon', 'settings_icon',
-        'link_icon', 'expand_icon', 'collapse_icon', 'follow_icon',
-        'play_stream_icon', 'refresh_icon'
-    ]
-    
-    icons = {name: tk.PhotoImage(file=icon_files[f'{name}{ending}']) for name in icon_names}
-    
-    # Special cases without theme suffix
-    icons['streaming_icon'] = tk.PhotoImage(file=icon_files['streaming_icon'])
-    icons['offline_icon'] = tk.PhotoImage(file=icon_files['offline_icon'])
-    icons['app_icon'] = tk.PhotoImage(file=icon_files['app_icon'])
-    
-    return icons
-
-
 # Check the online/offline status once before window initialization:
 conf.check_status()
 try:
@@ -931,7 +908,7 @@ theme_setting.set(conf.get_setting('theme'))
 
 
 assets.scrollbar_presets(root)
-icons = get_icons()
+icons = assets.get_icons()
 
 # Set the app icon for the window
 root.iconphoto(False, icons['app_icon'])

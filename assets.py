@@ -3,6 +3,29 @@ from tkinter import ttk
 import conf
 
 
+def get_icons():
+    '''Imports and assigns the icons to a dictionary. Sets the app icon for the window.'''
+    # Import icons
+    icon_files = conf.icon_paths()
+    theme = conf.get_setting('theme')
+    ending = properties.get(theme, {}).get('icon_ending', '')
+    
+    icon_names = [
+        'unfollow_icon', 'vod_icon', 'play_icon', 'close_icon', 'settings_icon',
+        'link_icon', 'expand_icon', 'collapse_icon', 'follow_icon',
+        'play_stream_icon', 'refresh_icon'
+    ]
+    
+    icons = {name: tk.PhotoImage(file=icon_files[f'{name}{ending}']) for name in icon_names}
+    
+    # Special cases without theme suffix
+    icons['streaming_icon'] = tk.PhotoImage(file=icon_files['streaming_icon'])
+    icons['offline_icon'] = tk.PhotoImage(file=icon_files['offline_icon'])
+    icons['app_icon'] = tk.PhotoImage(file=icon_files['app_icon'])
+    
+    return icons
+
+
 def default_radiobutton(master, *args, **kwargs):
     radio_theme = theme['radiobutton']
     return tk.Radiobutton(
