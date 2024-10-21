@@ -170,6 +170,12 @@ def close_vod_panel():
 
 
 def stream_buttons():
+    '''Draws buttons for online and offline streamers. Online streamers have
+    a watch button, the streamer's name, and their current stream info. Offline
+    streamers have a watch button, the streamer's name, and the time of their
+    last stream. Both have extra buttons for unfollowing, opening the streamer's
+    Twitch page, and showing their VODs.'''
+
     global stream_info_visible, stream_info_content
     global weblink_visible, weblink_content
     global extra_buttons_visible, extra_buttons_content
@@ -255,7 +261,11 @@ def stream_buttons():
                                                     start_row=count_rows+4)
         count_rows += count_rows_increment
 
+
 def stream_extra_buttons(streamer, count_rows):
+    '''Adds three buttons to the right of the streamer button. They allow to
+    unfollow a streamer, open their Twitch page, and show their VODs. If the
+    buttons are already visible, they are removed.'''
     if not extra_buttons_visible[count_rows]:
         extra_buttons_content[count_rows] = {}
 
@@ -298,6 +308,9 @@ def stream_extra_buttons(streamer, count_rows):
             
 
 def stream_online_info(c, streamer, category, title, viewercount):
+    '''Adds a row with stream info below the streamer button, if it doesn't
+    exist yet. Removes it, if it already exists. This allows the streamer
+    button to toggle between both states.'''
     if not stream_info_visible[c]:
         if c not in stream_info_content:
             stream_info_content[c] = assets.default_label(
@@ -323,6 +336,9 @@ def stream_online_info(c, streamer, category, title, viewercount):
 
 
 def stream_offline_info(stream, c):
+    '''Adds a row with stream info below the streamer button, if it doesn't
+    exist yet. Removes it, if it already exists. This allows the streamer
+    button to toggle between both states'''
     if not stream_info_visible[c]:
         last_seen_text = f'Last seen: {conf.last_seen(stream)}'
         if c not in stream_info_content:
@@ -346,6 +362,8 @@ def stream_offline_info(stream, c):
 
 
 def stream_website_dialog(c, streamer):
+    '''Opens a dialog with two buttons to go to the streamer's Twitch page or
+    the webplayer. If the dialog is already open, it closes it.'''
     if not weblink_visible[c]:
         if c not in weblink_content:
             weblink_content[c] = assets.default_frame(stream_frame)
@@ -446,12 +464,14 @@ def refresh_stream_frame():
 
 
 def resize_canvas(event, canvas, window):
+    '''Resizes the canvas window to the canvas size.'''
     if canvas.winfo_exists():
         canvas.itemconfig(window, width=event.width)
         canvas.configure(scrollregion=canvas.bbox("all"))
 
 
 def on_mouse_wheel(event, canvas):
+    '''Scrolls the canvas with the mouse wheel.'''
     if event.num == 4 or event.delta > 0:
         canvas.yview_scroll(-1, "units")
     elif event.num == 5 or event.delta < 0:
@@ -459,6 +479,7 @@ def on_mouse_wheel(event, canvas):
 
 
 def on_mouse_wheel_windows(event, canvas):
+    '''Scrolls the canvas with the mouse wheel on Windows'''
     canvas.yview_scroll(int(-1*(event.delta/120)), "units")
 
 
@@ -537,6 +558,9 @@ def settings_custom_quality():
 
 
 def settings_info_preset(value):
+    '''Sets the info preset to all, online, or no, and changes the show_info
+    setting accordingly. If the preset is different from the current setting,
+    the stream frame is refreshed.'''
     conf.change_settings_file('show_info_preset', value)
     global current_expand_setting
     preset_info_setting = conf.get_setting('show_info_preset')
@@ -548,6 +572,9 @@ def settings_info_preset(value):
 
 
 def settings_extrabuttons_preset(value):
+    '''Sets the extra buttons preset to yes or no, and changes the extra_buttons
+    setting accordingly. If the preset is different from the current setting,
+    the stream frame is refreshed.'''
     if conf.get_setting('extra_buttons') != value:
         conf.change_settings_file('extra_buttons', value)
         global extra_buttons_always_visible
@@ -556,6 +583,7 @@ def settings_extrabuttons_preset(value):
 
 
 def refresh_settings_window():
+    '''Destroys and recreates the settings window.'''
     global settings_window
     for widget in settings_window.winfo_children():
         widget.destroy()
@@ -563,6 +591,7 @@ def refresh_settings_window():
 
 
 def open_settings_window(root):
+    '''Opens the settings window.'''
     global settings_window
     settings_window = tk.Toplevel(root)
     settings_window.grid_rowconfigure(0, weight=1)
@@ -729,6 +758,8 @@ def create_settings_frame():
 
 
 def settings_theme_switch(value):
+    '''Changes the current theme, updates the settings file, and refreshes the
+    main window and settings window'''
     conf.change_settings_file('theme', value)
     global theme_setting
     theme_setting = tk.StringVar()
@@ -746,6 +777,10 @@ def settings_theme_switch(value):
 
 
 def switch_info_toggle_icon(n):
+    '''Switches the info toggle icon in the main menu between expand and
+    collapse, depending on the current setting. If the setting is 'no', the
+    icon is set to expand. If the setting is 'all' or 'online', the icon is
+    set to collapse.'''
     global current_expand_setting
     global current_quick_toggle_icon
     global expand_b
@@ -760,6 +795,8 @@ def switch_info_toggle_icon(n):
 
 
 def menu_info_toggle():
+    '''Toggles the info display for all streamers or online streamers, depending
+    on the current setting. Refreshes the stream frame afterwards.'''
     global current_expand_setting
     if current_expand_setting == 'no':
         conf.change_settings_file('show_info', preset_expand_setting.get())
@@ -770,6 +807,9 @@ def menu_info_toggle():
 
 
 def create_menu_frame():
+    '''Creates the menu frame with four buttons: refresh, follow, play, and
+    settings. The last button toggles the info display for all streamers or
+    online streamers, depending on the current setting.'''
     global current_quick_toggle_icon
     current_quick_toggle_icon = switch_info_toggle_icon(0)
     global menu_frame
@@ -815,6 +855,8 @@ def create_menu_frame():
 
 
 def save_window_size():
+    """Saves the current window size and position in the settings file
+    """
     if conf.is_gnome:
         top_bar_height = 37
     else:
@@ -844,6 +886,8 @@ def toggle_settings():
 
 
 def get_icons():
+    '''Imports and assigns the icons to global variables. Sets the app icon
+    for the window.'''
     global app_icon
     # Import icons
     icon_files = conf.icon_paths()
