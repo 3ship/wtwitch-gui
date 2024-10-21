@@ -776,80 +776,56 @@ def settings_theme_switch(value):
     create_settings_frame()
 
 
-def switch_info_toggle_icon(n):
-    '''Switches the info toggle icon in the main menu between expand and
-    collapse, depending on the current setting. If the setting is 'no', the
-    icon is set to expand. If the setting is 'all' or 'online', the icon is
-    set to collapse.'''
-    global current_expand_setting
-    global current_quick_toggle_icon
-    global expand_b
-    if current_expand_setting == 'no':
-        current_quick_toggle_icon = icons['expand_icon']
-    else:
-        current_quick_toggle_icon = icons['collapse_icon']
-    if n == 1:
-        expand_b.config(image=current_quick_toggle_icon)
-    else:
-        return current_quick_toggle_icon
-
-
 def menu_info_toggle():
     '''Toggles the info display for all streamers or online streamers, depending
     on the current setting. Refreshes the stream frame afterwards.'''
     global current_expand_setting
-    if current_expand_setting == 'no':
-        conf.change_settings_file('show_info', preset_expand_setting.get())
-    else:
-        conf.change_settings_file('show_info', 'no')
-    current_expand_setting = conf.get_setting('show_info')
+    new_setting = 'no' if current_expand_setting != 'no' else \
+        preset_expand_setting.get()
+    conf.change_settings_file('show_info', new_setting)
+    current_expand_setting = new_setting
     refresh_stream_frame_quiet()
+    expand_b.config(
+        image=icons['expand_icon'] if current_expand_setting == 'no' else \
+            icons['collapse_icon']
+    )
 
 
 def create_menu_frame():
     '''Creates the menu frame with four buttons: refresh, follow, play, and
     settings. The last button toggles the info display for all streamers or
     online streamers, depending on the current setting.'''
-    global current_quick_toggle_icon
-    current_quick_toggle_icon = switch_info_toggle_icon(0)
-    global menu_frame
+    global menu_frame, expand_b
     menu_frame = assets.default_frame(root)
     menu_frame.grid(row=0, column=0, sticky='nesw')
     menu_frame.columnconfigure(3, weight=1)
-    refresh_b = assets.default_button(menu_frame,
-                    image=icons['refresh_icon'],
-                    font=assets.font_12_b,
+    refresh_b = assets.default_button(
+        menu_frame, image=icons['refresh_icon'], font=assets.font_12_b,
                     command=lambda: refresh_stream_frame()
                     )
     refresh_b.grid(row=0, column=0, sticky='nsw', ipadx=18, ipady=6)
-    follow_b = assets.default_button(menu_frame,
-                    image=icons['follow_icon'],
-                    font=assets.font_12,
+    follow_b = assets.default_button(
+        menu_frame, image=icons['follow_icon'], font=assets.font_12,
                     command=lambda: menu_follow_dialog()
                     )
     follow_b.grid(row=0, column=1, sticky='nsw', ipadx=18, ipady=6)
-    play_b = assets.default_button(menu_frame,
-                    image=icons['play_stream_icon'],
-                    font=assets.font_12,
+    play_b = assets.default_button(
+        menu_frame, image=icons['play_stream_icon'], font=assets.font_12,
                     command=lambda: menu_play_dialog()
                     )
     play_b.grid(row=0, column=2, sticky='nsw', ipadx=18, ipady=6)
-    settings_b = assets.default_button(menu_frame,
-                    image=icons['settings_icon'],
-                    font=assets.font_12,
+    settings_b = assets.default_button(
+        menu_frame, image=icons['settings_icon'], font=assets.font_12,
                     command=lambda: open_settings_window(root)
                     )
     settings_b.grid(row=0, column=3, sticky='nsw', ipadx=18, ipady=6)
-    global expand_b
-    expand_b = assets.default_button(menu_frame,
-                    image=current_quick_toggle_icon,
-                    font=assets.font_12
+    expand_b = assets.default_button(
+        menu_frame, font=assets.font_12, command=menu_info_toggle
                     )
     expand_b.grid(row=0, column=4, sticky='nsw', ipadx=4)
-    expand_b.configure(command=lambda: [
-                                        menu_info_toggle(),
-                                        switch_info_toggle_icon(1)
-                                        ]
+    expand_b.config(
+        image=icons['expand_icon'] if current_expand_setting == 'no' else \
+            icons['collapse_icon']
                         )
     sep = assets.default_separator(menu_frame, start_row=5)
 
