@@ -42,7 +42,7 @@ def askyesno(frame, canvas, prompt, row):
     return response
 
 
-def askstring(frame, canvas, prompt, initial_value=""):
+def askstring(frame, canvas, prompt, initial_value="", row=1):
     global current_query_frame
     if current_query_frame is not None and current_query_frame.master == frame:
         current_query_frame.destroy()
@@ -59,7 +59,7 @@ def askstring(frame, canvas, prompt, initial_value=""):
         askstring_frame.destroy()
 
     askstring_frame = assets.default_frame(frame)
-    askstring_frame.grid(row=1, column=0, columnspan=5)
+    askstring_frame.grid(row=row, column=0, columnspan=5)
     current_query_frame = askstring_frame
     label = assets.default_label(askstring_frame, text=prompt)
     label.grid(row=0, column=0, padx=6, sticky='ew', columnspan=2)
