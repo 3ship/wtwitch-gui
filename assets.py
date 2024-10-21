@@ -19,15 +19,15 @@ def default_radiobutton(master, *args, **kwargs):
     )
 
 
-def default_separator(master, span=5, **kwargs):
+def default_separator(master, start_row=0, span=5, **kwargs):
     sep1 = tk.Frame(master, bg=theme['separator_bg1'],
                     height=1, borderwidth=1, relief="flat")
     sep2 = tk.Frame(master, bg=theme['separator_bg2'],
                     height=1, borderwidth=1, relief="flat")
-    
-    sep1.grid(row=0, column=0, sticky='ew', columnspan=span)
-    sep2.grid(row=1, column=0, sticky='ew', columnspan=span)
-    
+
+    sep1.grid(row=start_row, column=0, sticky='ew', columnspan=span)
+    sep2.grid(row=start_row + 1, column=0, sticky='ew', columnspan=span)
+
     return sep1, sep2
 
 

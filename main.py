@@ -39,9 +39,7 @@ def vod_panel(streamer):
         header_frame, image=close_icon, command=lambda: close_vod_panel()
     ).grid(column=0, row=0, sticky='nw', ipady=12, ipadx=12)
     assets.default_label(header_frame, text=f"{streamer}'s VODs").grid(column=1, row=0)
-    separator = assets.default_separator(header_frame)
-    separator[0].grid(row=1, columnspan=2)
-    separator[1].grid(row=2, columnspan=2)
+    separator = assets.default_separator(header_frame, start_row=1)
 
     met_frame = assets.default_frame(vw_frame)
     met_frame.grid(column=0, row=1, sticky='nsew')
@@ -90,9 +88,8 @@ def vod_panel(streamer):
 
         # Don't add a separator after the last item
         if vod_number != len(vods[0]):
-            separator = assets.default_separator(vod_frame)
-            separator[0].grid(row=count_vod_rows + 2)
-            separator[1].grid(row=count_vod_rows + 3)
+            separator = assets.default_separator(vod_frame,
+                                                start_row=count_vod_rows+2)
 
         vod_number += 1
         count_vod_rows += count_vod_rows_increment
@@ -201,9 +198,8 @@ def stream_buttons():
             else:
                 info_button.grid_configure(columnspan=4)
 
-        separator = assets.default_separator(stream_frame)
-        separator[0].grid(row=count_rows + 4)
-        separator[1].grid(row=count_rows + 5)
+        separator = assets.default_separator(stream_frame,
+                                            start_row=count_rows+4)
         count_rows += count_rows_increment
 
     for stream in offline_streamers:
@@ -237,9 +233,8 @@ def stream_buttons():
         total_streamers = len(online_streamers) + len(offline_streamers)
         total_items = total_streamers * count_rows_increment
         if count_rows != total_items - count_rows_increment:
-            separator = assets.default_separator(stream_frame)
-            separator[0].grid(row=count_rows + 4)
-            separator[1].grid(row=count_rows + 5)
+            separator = assets.default_separator(stream_frame,
+                                                    start_row=count_rows+4)
         count_rows += count_rows_increment
 
 def stream_extra_buttons(streamer, count_rows):
@@ -646,9 +641,7 @@ def create_settings_frame():
     pick_custom_quality.grid(row=4, column=0, sticky='nesw')
 
     # Separator
-    separator1 = assets.default_separator(settings_frame)
-    separator1[0].grid(row=2, columnspan=2)
-    separator1[1].grid(row=3, columnspan=2)
+    separator1 = assets.default_separator(settings_frame, start_row=2)
 
     # Info settings frame
     info_frame = assets.default_frame(settings_frame)
@@ -688,9 +681,7 @@ def create_settings_frame():
     )
     show_extra_no.grid(row=2, column=0, sticky='nesw')
 
-    separator2 = assets.default_separator(settings_frame)
-    separator2[0].grid(row=5, columnspan=2)
-    separator2[1].grid(row=6, columnspan=2)
+    separator2 = assets.default_separator(settings_frame, start_row=5)
 
     # Theme settings frame
     theme_frame = assets.default_frame(settings_frame)
@@ -800,9 +791,7 @@ def create_menu_frame():
                                         switch_info_toggle_icon(1)
                                         ]
                         )
-    sep = assets.default_separator(menu_frame)
-    sep[0].grid(row=5)
-    sep[1].grid(row=6)
+    sep = assets.default_separator(menu_frame, start_row=5)
 
 
 def save_window_size():
