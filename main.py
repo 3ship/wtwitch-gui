@@ -150,7 +150,7 @@ def close_vod_panel():
     global vod_meta_frame, vod_canvas, current_vod_panel
     try:
         if vod_meta_frame.winfo_exists():
-            vod_meta_frame.grid_forget()
+            vod_meta_frame.destroy()
         vod_canvas.unbind_all("<Configure>")
         vod_canvas.unbind_all("<Button-4>")
         vod_canvas.unbind_all("<Button-5>")
