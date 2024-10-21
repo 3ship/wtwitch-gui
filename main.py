@@ -360,6 +360,8 @@ def stream_unfollow_dialog(streamer, row):
     if answer:
         conf.unfollow_streamer(streamer)
         refresh_stream_frame_quiet()
+    else:
+        refresh.update_canvas(stream_canvas)
 
 
 def menu_follow_dialog():

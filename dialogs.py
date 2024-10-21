@@ -38,7 +38,6 @@ def askyesno(frame, canvas, prompt, row):
     refresh.update_canvas(canvas)
     response = None
     askyesno_frame.wait_window()
-    refresh.update_canvas(canvas)
     return response
 
 
