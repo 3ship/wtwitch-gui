@@ -44,7 +44,7 @@ def vod_panel(streamer):
     header_frame.grid(column=0, row=0, sticky='nsew')
     header_frame.columnconfigure(1, weight=1)
     assets.default_button(
-        header_frame, image=close_icon, command=lambda: close_vod_panel()
+        header_frame, image=icons['close_icon'], command=lambda: close_vod_panel()
     ).grid(column=0, row=0, sticky='nw', ipady=12, ipadx=12)
     assets.default_label(header_frame, text=f"{streamer}'s VODs").grid(column=1, row=0)
     separator = assets.default_separator(header_frame, start_row=1)
@@ -80,7 +80,7 @@ def vod_panel(streamer):
         
         # Watch button to open VOD in media player:
         watch_button = assets.default_button(
-            vod_frame, image=play_icon, 
+            vod_frame, image=icons['play_icon'], 
             command=lambda s=streamer, v=vod_number: [conf.start_vod(s, v)]
         )
         watch_button.grid(column=0, row=count_vod_rows, sticky='nesw', 
@@ -195,7 +195,7 @@ def stream_buttons():
 
     for package in online_streamers:
         watch_button = assets.default_button(
-            stream_frame, image=streaming_icon,
+            stream_frame, image=icons['streaming_icon'],
             command=lambda s=package[0]: [conf.start_stream(s)]
         )
         watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=6, ipady=8)
@@ -227,7 +227,7 @@ def stream_buttons():
         count_rows += count_rows_increment
 
     for stream in offline_streamers:
-        watch_button = assets.default_label(stream_frame, image=offline_icon)
+        watch_button = assets.default_label(stream_frame, image=icons['offline_icon'])
         watch_button.grid(column=0, row=count_rows, sticky='nsew', ipadx=6, ipady=6)
         stream_info_visible[count_rows] = False
         weblink_visible[count_rows] = False
@@ -270,7 +270,7 @@ def stream_extra_buttons(streamer, count_rows):
         extra_buttons_content[count_rows] = {}
 
         extra_buttons_content[count_rows]['unfollow'] = assets.default_button(
-            stream_frame, image=unfollow_icon,
+            stream_frame, image=icons['unfollow_icon'],
             command=lambda s=streamer, c=count_rows+3: [stream_unfollow_dialog(s, c)]
         )
         extra_buttons_content[count_rows]['unfollow'].grid(column=2,
@@ -279,7 +279,7 @@ def stream_extra_buttons(streamer, count_rows):
                                                         ipadx=4)
 
         extra_buttons_content[count_rows]['web'] = assets.default_button(
-            stream_frame, image=link_icon,
+            stream_frame, image=icons['link_icon'],
             command=lambda s=streamer, c=count_rows: stream_website_dialog(c, s)
         )
         extra_buttons_content[count_rows]['web'].grid(column=3,
@@ -288,7 +288,7 @@ def stream_extra_buttons(streamer, count_rows):
                                                         ipadx=4)
 
         extra_buttons_content[count_rows]['vods'] = assets.default_button(
-            stream_frame, image=vod_icon,
+            stream_frame, image=icons['vod_icon'],
             command=lambda s=streamer: vod_panel(s)
         )
         extra_buttons_content[count_rows]['vods'].grid(column=4,
@@ -767,7 +767,7 @@ def settings_theme_switch(value):
     assets.current_theme = value
     assets.theme = assets.properties[assets.current_theme]
     assets.scrollbar_presets(root)
-    get_icons()
+    icons.update(get_icons())
     menu_frame.destroy()
     create_menu_frame()
     stream_meta_frame.destroy()
@@ -785,9 +785,9 @@ def switch_info_toggle_icon(n):
     global current_quick_toggle_icon
     global expand_b
     if current_expand_setting == 'no':
-        current_quick_toggle_icon = expand_icon
+        current_quick_toggle_icon = icons['expand_icon']
     else:
-        current_quick_toggle_icon = collapse_icon
+        current_quick_toggle_icon = icons['collapse_icon']
     if n == 1:
         expand_b.config(image=current_quick_toggle_icon)
     else:
@@ -817,25 +817,25 @@ def create_menu_frame():
     menu_frame.grid(row=0, column=0, sticky='nesw')
     menu_frame.columnconfigure(3, weight=1)
     refresh_b = assets.default_button(menu_frame,
-                    image=refresh_icon,
+                    image=icons['refresh_icon'],
                     font=assets.font_12_b,
                     command=lambda: refresh_stream_frame()
                     )
     refresh_b.grid(row=0, column=0, sticky='nsw', ipadx=18, ipady=6)
     follow_b = assets.default_button(menu_frame,
-                    image=follow_icon,
+                    image=icons['follow_icon'],
                     font=assets.font_12,
                     command=lambda: menu_follow_dialog()
                     )
     follow_b.grid(row=0, column=1, sticky='nsw', ipadx=18, ipady=6)
     play_b = assets.default_button(menu_frame,
-                    image=play_stream_icon,
+                    image=icons['play_stream_icon'],
                     font=assets.font_12,
                     command=lambda: menu_play_dialog()
                     )
     play_b.grid(row=0, column=2, sticky='nsw', ipadx=18, ipady=6)
     settings_b = assets.default_button(menu_frame,
-                    image=settings_icon,
+                    image=icons['settings_icon'],
                     font=assets.font_12,
                     command=lambda: open_settings_window(root)
                     )
@@ -886,9 +886,7 @@ def toggle_settings():
 
 
 def get_icons():
-    '''Imports and assigns the icons to global variables. Sets the app icon
-    for the window.'''
-    global app_icon
+    '''Imports and assigns the icons to a dictionary. Sets the app icon for the window.'''
     # Import icons
     icon_files = conf.icon_paths()
     theme = conf.get_setting('theme')
@@ -907,10 +905,7 @@ def get_icons():
     icons['offline_icon'] = tk.PhotoImage(file=icon_files['offline_icon'])
     icons['app_icon'] = tk.PhotoImage(file=icon_files['app_icon'])
     
-    # Assign to globals
-    globals().update(icons)
-    
-    root.iconphoto(False, icons['app_icon'])
+    return icons
 
 
 # Check the online/offline status once before window initialization:
@@ -960,7 +955,10 @@ theme_setting.set(conf.get_setting('theme'))
 
 
 assets.scrollbar_presets(root)
-get_icons()
+icons = get_icons()
+
+# Set the app icon for the window
+root.iconphoto(False, icons['app_icon'])
 
 create_menu_frame()
 create_meta_frame()
