@@ -74,7 +74,7 @@ def vod_panel(streamer):
         watch_button.grid(column=0, row=count_vod_rows, sticky='nesw', 
                           ipadx=12, ipady=6)
 
-        if current_expand_setting == 'all' or current_expand_setting == 'online':
+        if current_expand_setting in ['all', 'online']:
             timestamp_button = assets.default_button(
                 vod_frame, text=f"{timestamp} {length}", anchor='w', 
                 state='disabled', font=assets.font_10
@@ -744,11 +744,12 @@ def switch_info_toggle_icon(n):
         current_quick_toggle_icon = collapse_icon
     if n == 1:
         expand_b.config(image=current_quick_toggle_icon)
-    return current_quick_toggle_icon
+    else:
+        return current_quick_toggle_icon
 
 
 def menu_info_toggle():
-    global current_expand_setting, current_vod_panel
+    global current_expand_setting
     if current_expand_setting == 'no':
         conf.change_settings_file('show_info', preset_expand_setting.get())
     else:
