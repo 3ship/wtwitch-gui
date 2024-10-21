@@ -139,10 +139,9 @@ def vod_title(parent, c, title):
 
 
 def refresh_vod_panel(streamer):
-    ''' Called by refrefresh_stream_frame_quiet() when the info toggle in the
+    ''' Called by refrefresh_stream_frame_quiet when the info toggle in the
     main menu is (de)activated'''
-    for widget in vod_meta_frame.winfo_children():
-        widget.destroy()
+    vod_meta_frame.destroy()
     vod_panel(streamer)
 
 
@@ -151,8 +150,7 @@ def close_vod_panel():
     global vod_meta_frame, vod_canvas, current_vod_panel
     try:
         if vod_meta_frame.winfo_exists():
-            vod_meta_frame.forget()
-            vod_meta_frame.destroy()
+            vod_meta_frame.grid_forget()
         vod_canvas.unbind_all("<Configure>")
         vod_canvas.unbind_all("<Button-4>")
         vod_canvas.unbind_all("<Button-5>")
@@ -165,11 +163,11 @@ def close_vod_panel():
     # Currently necessary, because the info toggle makes the stream panel
     # disappear:
     stream_meta_frame.destroy()
-    create_meta_frame()
+    create_stream_meta_frame()
     refresh.update_canvas(stream_canvas)
 
 
-def stream_buttons():
+def stream_frame_content():
     '''Draws buttons for online and offline streamers. Online streamers have
     a watch button, the streamer's name, and their current stream info. Offline
     streamers have a watch button, the streamer's name, and the time of their
@@ -430,22 +428,12 @@ def refresh_stream_frame_quiet():
     except Exception as e:
         dialogs.error_message(e)
 
-    # Temporarily disable scroll command
-    stream_canvas.configure(yscrollcommand=None)
-
     # Clear and repopulate main_frame
     for widget in stream_frame.winfo_children():
         widget.destroy()
-    stream_buttons()  # Re-populate the main_frame
-
-    stream_canvas.update_idletasks()  # Flush the event queue
-    # Re-enable scroll command
-    stream_canvas.configure(yscrollcommand=stream_scrollbar.set)
-    refresh.update_canvas(stream_canvas)  # Update the canvas region
-
-    # If a VOD panel is active, refresh it
-    if current_vod_panel:
-        refresh_vod_panel(current_vod_panel)
+    stream_frame_content()  # Re-populate the main_frame
+    
+    refresh.update_canvas(stream_canvas)
 
 
 def refresh_stream_frame():
@@ -459,7 +447,7 @@ def refresh_stream_frame():
 
     for widget in stream_frame.winfo_children():
         widget.destroy()
-    stream_buttons()
+    stream_frame_content()
     refresh.update_canvas(stream_canvas)
 
 
@@ -483,7 +471,7 @@ def on_mouse_wheel_windows(event, canvas):
     canvas.yview_scroll(int(-1*(event.delta/120)), "units")
 
 
-def create_meta_frame():
+def create_stream_meta_frame():
     '''The main window. Calls streamer_buttons() twice, to draw buttons for 
     online and offline streamers.'''
     
@@ -523,7 +511,7 @@ def create_meta_frame():
     stream_canvas.bind_all("<MouseWheel>", lambda e: on_mouse_wheel_windows(e, 
                                                                          stream_canvas))
     # Draw main content:
-    stream_buttons()
+    stream_frame_content()
     refresh.update_canvas(stream_canvas, True)  # Force update the canvas scroll region
 
 
@@ -771,20 +759,23 @@ def settings_theme_switch(value):
     menu_frame.destroy()
     create_menu_frame()
     stream_meta_frame.destroy()
-    create_meta_frame()
+    create_stream_meta_frame()
     settings_frame.destroy()
     create_settings_frame()
 
 
 def menu_info_toggle():
     '''Toggles the info display for all streamers or online streamers, depending
-    on the current setting. Refreshes the stream frame afterwards.'''
+    on the current setting. Refreshes the relevant panel afterwards.'''
     global current_expand_setting
     new_setting = 'no' if current_expand_setting != 'no' else \
         preset_expand_setting.get()
     conf.change_settings_file('show_info', new_setting)
     current_expand_setting = new_setting
-    refresh_stream_frame_quiet()
+    if current_vod_panel:
+        refresh_vod_panel(current_vod_panel)
+    else:
+        refresh_stream_frame_quiet()
     expand_b.config(
         image=icons['expand_icon'] if current_expand_setting == 'no' else \
             icons['collapse_icon']
@@ -914,5 +905,5 @@ icons = assets.get_icons()
 root.iconphoto(False, icons['app_icon'])
 
 create_menu_frame()
-create_meta_frame()
+create_stream_meta_frame()
 root.mainloop()
