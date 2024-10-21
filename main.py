@@ -13,9 +13,11 @@ import refresh
 
 def vod_panel(streamer):
     '''Draw 2 columns for the watch buttons and timestamps/stream length of 
-    the last 20 VODs.'''
-    global current_vod_panel, vod_info_status, vod_info_content, vw_frame
-    current_vod_panel = streamer
+    the last 20 VODs. Clicking the timestamps or expand button shows title of
+    the VOD(s).'''
+    global current_vod_panel, vod_title_status, vod_title_content, vod_meta_frame
+
+
     vods = conf.fetch_vods(streamer)
 
     if len(vods[0]) == 0:
@@ -24,15 +26,21 @@ def vod_panel(streamer):
         )
         return
 
-    vod_info_status = {}
-    vod_info_content = {}
+    # Indicate that a vod panel is open, so titles can be expanded/collapsed
+    current_vod_panel = streamer
 
-    vw_frame = assets.default_frame(root)
-    vw_frame.grid(column=0, row=1, sticky='nsew')
-    vw_frame.columnconfigure(0, weight=1)
-    vw_frame.rowconfigure(1, weight=1)
+    # Stores, which VOD titles are currently expanded:
+    vod_title_status = {}
+    # Stores the VOD titles:
+    vod_title_content = {}
 
-    header_frame = assets.default_frame(vw_frame)
+    vod_meta_frame = assets.default_frame(root)
+    vod_meta_frame.grid(column=0, row=1, sticky='nsew')
+    vod_meta_frame.columnconfigure(0, weight=1)
+    vod_meta_frame.rowconfigure(1, weight=1)
+
+    # Header with close button and label
+    header_frame = assets.default_frame(vod_meta_frame)
     header_frame.grid(column=0, row=0, sticky='nsew')
     header_frame.columnconfigure(1, weight=1)
     assets.default_button(
@@ -41,47 +49,55 @@ def vod_panel(streamer):
     assets.default_label(header_frame, text=f"{streamer}'s VODs").grid(column=1, row=0)
     separator = assets.default_separator(header_frame, start_row=1)
 
-    met_frame = assets.default_frame(vw_frame)
-    met_frame.grid(column=0, row=1, sticky='nsew')
-    met_frame.columnconfigure(0, weight=1)
-    met_frame.rowconfigure(0, weight=1)
+    vod_scrollbar_frame = assets.default_frame(vod_meta_frame)
+    vod_scrollbar_frame.grid(column=0, row=1, sticky='nsew')
+    vod_scrollbar_frame.columnconfigure(0, weight=1)
+    vod_scrollbar_frame.rowconfigure(0, weight=1)
 
-    global vw_canvas
-    vw_canvas = assets.default_canvas(met_frame)
-    vw_scrollbar = ttk.Scrollbar(
-        met_frame, orient="vertical", command=vw_canvas.yview
+    global vod_canvas
+    vod_canvas = assets.default_canvas(vod_scrollbar_frame)
+    vod_scrollbar = ttk.Scrollbar(
+        vod_scrollbar_frame, orient="vertical", command=vod_canvas.yview
     )
-    vw_canvas.grid(row=0, column=0, sticky="nsew")
-    vw_scrollbar.grid(row=0, column=1, sticky="ns")
-    vw_canvas.configure(yscrollcommand=vw_scrollbar.set)
+    vod_canvas.grid(row=0, column=0, sticky="nsew")
+    vod_scrollbar.grid(row=0, column=1, sticky="ns")
+    vod_canvas.configure(yscrollcommand=vod_scrollbar.set)
 
     global vod_frame
-    vod_frame = assets.default_frame(met_frame)
+    vod_frame = assets.default_frame(vod_scrollbar_frame)
     vod_frame.grid(column=0, row=0, sticky='nsew')
     vod_frame.columnconfigure(1, weight=1)
 
+    # Pass vod number to conf.start_vod()
     vod_number = 1
-    count_vod_rows = 3
+    # Start at 0, increment by 4 (button row, title, two rows for separator)
+    count_vod_rows = 0
     count_vod_rows_increment = 4
+
     for timestamp, title, length in zip(vods[0], vods[1], vods[2]):
-        vod_info_status[count_vod_rows] = False
+        # Individual VOD titles are collapsed by default:
+        vod_title_status[count_vod_rows] = False
+        
+        # Watch button to open VOD in media player:
         watch_button = assets.default_button(
             vod_frame, image=play_icon, 
             command=lambda s=streamer, v=vod_number: [conf.start_vod(s, v)]
         )
         watch_button.grid(column=0, row=count_vod_rows, sticky='nesw', 
                           ipadx=12, ipady=6)
-
+        
+        # Expand all titles, if the button in the main menu has been toggled:
         if current_expand_setting in ['all', 'online']:
             timestamp_button = assets.default_button(
                 vod_frame, text=f"{timestamp} {length}", anchor='w', 
                 state='disabled', font=assets.font_10
             )
-            vod_info(count_vod_rows, title)
+            vod_title(vod_frame, count_vod_rows, title)
+        # Otherwise collapse all and make them accessible through the timestamp:
         else:
             timestamp_button = assets.default_button(
                 vod_frame, text=f"{timestamp} {length}", 
-                command=lambda c=count_vod_rows, t=title: vod_info(c, t), 
+                command=lambda v=vod_frame, c=count_vod_rows, t=title: vod_title(v, c, t), 
                 font=assets.font_10, anchor='w'
             )
         timestamp_button.grid(column=1, row=count_vod_rows, sticky='nesw')
@@ -94,62 +110,64 @@ def vod_panel(streamer):
         vod_number += 1
         count_vod_rows += count_vod_rows_increment
 
-    global vw_canvas_window
-    vw_canvas_window = vw_canvas.create_window(
-        (0, 0), window=vod_frame, anchor="nw"
-    )
-    vw_canvas.bind("<Configure>", lambda e: resize_canvas(e, vw_canvas, 
-                                                         vw_canvas_window))
-    vw_canvas.bind_all("<Button-4>", lambda e: on_mouse_wheel(e, vw_canvas))
-    vw_canvas.bind_all("<Button-5>", lambda e: on_mouse_wheel(e, vw_canvas))
-    vw_canvas.bind_all("<MouseWheel>", lambda e: on_mouse_wheel_windows(e, 
-                                                                        vw_canvas))
+    vod_canvas_window = vod_canvas.create_window((0, 0), window=vod_frame, anchor="nw")
+    # Observe window resizes to stretch the content inside:
+    vod_canvas.bind("<Configure>", lambda e: resize_canvas(e, vod_canvas, 
+                                                         vod_canvas_window))
+    # Bind mousewheel to VOD canvas:
+    vod_canvas.bind_all("<Button-4>", lambda e: on_mouse_wheel(e, vod_canvas))
+    vod_canvas.bind_all("<Button-5>", lambda e: on_mouse_wheel(e, vod_canvas))
+    vod_canvas.bind_all("<MouseWheel>", lambda e: on_mouse_wheel_windows(e, 
+                                                                        vod_canvas))
 
 
-def vod_info(c, title):
-    if not vod_info_status[c]:
-        if c not in vod_info_content:
-            vod_info_content[c] = assets.default_label(vod_frame,
-                                                text=f'{title}',
-                                                justify='left',
-                                                anchor='w')
-            vod_info_content[c].grid(row=c+1,
-                                     column=0,
-                                     columnspan=3,
-                                     sticky='w',
-                                     padx=10)
-        else:
-            vod_info_content[c].config(text=f'{title}')
-            vod_info_content[c].grid()
-        vod_info_status[c] = True
+def vod_title(parent, c, title):
+    '''Adds a row with the VOD title below the timestamp button, if it doesn't
+    exist yet. Removes it, if it already exists. This allows the timestamp
+    button to toggle between both states.'''
+    if not vod_title_status[c]:
+        vod_title_content[c] = assets.default_label(parent,
+                                            text=f'{title}',
+                                            justify='left',
+                                            anchor='w')
+        vod_title_content[c].grid(row=c+1, column=0, columnspan=3, sticky='w',
+                                    padx=10)
+        vod_title_status[c] = True
     else:
-        vod_info_content[c].grid_remove()
-        vod_info_status[c] = False
+        vod_title_content[c].grid_remove()
+        vod_title_status[c] = False
 
 
 def refresh_vod_panel(streamer):
-    for widget in vw_frame.winfo_children():
+    ''' Called by refrefresh_stream_frame_quiet() when the info toggle in the
+    main menu is (de)activated'''
+    for widget in vod_meta_frame.winfo_children():
         widget.destroy()
     vod_panel(streamer)
 
 
 def close_vod_panel():
-    global vw_frame, vw_canvas, current_vod_panel
+    '''We need to make sure, the stream panel gets its scroll function back'''
+    global vod_meta_frame, vod_canvas, current_vod_panel
     try:
-        if vw_frame.winfo_exists():
-            vw_frame.forget()
-            vw_frame.destroy()
-        vw_canvas.unbind_all("<Configure>")
-        vw_canvas.unbind_all("<Button-4>")
-        vw_canvas.unbind_all("<Button-5>")
-        vw_canvas.unbind_all("<MouseWheel>")
+        if vod_meta_frame.winfo_exists():
+            vod_meta_frame.forget()
+            vod_meta_frame.destroy()
+        vod_canvas.unbind_all("<Configure>")
+        vod_canvas.unbind_all("<Button-4>")
+        vod_canvas.unbind_all("<Button-5>")
+        vod_canvas.unbind_all("<MouseWheel>")
     except Exception as e:
         print("Error while closing VOD panel:", e)
     
     current_vod_panel = None  # Reset current_vod_panel
-    stream_canvas.destroy()
+
+    # Currently necessary, because the info toggle makes the stream panel
+    # disappear:
+    stream_meta_frame.destroy()
     create_meta_frame()
     refresh.update_canvas(stream_canvas)
+
 
 def stream_buttons():
     global stream_info_visible, stream_info_content
@@ -889,7 +907,7 @@ extra_buttons_always_visible = tk.StringVar()
 extra_buttons_always_visible.set(conf.get_setting('extra_buttons'))
 
 # Saves the name of the stream, whose VOD panel is currently shown, if present
-current_vod_panel = ''
+current_vod_panel = None
 
 
 # Set to 'dark', 'light' or 'system':
