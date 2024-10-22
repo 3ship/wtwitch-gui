@@ -28,25 +28,38 @@ def get_icons():
 
 def default_radiobutton(master, *args, **kwargs):
     radio_theme = theme['radiobutton']
-    return tk.Radiobutton(
-        master,
-        bg=theme['bg'],
-        fg=theme['fg'],
-        activeforeground=theme['fg'],
-        activebackground=theme['activebackground'],
-        selectcolor=radio_theme['selectcolor'],
-        disabledforeground=theme['fg'],
-        anchor='w',
+    widget_kwargs = {
+        'bg': theme['bg'],
+        'fg': theme['fg'],
+        'activeforeground': theme['fg'],
+        'activebackground': theme['activebackground'],
+        'selectcolor': radio_theme['selectcolor'],
+        'disabledforeground': theme['fg'],
+        'anchor': 'w',
         **base_widget_attributes,
         **kwargs
-    )
+    }
+    return tk.Radiobutton(master, **widget_kwargs)
 
 
 def default_separator(master, start_row=0, span=5, **kwargs):
-    sep1 = tk.Frame(master, bg=theme['separator_bg1'],
-                    height=1, borderwidth=1, relief="flat")
-    sep2 = tk.Frame(master, bg=theme['separator_bg2'],
-                    height=1, borderwidth=1, relief="flat")
+    sep1_kwargs = {
+        'bg': theme['separator_bg1'],
+        'height': 1,
+        'borderwidth': 1,
+        'relief': "flat",
+        **kwargs
+    }
+    sep2_kwargs = {
+        'bg': theme['separator_bg2'],
+        'height': 1,
+        'borderwidth': 1,
+        'relief': "flat",
+        **kwargs
+    }
+
+    sep1 = tk.Frame(master, **sep1_kwargs)
+    sep2 = tk.Frame(master, **sep2_kwargs)
 
     sep1.grid(row=start_row, column=0, sticky='ew', columnspan=span)
     sep2.grid(row=start_row + 1, column=0, sticky='ew', columnspan=span)
@@ -55,47 +68,58 @@ def default_separator(master, start_row=0, span=5, **kwargs):
 
 
 def default_canvas(master, **kwargs):
-    return tk.Canvas(master, bg=theme['bg'],
-                    **base_widget_attributes, **kwargs)
+    widget_kwargs = {
+        'bg': theme['bg'],
+        **base_widget_attributes,
+        **kwargs
+    }
+    return tk.Canvas(master, **widget_kwargs)
 
 
 def default_frame(master, **kwargs):
-    return tk.Frame(master, bg=theme['bg'],
-                    **base_widget_attributes, **kwargs)
+    widget_kwargs = {
+        'bg': theme['bg'],
+        **base_widget_attributes,
+        **kwargs
+    }
+    return tk.Frame(master, **widget_kwargs)
 
 
 def default_label(master, *args, **kwargs):
-    # Accepts 'offline' as a custom argument to mute the text color
     fg_color = theme['offline_fg'] if 'offline' in args else theme['fg']
-    return tk.Label(master, bg=theme['bg'], fg=fg_color,
-                    **base_widget_attributes, **kwargs)
+    widget_kwargs = {
+        'bg': theme['bg'],
+        'fg': fg_color,
+        **base_widget_attributes,
+        **kwargs
+    }
+    return tk.Label(master, **widget_kwargs)
 
 
 def default_button(master, *args, **kwargs):
-    # Accepts 'offline' as a custom argument to mute the text color
     fg_color = theme['offline_fg'] if 'offline' in args else theme['fg']
-    return tk.Button(
-        master,
-        bg=theme['bg'],
-        fg=fg_color,
-        activebackground=theme['activebackground'],
-        activeforeground=theme['fg'],
-        disabledforeground=fg_color,
+    widget_kwargs = {
+        'bg': theme['bg'],
+        'fg': fg_color,
+        'activebackground': theme['activebackground'],
+        'activeforeground': theme['fg'],
+        'disabledforeground': fg_color,
         **base_widget_attributes,
         **kwargs
-    )
+    }
+    return tk.Button(master, **widget_kwargs)
 
 
 def default_entry(master, *args, **kwargs):
     entry_theme = theme['entry']
-    return tk.Entry(
-        master,
-        bg=entry_theme['bg'],
-        fg=entry_theme['fg'],
-        insertbackground=entry_theme['cursor_color'],
+    widget_kwargs = {
+        'bg': entry_theme['bg'],
+        'fg': entry_theme['fg'],
+        'insertbackground': entry_theme['cursor_color'],
         **base_widget_attributes,
         **kwargs
-    )
+    }
+    return tk.Entry(master, **widget_kwargs)
 
 
 def scrollbar_presets(master):
