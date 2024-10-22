@@ -393,7 +393,7 @@ properties = {
         'radiobutton': {
             'selectcolor': '#3A214F'
         },
-        'icon_ending': '_yellow'
+        'icon_ending': '_magenta'
     },
     'midnight': {
         'bg': '#121212',
