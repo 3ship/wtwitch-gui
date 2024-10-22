@@ -794,7 +794,7 @@ def create_menu_frame():
         menu_frame, image=icons['refresh_icon'], font=assets.font_12_b,
                     command=lambda: refresh_stream_frame()
                     )
-    refresh_b.grid(row=0, column=0, sticky='nsw', ipadx=18, ipady=6)
+    refresh_b.grid(row=0, column=0, sticky='nsw', ipadx=16)
     follow_b = assets.default_button(
         menu_frame, image=icons['follow_icon'], font=assets.font_12,
                     command=lambda: menu_follow_dialog()
@@ -813,7 +813,7 @@ def create_menu_frame():
     expand_b = assets.default_button(
         menu_frame, font=assets.font_12, command=menu_info_toggle
                     )
-    expand_b.grid(row=0, column=4, sticky='nsw', ipadx=4)
+    expand_b.grid(row=0, column=4, sticky='nsw', ipadx=6)
     expand_b.config(
         image=icons['expand_icon'] if current_expand_setting == 'no' else \
             icons['collapse_icon']
