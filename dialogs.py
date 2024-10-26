@@ -30,7 +30,8 @@ def askyesno(frame, canvas, prompt, row):
     label = assets.default_label(askyesno_frame, text=prompt)
     label.grid(row=0, column=0, padx=6, sticky='ew', columnspan=2)
 
-    yes_button = assets.default_button(askyesno_frame, text="Yes", command=on_yes)
+    yes_button = assets.default_button(askyesno_frame, text="Yes", command=on_yes,
+                                    fg='#CA3E3E', activeforeground='#CA3E3E')
     yes_button.grid(row=2, column=0, sticky='ew', pady=6)
 
     no_button = assets.default_button(askyesno_frame, text="No", command=on_no)
