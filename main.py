@@ -532,11 +532,11 @@ def settings_custom_quality():
     '''Opens a dialog to set a custom stream quality.
     '''
     new_quality = dialogs.askstring(settings_frame, stream_canvas,
-                                '\n Options: 1080p60, 720p60, 720p, 480p, \n'
-                                ' 360p, 160p, best, worst, and audio_only \n'
+                                'Options: 1080p60, 720p60, 720p, 480p,\n'
+                                '360p, 160p, best, worst, and audio_only\n'
                                 '\n'
-                                ' Specify fallbacks separated by a comma: \n'
-                                ' E.g. "720p,480p,worst" \n',
+                                'Specify fallbacks separated by a comma:\n'
+                                'E.g. "720p,480p,worst"',
                                 initial_value=conf.check_config()[1],
                                 )
     if new_quality is None or len(new_quality) == 0:
