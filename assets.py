@@ -119,7 +119,32 @@ def default_entry(master, *args, **kwargs):
         **base_widget_attributes,
         **kwargs
     }
-    return tk.Entry(master, **widget_kwargs)
+    
+    entry = tk.Entry(master, **widget_kwargs)
+    
+    # Define context menu functions inside the default_entry function
+    def on_cut():
+        entry.event_generate("<<Cut>>")
+
+    def on_copy():
+        entry.event_generate("<<Copy>>")
+
+    def on_paste():
+        entry.event_generate("<<Paste>>")
+
+    def show_context_menu(event):
+        context_menu.tk_popup(event.x_root, event.y_root)
+
+    # Create a context menu
+    context_menu = tk.Menu(master, tearoff=0)
+    context_menu.add_command(label="Cut", command=on_cut)
+    context_menu.add_command(label="Copy", command=on_copy)
+    context_menu.add_command(label="Paste", command=on_paste)
+    
+    # Bind right-click to show context menu
+    entry.bind("<Button-3>", show_context_menu)
+    
+    return entry
 
 
 def scrollbar_presets(master):
