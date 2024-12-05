@@ -135,8 +135,14 @@ def default_entry(master, *args, **kwargs):
     def show_context_menu(event):
         context_menu.tk_popup(event.x_root, event.y_root)
 
-    # Create a context menu
-    context_menu = tk.Menu(master, tearoff=0)
+    # Create a context menu and apply the theme
+    context_menu = tk.Menu(master, tearoff=0,
+                            bg=theme['bg'],
+                            fg=theme['fg'],
+                            activebackground=theme['activebackground'],
+                            activeforeground=theme['fg'],
+                            relief='flat'
+                            )
     context_menu.add_command(label="Cut", command=on_cut)
     context_menu.add_command(label="Copy", command=on_copy)
     context_menu.add_command(label="Paste", command=on_paste)
@@ -208,7 +214,7 @@ properties = {
         'bg': '#FAFAFA',
         'fg': '#101010',
         'offline_fg': '#333333',
-        'activebackground': '#EAEAEA',
+        'activebackground': '#EFEFEF',
         'selectcolor': '#FAFAFA',
         'separator_bg1': '#E3E3E3',
         'separator_bg2': '#FFFFFF',
