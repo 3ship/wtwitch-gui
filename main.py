@@ -174,6 +174,15 @@ def stream_frame_content():
     last stream. Both have extra buttons for unfollowing, opening the streamer's
     Twitch page, and showing their VODs.'''
 
+    def copy_to_clipboard(streamer_name):
+        root.clipboard_clear()
+        root.clipboard_append(streamer_name)
+
+    def create_context_menu(info_button, streamer_name):
+        context_menu = tk.Menu(info_button, tearoff=0)
+        context_menu.add_command(label="Copy Streamer Name", command=lambda: copy_to_clipboard(streamer_name))
+        return context_menu
+
     global stream_info_visible, stream_info_content
     global weblink_visible, weblink_content
     global extra_buttons_visible, extra_buttons_content
@@ -209,6 +218,9 @@ def stream_frame_content():
         )
         info_button.grid(column=1, row=count_rows, sticky='nsew')
 
+        context_menu = create_context_menu(info_button, package[1])
+        info_button.bind("<Button-3>", lambda event, menu=context_menu: menu.tk_popup(event.x_root, event.y_root))
+
         if current_expand_setting in ['all', 'online']:
             watch_button.grid_configure(rowspan=2)
             info_button.config(state='disabled')
@@ -239,6 +251,9 @@ def stream_frame_content():
         )
 
         info_button.grid(column=1, row=count_rows, sticky='nsew')
+
+        context_menu = create_context_menu(info_button, stream)
+        info_button.bind("<Button-3>", lambda event, menu=context_menu: menu.tk_popup(event.x_root, event.y_root))
 
         if current_expand_setting == 'all':
             watch_button.grid_configure(rowspan=2)
