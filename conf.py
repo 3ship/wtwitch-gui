@@ -58,7 +58,7 @@ def adjust_config(setting, new_value):
     write_config(config)
 
 def follow_streamer(s):
-    new_entry = {'streamer': s}
+    new_entry = {'streamer': s.lower()}
     config = read_config()
     if new_entry not in config['subscriptions']:
         config['subscriptions'].append(new_entry)
